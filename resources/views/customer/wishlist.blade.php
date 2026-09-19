@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('customer.layouts.app')
 
 @section('title', 'المفضلة')
 

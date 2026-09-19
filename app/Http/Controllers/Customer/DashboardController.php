@@ -3,23 +3,33 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $customer = auth()->user();
+        $user = auth()->user();
 
         $stats = [
-            'orders' => $customer->orders()->count(),
-            'pending' => $customer->orders()->where('status', 'pending')->count(),
-            'delivered' => $customer->orders()->where('status', 'delivered')->count(),
-            'wishlist' => $customer->wishlists()->count(),
+            'orders' => $user->orders()->count(),
+            'pending' => $user->orders()->whereIn('status', ['pending', 'processing'])->count(),
+            'delivered' => $user->orders()->where('status', 'delivered')->count(),
+            'wishlist' => $user->wishlists()->count(),
+            'total_spent' => $user->orders()->where('payment_status', 'paid')->sum('total'),
         ];
 
-        $recentOrders = $customer->orders()->latest()->take(5)->get();
+        $recentOrders = $user->orders()
+            ->with('store')
+            ->latest()
+            ->take(5)
+            ->get();
 
-        return view('customer.dashboard', compact('stats', 'recentOrders'));
+        $recentWishlist = $user->wishlists()
+            ->with('product.primaryImage', 'product.store')
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('customer.dashboard', compact('user', 'stats', 'recentOrders', 'recentWishlist'));
     }
 }

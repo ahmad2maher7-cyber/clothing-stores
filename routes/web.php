@@ -18,6 +18,8 @@ use App\Http\Controllers\Merchant\InventoryController;
 use App\Http\Controllers\Merchant\CouponController;
 use App\Http\Controllers\Merchant\OfferController as MerchantOfferController;
 use App\Http\Controllers\Merchant\StoreSettingsController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -151,16 +153,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
-        Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
-        // Wishlist
-        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
-        Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-        Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+    // Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
 
-        // Orders (Placeholder - سننشئه قريباً)
-        Route::get('/orders', fn() => 'طلباتي - قريباً')->name('orders.index');
-    });
+    // Orders
+    Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Profile
+    Route::get('/profile', [CustomerProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Reviews (Placeholder)
+    Route::get('/reviews', fn() => 'تقييماتي - قريباً')->name('reviews.index');
+});
 });
 
 Route::middleware('auth')->group(function () {
