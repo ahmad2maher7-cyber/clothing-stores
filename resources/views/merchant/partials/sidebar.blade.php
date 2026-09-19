@@ -91,11 +91,11 @@
         </a>
 
         {{-- الإعدادات --}}
-        <a href="#"
-           class="flex items-center px-4 py-3 hover:bg-indigo-600 transition {{ request()->routeIs('merchant.settings.*') ? 'bg-indigo-600 border-r-4 border-yellow-400' : '' }}">
-            <span class="text-xl">⚙️</span>
-            <span x-show="sidebarOpen" class="mr-3 font-medium">الإعدادات</span>
-        </a>
+<a href="{{ route('merchant.settings.index') }}"
+   class="flex items-center px-4 py-3 hover:bg-indigo-600 transition {{ request()->routeIs('merchant.settings.*') ? 'bg-indigo-600 border-r-4 border-yellow-400' : '' }}">
+    <span class="text-xl">⚙️</span>
+    <span x-show="sidebarOpen" class="mr-3 font-medium">الإعدادات</span>
+</a>
     </nav>
 
     <!-- Footer - Store Info -->
