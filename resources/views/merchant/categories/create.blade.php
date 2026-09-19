@@ -1,0 +1,115 @@
+@extends('merchant.layouts.app')
+
+@section('title', 'إضافة تصنيف')
+@section('page-title', 'إضافة تصنيف جديد')
+
+@section('content')
+
+    {{-- Breadcrumb --}}
+    <nav class="mb-6 text-sm text-gray-500">
+        <a href="{{ route('merchant.dashboard') }}" class="hover:text-indigo-600">لوحة التحكم</a>
+        <span class="mx-2">›</span>
+        <a href="{{ route('merchant.categories.index') }}" class="hover:text-indigo-600">التصنيفات</a>
+        <span class="mx-2">›</span>
+        <span class="text-gray-800">إضافة جديد</span>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-800">معلومات التصنيف</h2>
+        </div>
+
+        <form action="{{ route('merchant.categories.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
+            @csrf
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {{-- الاسم --}}
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        اسم التصنيف <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                           class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                           placeholder="مثال: قمصان، فساتين، أحذية">
+                    @error('name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- التصنيف الأب --}}
+                <div>
+                    <label for="parent_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        التصنيف الأب (اختياري)
+                    </label>
+                    <select name="parent_id" id="parent_id"
+                            class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">— بدون تصنيف أب —</option>
+                        @foreach($parents as $parent)
+                            <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
+                                {{ $parent->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('parent_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- ترتيب العرض --}}
+                <div>
+                    <label for="sort_order" class="block text-sm font-medium text-gray-700 mb-2">
+                        ترتيب العرض
+                    </label>
+                    <input type="number" name="sort_order" id="sort_order" value="{{ old('sort_order', 0) }}"
+                           min="0"
+                           class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
+                    @error('sort_order')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- الصورة --}}
+                <div>
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                        صورة التصنيف
+                    </label>
+                    <input type="file" name="image" id="image" accept="image/*"
+                           class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
+                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, WEBP — أقل من 2MB</p>
+                    @error('image')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- الحالة --}}
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                        الحالة <span class="text-red-500">*</span>
+                    </label>
+                    <select name="status" id="status" required
+                            class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>✅ نشط</option>
+                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>⛔ معطل</option>
+                    </select>
+                    @error('status')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            {{-- Actions --}}
+            <div class="flex justify-end space-x-2 space-x-reverse mt-8 pt-6 border-t">
+                <a href="{{ route('merchant.categories.index') }}"
+                   class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg">
+                    إلغاء
+                </a>
+                <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
+                    💾 حفظ التصنيف
+                </button>
+            </div>
+        </form>
+    </div>
+
+@endsection
