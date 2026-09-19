@@ -77,11 +77,17 @@
 
         
         {{-- التقييمات --}}
-        <a href="#"
-           class="flex items-center px-4 py-3 hover:bg-indigo-600 transition {{ request()->routeIs('merchant.reviews.*') ? 'bg-indigo-600 border-r-4 border-yellow-400' : '' }}">
-            <span class="text-xl">⭐</span>
-            <span x-show="sidebarOpen" class="mr-3 font-medium">التقييمات</span>
-        </a>
+<a href="{{ route('merchant.reviews.index') }}"
+   class="flex items-center px-4 py-3 hover:bg-indigo-600 transition {{ request()->routeIs('merchant.reviews.*') ? 'bg-indigo-600 border-r-4 border-yellow-400' : '' }}">
+    <span class="text-xl">⭐</span>
+    <span x-show="sidebarOpen" class="mr-3 font-medium">التقييمات</span>
+    @php
+        $pendingReviews = auth()->user()->stores()->first()?->reviews()->where('status', 'pending')->count() ?? 0;
+    @endphp
+    @if($pendingReviews > 0)
+        <span x-show="sidebarOpen" class="mr-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">{{ $pendingReviews }}</span>
+    @endif
+</a>
 
         {{-- التقارير --}}
         <a href="#"

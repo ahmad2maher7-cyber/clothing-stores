@@ -21,6 +21,7 @@ use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\ReviewController as CustomerReviewController;
+use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -145,6 +146,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/shipping/{zone}', [StoreSettingsController::class, 'updateShipping'])->name('shipping.update');
             Route::delete('/shipping/{zone}', [StoreSettingsController::class, 'destroyShipping'])->name('shipping.destroy');
         });
+
+        // Reviews
+        Route::get('reviews', [MerchantReviewController::class, 'index'])->name('reviews.index');
+        Route::put('reviews/{review}/approve', [MerchantReviewController::class, 'approve'])->name('reviews.approve');
+        Route::put('reviews/{review}/reject', [MerchantReviewController::class, 'reject'])->name('reviews.reject');
+        Route::delete('reviews/{review}', [MerchantReviewController::class, 'destroy'])->name('reviews.destroy');
     });
 
     /*
