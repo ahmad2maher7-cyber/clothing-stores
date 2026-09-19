@@ -30,6 +30,7 @@
 
     @stack('styles')
 </head>
+
 <body class="bg-gray-50 antialiased">
 
     @include('partials.header')
@@ -57,5 +58,39 @@
     @include('partials.footer')
 
     @stack('scripts')
+    <script>
+function toggleWishlist(productId) {
+    @auth
+        fetch('{{ route('customer.wishlist.toggle') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ product_id: productId }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // عرض إشعار بسيط
+                const notif = document.createElement('div');
+                notif.textContent = data.message;
+                notif.className = 'fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg';
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 2000);
+                
+                // تحديث العداد في الهيدر
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(() => alert('حدث خطأ'));
+    @else
+        window.location.href = '{{ route('login') }}';
+    @endauth
+}
+</script>
 </body>
 </html>

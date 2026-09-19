@@ -4,6 +4,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\WishlistController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboard;
@@ -38,9 +41,27 @@ Route::get('/stores/{store}', [StoreController::class, 'show'])->name('stores.sh
 // Offers
 Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
 
-// Cart (Placeholder - سننشئه قريباً)
-Route::get('/cart', fn() => 'السلة - قريباً')->name('cart.index');
-Route::post('/cart/add', fn() => response()->json(['success' => false, 'message' => 'قيد التطوير']))->name('cart.add');
+/*
+|--------------------------------------------------------------------------
+| Cart, Checkout & Wishlist (تحتاج تسجيل دخول)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->group(function () {
+
+    // ========== Cart ==========
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+
+    // ========== Checkout ==========
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -132,8 +153,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
+        // Wishlist
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+        Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
+
+        // Orders (Placeholder - سننشئه قريباً)
         Route::get('/orders', fn() => 'طلباتي - قريباً')->name('orders.index');
-        Route::get('/wishlist', fn() => 'المفضلة - قريباً')->name('wishlist');
     });
 });
 

@@ -75,7 +75,7 @@
                             @php
                                 $cart = auth()->user()->carts()->latest()->first();
                                 $cartCount = $cart ? $cart->items()->sum('quantity') : 0;
-                            @endphp
+                                @endphp
                             @if($cartCount > 0)
                                 <span class="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                                     {{ $cartCount }}
