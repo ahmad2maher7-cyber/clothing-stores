@@ -38,12 +38,12 @@
             </a>
 
             {{-- Reviews --}}
-            <a href="#"
-               class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-                      {{ request()->routeIs('customer.reviews.*') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                <span class="text-lg ml-2">⭐</span>
-                <span>تقييماتي</span>
-            </a>
+<a href="{{ route('customer.reviews.index') }}"
+   class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
+          {{ request()->routeIs('customer.reviews.*') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
+    <span class="text-lg ml-2">⭐</span>
+    <span>تقييماتي</span>
+</a>
 
             {{-- Profile --}}
             <a href="{{ route('customer.profile') }}"

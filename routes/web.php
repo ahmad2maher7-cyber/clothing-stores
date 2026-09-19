@@ -20,7 +20,7 @@ use App\Http\Controllers\Merchant\OfferController as MerchantOfferController;
 use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
-
+use App\Http\Controllers\Customer\ReviewController as CustomerReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -172,6 +172,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Reviews (Placeholder)
     Route::get('/reviews', fn() => 'تقييماتي - قريباً')->name('reviews.index');
+
+    Route::get('/reviews', [CustomerReviewController::class, 'index'])->name('reviews.index');
+Route::get('/orders/{order}/review', [CustomerReviewController::class, 'create'])->name('reviews.create');
+Route::post('/orders/{order}/review', [CustomerReviewController::class, 'store'])->name('reviews.store');
+Route::delete('/reviews/{review}', [CustomerReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 });
 

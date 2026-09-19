@@ -203,6 +203,14 @@
                     </form>
                 @endif
 
+                {{-- Review Button --}}
+@if($order->status === 'delivered')
+    <a href="{{ route('customer.reviews.create', $order) }}"
+       class="block text-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg font-medium transition">
+        ⭐ قيّم الطلب
+    </a>
+@endif
+
                 {{-- Contact Store --}}
                 <a href="{{ route('stores.show', $order->store) }}"
                    class="block text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg">
