@@ -163,4 +163,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', function () {
+        return view('profile.edit');
+    })->name('profile.edit');
+});
+
 require __DIR__.'/auth.php';
