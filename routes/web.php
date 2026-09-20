@@ -22,6 +22,9 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Customer\ProfileController as CustomerProfileController;
 use App\Http\Controllers\Customer\ReviewController as CustomerReviewController;
 use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\StoreController as AdminStoreController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -88,8 +91,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-    });
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+
+    // Users
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+    Route::put('users/{user}/toggle', [AdminUserController::class, 'toggleStatus'])->name('users.toggle');
+    Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    // Stores
+    Route::get('stores', [AdminStoreController::class, 'index'])->name('stores.index');
+    Route::get('stores/{store}', [AdminStoreController::class, 'show'])->name('stores.show');
+    Route::put('stores/{store}/approve', [AdminStoreController::class, 'approve'])->name('stores.approve');
+    Route::put('stores/{store}/suspend', [AdminStoreController::class, 'suspend'])->name('stores.suspend');
+    Route::delete('stores/{store}', [AdminStoreController::class, 'destroy'])->name('stores.destroy');
+
+    // Orders
+    Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+});
 
     /*
     |--------------------------------------------------------------------------
