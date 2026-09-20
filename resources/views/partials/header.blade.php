@@ -93,7 +93,7 @@
                             <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
                                 {{ mb_substr(auth()->user()->full_name, 0, 1) }}
                             </div>
-                            <span class="hidden md:block text-sm">{{ explode(' ', auth()->user()->full_name)[0] }}</span>
+                           <span class="hidden md:block text-sm">{{ explode(' ', auth()->user()->full_name)[0] }}</span>
                             <span class="text-xs">▼</span>
                         </button>
 

@@ -104,16 +104,32 @@
 </a>
     </nav>
 
-    <!-- Footer - Store Info -->
-    <div class="border-t border-indigo-600 p-4">
-        <div class="flex items-center space-x-2 space-x-reverse">
-            <div class="w-10 h-10 rounded-full bg-yellow-400 text-indigo-900 flex items-center justify-center font-bold">
-                {{ mb_substr($store->name ?? 'م', 0, 1) }}
-            </div>
-            <div x-show="sidebarOpen" class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate">{{ $store->name ?? 'متجري' }}</p>
-                <p class="text-xs text-indigo-300 truncate">الحالة: {{ $store->status === 'active' ? 'نشط ✅' : 'موقوف ⛔' }}</p>
-            </div>
+   <!-- Footer - Store Info -->
+<div class="border-t border-indigo-600 p-4">
+    @php
+        $sidebarStore = auth()->user()->stores()->first();
+    @endphp
+
+    <div class="flex items-center space-x-2 space-x-reverse">
+        <div class="w-10 h-10 rounded-full bg-yellow-400 text-indigo-900 flex items-center justify-center font-bold">
+            {{ $sidebarStore ? mb_substr($sidebarStore->name, 0, 1) : 'م' }}
+        </div>
+        <div x-show="sidebarOpen" class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">
+                {{ $sidebarStore->name ?? 'متجري' }}
+            </p>
+            <p class="text-xs text-indigo-300 truncate">
+                @if(!$sidebarStore)
+                    لم يُنشأ بعد
+                @elseif($sidebarStore->status === 'active')
+                    الحالة: نشط ✅
+                @elseif($sidebarStore->status === 'pending')
+                    الحالة: قيد المراجعة ⏳
+                @else
+                    الحالة: موقوف ⛔
+                @endif
+            </p>
         </div>
     </div>
+</div>
 </aside>

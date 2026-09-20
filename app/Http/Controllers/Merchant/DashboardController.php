@@ -3,21 +3,25 @@
 namespace App\Http\Controllers\Merchant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\Store;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $store = auth()->user()->stores()->first();
+        $user = auth()->user();
+        $store = $user->stores()->first();
 
+        // لا يوجد متجر → صفحة إنشاء
         if (!$store) {
-            return redirect()->route('merchant.store.create')
-                ->with('error', 'يجب إنشاء متجر أولاً');
+            return redirect()->route('merchant.store.create');
         }
 
+        // المتجر غير معتمد → صفحة الانتظار
+        if ($store->status !== 'active') {
+            return redirect()->route('merchant.store.pending');
+        }
+
+        // المتجر نشط → لوحة التحكم
         $stats = [
             'products' => $store->products()->count(),
             'orders' => $store->orders()->count(),

@@ -32,15 +32,15 @@
             </div>
 
             {{-- Customer Service --}}
-            <div>
-                <h4 class="text-white font-bold mb-4">خدمة العملاء</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-indigo-400 transition">تواصل معنا</a></li>
-                    <li><a href="#" class="hover:text-indigo-400 transition">سياسة الاستبدال</a></li>
-                    <li><a href="#" class="hover:text-indigo-400 transition">سياسة الخصوصية</a></li>
-                    <li><a href="#" class="hover:text-indigo-400 transition">الأسئلة الشائعة</a></li>
-                </ul>
-            </div>
+<div>
+    <h4 class="text-white font-bold mb-4">روابط مهمة</h4>
+    <ul class="space-y-2 text-sm">
+        <li><a href="{{ route('pages.about') }}" class="hover:text-indigo-400 transition">من نحن</a></li>
+        <li><a href="{{ route('pages.contact') }}" class="hover:text-indigo-400 transition">تواصل معنا</a></li>
+        <li><a href="{{ route('pages.faq') }}" class="hover:text-indigo-400 transition">الأسئلة الشائعة</a></li>
+        <li><a href="{{ route('products.index') }}" class="hover:text-indigo-400 transition">كل المنتجات</a></li>
+    </ul>
+</div>
 
             {{-- Contact --}}
             <div>
