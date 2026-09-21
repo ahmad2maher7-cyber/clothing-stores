@@ -264,4 +264,38 @@ class StoreSettingsController extends Controller
             ->route('merchant.settings.shipping')
             ->with('success', 'تم حذف منطقة الشحن بنجاح');
     }
+
+    /**
+ * صفحة الهوية البصرية
+ */
+public function appearance()
+{
+    $store = $this->getStore();
+    return view('merchant.settings.appearance', compact('store'));
+}
+
+/**
+ * تحديث الألوان
+ */
+public function updateAppearance(Request $request)
+{
+    $store = $this->getStore();
+
+    $validated = $request->validate([
+        'primary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+        'secondary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+        'accent_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+        'theme_mode' => 'required|in:light,dark',
+    ], [
+        'primary_color.regex' => 'اللون الأساسي غير صالح',
+        'secondary_color.regex' => 'اللون الثانوي غير صالح',
+        'accent_color.regex' => 'لون التمييز غير صالح',
+    ]);
+
+    $store->update($validated);
+
+    return redirect()
+        ->route('merchant.settings.appearance')
+        ->with('success', 'تم تحديث الهوية البصرية بنجاح');
+}
 }

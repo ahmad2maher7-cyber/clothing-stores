@@ -102,4 +102,5 @@ class StoreController extends Controller
 
         return view('merchant.store.pending', compact('store'));
     }
+    
 }

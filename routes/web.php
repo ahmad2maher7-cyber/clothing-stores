@@ -182,6 +182,9 @@ Route::middleware('role:merchant')->prefix('merchant')->name('merchant.')->group
             Route::get('/', [StoreSettingsController::class, 'index'])->name('index');
             Route::put('/', [StoreSettingsController::class, 'update'])->name('update');
 
+            Route::get('/appearance', [StoreSettingsController::class, 'appearance'])->name('appearance');
+    Route::put('/appearance', [StoreSettingsController::class, 'updateAppearance'])->name('appearance.update');
+
             Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
             Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
 

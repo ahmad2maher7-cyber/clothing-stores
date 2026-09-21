@@ -10,7 +10,7 @@
     <link href="https://fonts.bunny.net/css?family=cairo:400,500,600,700,800&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    @include('partials.color-variables')
     <style>
         body { font-family: 'Cairo', sans-serif; }
         [x-cloak] { display: none !important; }

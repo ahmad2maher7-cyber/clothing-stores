@@ -2,16 +2,16 @@
         class="bg-white shadow-sm sticky top-0 z-40">
 
     {{-- Top Bar --}}
-    <div class="bg-indigo-700 text-white text-xs py-2">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <span>🚚 توصيل مجاني للطلبات فوق 200 ₪</span>
-            <div class="hidden md:flex items-center space-x-4 space-x-reverse">
-                <a href="#" class="hover:text-yellow-300">📞 تواصل معنا</a>
-                <span>|</span>
-                <a href="#" class="hover:text-yellow-300">💰 كن تاجراً</a>
-            </div>
+<div class="text-white text-xs py-2" style="background-color: var(--primary);">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <span>🚚 توصيل مجاني للطلبات فوق 200 ₪</span>
+        <div class="hidden md:flex items-center space-x-4 space-x-reverse">
+            <a href="#" class="hover:text-yellow-300">📞 تواصل معنا</a>
+            <span>|</span>
+            <a href="#" class="hover:text-yellow-300">💰 كن تاجراً</a>
         </div>
     </div>
+</div>
 
     {{-- Main Header --}}
     <div class="max-w-7xl mx-auto px-4 py-4">
@@ -19,24 +19,26 @@
 
             {{-- Logo --}}
             <a href="{{ route('home') }}" class="flex items-center space-x-2 space-x-reverse shrink-0">
-                <span class="text-3xl">👕</span>
-                <div class="hidden sm:block">
-                    <h1 class="text-xl font-bold text-indigo-700">متجر الملابس</h1>
-                    <p class="text-xs text-gray-500">أفضل الأزياء بأفضل الأسعار</p>
-                </div>
-            </a>
+    <span class="text-3xl">👕</span>
+    <div class="hidden sm:block">
+        <h1 class="text-xl font-bold" style="color: var(--primary);">متجر الملابس</h1>
+        <p class="text-xs text-gray-500">أفضل الأزياء بأفضل الأسعار</p>
+    </div>
+</a>
 
             {{-- Search (Desktop) --}}
             <div class="hidden md:flex flex-1 max-w-xl">
                 <form action="{{ route('products.search') }}" method="GET" class="w-full flex">
-                    <input type="text" name="q" value="{{ request('q') }}"
-                           placeholder="ابحث عن ملابس، ماركات، متاجر..."
-                           class="flex-1 border-2 border-indigo-500 rounded-r-lg px-4 py-2 focus:outline-none focus:border-indigo-700">
-                    <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-l-lg transition">
-                        🔍
-                    </button>
-                </form>
+    <input type="text" name="q" value="{{ request('q') }}"
+           placeholder="ابحث عن ملابس، ماركات، متاجر..."
+           class="flex-1 border-2 rounded-r-lg px-4 py-2 focus:outline-none"
+           style="border-color: var(--primary);">
+    <button type="submit"
+            class="text-white px-6 rounded-l-lg transition"
+            style="background-color: var(--primary);">
+        🔍
+    </button>
+</form>
             </div>
 
             {{-- Actions --}}
@@ -146,9 +148,10 @@
                         دخول
                     </a>
                     <a href="{{ route('register') }}"
-                       class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                        إنشاء حساب
-                    </a>
+   class="text-white px-4 py-2 rounded-lg text-sm font-medium"
+   style="background-color: var(--primary);">
+    إنشاء حساب
+</a>
                 @endauth
 
                 {{-- Mobile Menu Button --}}
