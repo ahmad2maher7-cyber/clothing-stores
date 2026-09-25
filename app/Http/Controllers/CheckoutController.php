@@ -89,10 +89,10 @@ class CheckoutController extends Controller
                 // تطبيق الكوبون (إن وُجد)
                 $discount = 0;
                 $couponId = null;
-                if ($validated['coupon_code']) {
-                    $coupon = Coupon::where('store_id', $storeId)
-                        ->where('code', strtoupper($validated['coupon_code']))
-                        ->first();
+               if (!empty($validated['coupon_code'])) {
+    $coupon = Coupon::where('store_id', $storeId)
+        ->where('code', strtoupper($validated['coupon_code']))
+        ->first();
 
                     if ($coupon && $coupon->isValid() && $subtotal >= ($coupon->min_order_amount ?? 0)) {
                         if ($coupon->type === 'percentage') {

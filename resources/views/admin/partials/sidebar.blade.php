@@ -48,11 +48,18 @@
         </a>
 
         {{-- Products --}}
-        <a href="#"
-           class="flex items-center px-4 py-3 hover:bg-gray-700 transition">
-            <span class="text-xl">👕</span>
-            <span x-show="sidebarOpen" class="mr-3 font-medium">المنتجات</span>
-        </a>
+<a href="#"
+   class="flex items-center px-4 py-3 hover:bg-gray-700 transition">
+    <span class="text-xl">👕</span>
+    <span x-show="sidebarOpen" class="mr-3 font-medium">المنتجات</span>
+</a>
+
+{{-- Brands --}}
+<a href="{{ route('admin.brands.index') }}"
+   class="flex items-center px-4 py-3 hover:bg-gray-700 transition {{ request()->routeIs('admin.brands.*') ? 'bg-gray-700 border-r-4 border-yellow-400' : '' }}">
+    <span class="text-xl">🏷️</span>
+    <span x-show="sidebarOpen" class="mr-3 font-medium">الماركات</span>
+</a>
 
         {{-- Reviews --}}
         <a href="#"

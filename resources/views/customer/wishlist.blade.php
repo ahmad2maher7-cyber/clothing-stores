@@ -1,48 +1,45 @@
-@extends('customer.layouts.app')
+@extends('layouts.public')
 
 @section('title', 'المفضلة')
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-[1400px] mx-auto px-4 py-6">
 
-        <nav class="mb-6 text-sm text-gray-500">
-            <a href="{{ route('home') }}" class="hover:text-indigo-600">الرئيسية</a>
-            <span class="mx-2">›</span>
-            <span class="text-gray-800">المفضلة</span>
+        <nav class="flex items-center gap-2 text-[12px] mb-5" style="color: var(--text-tertiary);">
+            <a href="{{ route('customer.dashboard') }}" class="transition hover:text-[color:var(--gold)]">حسابي</a>
+            <span>/</span>
+            <span style="color: var(--text-primary);">المفضلة</span>
         </nav>
 
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-1">❤️ قائمة المفضلة</h1>
-            <p class="text-gray-500">{{ $wishlists->count() }} منتج</p>
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold mb-1" style="color: var(--text-primary);">
+                ❤️ قائمة المفضلة
+            </h1>
+            <p class="text-[13px]" style="color: var(--text-secondary);">
+                {{ $wishlists->count() }} منتج في المفضلة
+            </p>
         </div>
 
         @if($wishlists->count() > 0)
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                 @foreach($wishlists as $wishlist)
-                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition group relative">
-                        {{-- Remove Button --}}
-                        <form action="{{ route('customer.wishlist.remove', $wishlist) }}" method="POST"
-                              class="absolute top-2 left-2 z-10">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="w-9 h-9 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition text-red-500">
-                                ✖️
-                            </button>
-                        </form>
-
+                    @if($wishlist->product)
                         @include('partials.product-card', ['product' => $wishlist->product])
-                    </div>
+                    @endif
                 @endforeach
             </div>
         @else
-            <div class="bg-white rounded-lg shadow text-center py-16">
+            <div class="rounded-xl border p-14 text-center max-w-lg mx-auto"
+                 style="background-color: var(--bg-primary); border-color: var(--border-light);">
                 <div class="text-7xl mb-4">💔</div>
-                <h3 class="text-xl font-medium text-gray-900 mb-2">المفضلة فارغة</h3>
-                <p class="text-gray-500 mb-6">أضف منتجات تحبها لترجع إليها لاحقاً</p>
+                <h2 class="text-xl font-bold mb-2" style="color: var(--text-primary);">المفضلة فارغة</h2>
+                <p class="text-[13px] mb-6" style="color: var(--text-secondary);">
+                    أضف منتجات تحبها لترجع إليها لاحقاً
+                </p>
                 <a href="{{ route('products.index') }}"
-                   class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold">
+                   class="inline-flex items-center gap-2 h-11 px-6 rounded-lg font-bold text-white text-[13px] transition hover:opacity-90"
+                   style="background-color: var(--gold);">
                     🛍️ تسوق الآن
                 </a>
             </div>

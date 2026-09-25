@@ -1,80 +1,97 @@
-@extends('customer.layouts.app')
+@extends('layouts.public')
 
 @section('title', 'تفاصيل الطلب ' . $order->order_number)
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-[1000px] mx-auto px-4 py-6">
 
         {{-- Breadcrumb --}}
-        <nav class="mb-6 text-sm text-gray-500">
-            <a href="{{ route('customer.orders.index') }}" class="hover:text-indigo-600">طلباتي</a>
-            <span class="mx-2">›</span>
-            <span class="text-gray-800 font-mono">{{ $order->order_number }}</span>
+        <nav class="flex items-center gap-2 text-[12px] mb-5" style="color: var(--text-tertiary);">
+            <a href="{{ route('customer.orders.index') }}" class="transition hover:text-[color:var(--gold)]">طلباتي</a>
+            <span>/</span>
+            <span class="font-mono" style="color: var(--text-primary);">{{ $order->order_number }}</span>
         </nav>
 
-        {{-- Status Header --}}
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            @php
-                $statusConfig = [
-                    'pending' => ['⏳ قيد المراجعة', 'bg-yellow-50 border-yellow-300 text-yellow-800', 'سنتواصل معك لتأكيد الطلب'],
-                    'processing' => ['⚙️ جاري التجهيز', 'bg-blue-50 border-blue-300 text-blue-800', 'يتم تجهيز طلبك الآن'],
-                    'shipped' => ['🚚 تم الشحن', 'bg-purple-50 border-purple-300 text-purple-800', 'طلبك في الطريق إليك'],
-                    'delivering' => ['📍 جاري التوصيل', 'bg-orange-50 border-orange-300 text-orange-800', 'سيتصل بك المندوب قريباً'],
-                    'delivered' => ['✅ تم التسليم', 'bg-green-50 border-green-300 text-green-800', 'نتمنى أن تكون راضياً عن طلبك'],
-                    'cancelled' => ['❌ ملغى', 'bg-red-50 border-red-300 text-red-800', 'تم إلغاء الطلب'],
-                    'returned' => ['↩️ مُرجع', 'bg-gray-50 border-gray-300 text-gray-800', 'تم إرجاع الطلب'],
-                ];
-                [$label, $classes, $desc] = $statusConfig[$order->status] ?? ['غير معروف', '', ''];
-            @endphp
+        @php
+            $statusConfig = [
+                'pending' => ['⏳ قيد المراجعة', 'سنتواصل معك لتأكيد الطلب', '#fef3c7', '#92400e'],
+                'processing' => ['⚙️ جاري التجهيز', 'يتم تجهيز طلبك الآن', '#dbeafe', '#1e40af'],
+                'shipped' => ['🚚 تم الشحن', 'طلبك في الطريق إليك', '#ede9fe', '#6d28d9'],
+                'delivering' => ['📍 جاري التوصيل', 'سيتصل بك المندوب قريباً', '#fed7aa', '#9a3412'],
+                'delivered' => ['✅ تم التسليم', 'نتمنى أن تكون راضياً', '#d1fae5', '#065f46'],
+                'cancelled' => ['❌ ملغى', 'تم إلغاء الطلب', '#fee2e2', '#991b1b'],
+            ];
+            [$statusLabel, $statusDesc, $statusBg, $statusColor] = $statusConfig[$order->status] ?? ['غير معروف', '', '#f3f4f6', '#374151'];
+        @endphp
 
-            <div class="{{ $classes }} border-2 rounded-lg p-6 text-center">
-                <div class="text-5xl mb-3">
-                    @switch($order->status)
-                        @case('pending') ⏳ @break
-                        @case('processing') ⚙️ @break
-                        @case('shipped') 🚚 @break
-                        @case('delivering') 📍 @break
-                        @case('delivered') ✅ @break
-                        @case('cancelled') ❌ @break
-                        @default 📦
-                    @endswitch
-                </div>
-                <h2 class="text-2xl font-bold mb-2">{{ $label }}</h2>
-                <p class="text-sm">{{ $desc }}</p>
+        {{-- Status Header --}}
+        <div class="rounded-xl border-2 p-6 md:p-8 mb-5 text-center"
+             style="background-color: {{ $statusBg }}; border-color: {{ $statusColor }};">
+            <div class="text-5xl mb-3">
+                @switch($order->status)
+                    @case('pending') ⏳ @break
+                    @case('processing') ⚙️ @break
+                    @case('shipped') 🚚 @break
+                    @case('delivering') 📍 @break
+                    @case('delivered') ✅ @break
+                    @case('cancelled') ❌ @break
+                    @default 📦
+                @endswitch
             </div>
+            <h2 class="text-xl md:text-2xl font-bold mb-1" style="color: {{ $statusColor }};">
+                {{ $statusLabel }}
+            </h2>
+            <p class="text-[13px]" style="color: {{ $statusColor }};">{{ $statusDesc }}</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
             {{-- Main Content --}}
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-5">
 
                 {{-- Items --}}
-                <div class="bg-white rounded-lg shadow">
-                    <div class="p-5 border-b">
-                        <h3 class="font-bold text-lg">🛍️ المنتجات ({{ $order->items->count() }})</h3>
+                <div class="rounded-xl border overflow-hidden"
+                     style="background-color: var(--bg-primary); border-color: var(--border-light);">
+                    <div class="px-5 py-4 border-b" style="border-color: var(--border-light);">
+                        <h3 class="text-[14px] font-bold" style="color: var(--text-primary);">
+                            🛍️ المنتجات ({{ $order->items->count() }})
+                        </h3>
                     </div>
-                    <div class="divide-y">
+                    <div class="divide-y" style="border-color: var(--border-light);">
                         @foreach($order->items as $item)
                             <div class="p-4 flex items-center gap-4">
-                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">
-                                    👕
+                                <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 border"
+                                     style="background-color: var(--bg-tertiary); border-color: var(--border-light);">
+                                    @if($item->variant->product->primaryImage)
+                                        <img src="{{ asset('storage/' . $item->variant->product->primaryImage->image_url) }}"
+                                             class="w-full h-full object-cover" alt="">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-3xl">👕</div>
+                                    @endif
                                 </div>
-                                <div class="flex-1">
-                                    <p class="font-medium">{{ $item->product_name }}</p>
-                                    <p class="text-xs text-gray-500">
-                                        المقاس: <span class="bg-indigo-100 px-2 rounded">{{ $item->size }}</span>
-                                        | اللون: {{ $item->color }}
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[13px] font-medium mb-1" style="color: var(--text-primary);">
+                                        {{ $item->product_name }}
                                     </p>
+                                    <div class="flex flex-wrap gap-2 text-[11px]">
+                                        <span class="px-2 py-0.5 rounded"
+                                              style="background-color: var(--gold-soft); color: var(--gold);">
+                                            مقاس: {{ $item->size }}
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded"
+                                              style="background-color: var(--bg-tertiary); color: var(--text-secondary);">
+                                            لون: {{ $item->color }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="text-center text-sm">
-                                    <p class="text-gray-500 text-xs">الكمية</p>
-                                    <p class="font-medium">× {{ $item->quantity }}</p>
-                                </div>
-                                <div class="text-left">
-                                    <p class="text-xs text-gray-500">الإجمالي</p>
-                                    <p class="font-bold text-indigo-600">{{ number_format($item->total_price, 0) }} ₪</p>
+                                <div class="text-left shrink-0">
+                                    <p class="text-[11px]" style="color: var(--text-tertiary);">
+                                        × {{ $item->quantity }}
+                                    </p>
+                                    <p class="text-[15px] font-bold" style="color: var(--gold);">
+                                        {{ number_format($item->total_price, 0) }} ₪
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
@@ -83,36 +100,40 @@
 
                 {{-- Timeline --}}
                 @if($order->statusHistory->count() > 0)
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="font-bold text-lg mb-4">📜 سجل الطلب</h3>
-
+                    <div class="rounded-xl border p-5"
+                         style="background-color: var(--bg-primary); border-color: var(--border-light);">
+                        <h3 class="text-[14px] font-bold mb-4" style="color: var(--text-primary);">
+                            📜 سجل الطلب
+                        </h3>
                         <div class="space-y-4">
                             @foreach($order->statusHistory->sortBy('created_at') as $history)
                                 @php
-                                    $histLabels = [
+                                    $historyLabels = [
                                         'pending' => '⏳ قيد المراجعة',
                                         'processing' => '⚙️ جاري التجهيز',
                                         'shipped' => '🚚 تم الشحن',
                                         'delivering' => '📍 جاري التوصيل',
                                         'delivered' => '✅ تم التسليم',
                                         'cancelled' => '❌ ملغى',
-                                        'returned' => '↩️ مُرجع',
                                     ];
                                 @endphp
-
-                                <div class="flex gap-4">
-                                    <div class="flex flex-col items-center">
-                                        <div class="w-3 h-3 rounded-full bg-indigo-500 mt-1"></div>
+                                <div class="flex gap-3">
+                                    <div class="flex flex-col items-center shrink-0">
+                                        <div class="w-3 h-3 rounded-full mt-1" style="background-color: var(--gold);"></div>
                                         @if(!$loop->last)
-                                            <div class="w-0.5 h-full bg-gray-200 my-1"></div>
+                                            <div class="w-0.5 flex-1 my-1" style="background-color: var(--border-light);"></div>
                                         @endif
                                     </div>
-                                    <div class="flex-1 pb-4">
-                                        <p class="font-medium">{{ $histLabels[$history->status] ?? $history->status }}</p>
+                                    <div class="flex-1 pb-3">
+                                        <p class="text-[13px] font-semibold" style="color: var(--text-primary);">
+                                            {{ $historyLabels[$history->status] ?? $history->status }}
+                                        </p>
                                         @if($history->note)
-                                            <p class="text-sm text-gray-600 mt-1">{{ $history->note }}</p>
+                                            <p class="text-[12px] mt-1" style="color: var(--text-secondary);">
+                                                {{ $history->note }}
+                                            </p>
                                         @endif
-                                        <p class="text-xs text-gray-400 mt-1">
+                                        <p class="text-[11px] mt-1" style="color: var(--text-tertiary);">
                                             {{ $history->created_at->format('Y/m/d - H:i') }}
                                         </p>
                                     </div>
@@ -124,98 +145,106 @@
             </div>
 
             {{-- Sidebar --}}
-            <div class="space-y-6">
+            <div class="lg:col-span-1 space-y-4">
 
                 {{-- Order Info --}}
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="font-bold text-gray-800 mb-4">📋 تفاصيل الطلب</h3>
-
-                    <div class="space-y-3 text-sm">
+                <div class="rounded-xl border p-5"
+                     style="background-color: var(--bg-primary); border-color: var(--border-light);">
+                    <h3 class="text-[14px] font-bold mb-4" style="color: var(--text-primary);">
+                        📋 تفاصيل الطلب
+                    </h3>
+                    <div class="space-y-3 text-[13px]">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">رقم الطلب:</span>
-                            <span class="font-mono font-medium">{{ $order->order_number }}</span>
+                            <span style="color: var(--text-secondary);">رقم الطلب:</span>
+                            <span class="font-mono font-medium" style="color: var(--text-primary);">
+                                {{ $order->order_number }}
+                            </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">التاريخ:</span>
-                            <span>{{ $order->created_at->format('Y/m/d') }}</span>
+                            <span style="color: var(--text-secondary);">التاريخ:</span>
+                            <span style="color: var(--text-primary);">
+                                {{ $order->created_at->format('Y/m/d') }}
+                            </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">المتجر:</span>
-                            <a href="{{ route('stores.show', $order->store) }}" class="text-indigo-600 hover:underline">
+                            <span style="color: var(--text-secondary);">المتجر:</span>
+                            <a href="{{ route('stores.show', $order->store) }}"
+                               class="transition hover:text-[color:var(--gold)]"
+                               style="color: var(--gold);">
                                 {{ $order->store->name }}
                             </a>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">طريقة الدفع:</span>
-                            <span>{{ $order->paymentMethod?->name ?? '—' }}</span>
+                            <span style="color: var(--text-secondary);">طريقة الدفع:</span>
+                            <span style="color: var(--text-primary);">
+                                {{ $order->paymentMethod?->name ?? '—' }}
+                            </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">حالة الدفع:</span>
+                            <span style="color: var(--text-secondary);">حالة الدفع:</span>
                             @if($order->payment_status === 'paid')
-                                <span class="text-green-600 font-medium">✅ مدفوع</span>
+                                <span style="color: #166534;">✅ مدفوع</span>
                             @else
-                                <span class="text-yellow-600 font-medium">⏳ غير مدفوع</span>
+                                <span style="color: #d97706;">⏳ غير مدفوع</span>
                             @endif
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t">
-                        <p class="text-xs text-gray-500 mb-1">عنوان التوصيل</p>
-                        <p class="text-sm">{{ $order->shipping_address }}</p>
+                    <div class="mt-4 pt-4 border-t" style="border-color: var(--border-light);">
+                        <p class="text-[11px] mb-1" style="color: var(--text-tertiary);">عنوان التوصيل</p>
+                        <p class="text-[12px]" style="color: var(--text-primary);">
+                            {{ $order->shipping_address }}
+                        </p>
                     </div>
                 </div>
 
                 {{-- Summary --}}
-                <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="font-bold text-gray-800 mb-4">💰 ملخص الفاتورة</h3>
-
-                    <div class="space-y-2 text-sm">
+                <div class="rounded-xl border p-5"
+                     style="background-color: var(--bg-primary); border-color: var(--border-light);">
+                    <h3 class="text-[14px] font-bold mb-4" style="color: var(--text-primary);">
+                        💰 ملخص الفاتورة
+                    </h3>
+                    <div class="space-y-2 text-[13px]">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">المجموع الفرعي:</span>
-                            <span>{{ number_format($order->subtotal, 2) }} ₪</span>
+                            <span style="color: var(--text-secondary);">المجموع الفرعي:</span>
+                            <span style="color: var(--text-primary);">
+                                {{ number_format($order->subtotal, 0) }} ₪
+                            </span>
                         </div>
                         @if($order->discount > 0)
-                            <div class="flex justify-between text-green-600">
+                            <div class="flex justify-between" style="color: #166534;">
                                 <span>الخصم:</span>
-                                <span>- {{ number_format($order->discount, 2) }} ₪</span>
+                                <span>- {{ number_format($order->discount, 0) }} ₪</span>
                             </div>
                         @endif
                         <div class="flex justify-between">
-                            <span class="text-gray-600">الشحن:</span>
-                            <span>{{ number_format($order->shipping_cost, 2) }} ₪</span>
+                            <span style="color: var(--text-secondary);">الشحن:</span>
+                            <span style="color: var(--text-primary);">
+                                {{ number_format($order->shipping_cost, 0) }} ₪
+                            </span>
                         </div>
-                        <div class="flex justify-between pt-3 border-t text-lg">
-                            <span class="font-bold">الإجمالي:</span>
-                            <span class="font-bold text-indigo-600">{{ number_format($order->total, 0) }} ₪</span>
+                        <div class="flex justify-between items-center pt-3 border-t"
+                             style="border-color: var(--border-light);">
+                            <span class="text-[14px] font-bold" style="color: var(--text-primary);">الإجمالي:</span>
+                            <span class="text-xl font-bold" style="color: var(--gold);">
+                                {{ number_format($order->total, 0) }} ₪
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {{-- Cancel Order --}}
+                {{-- Cancel --}}
                 @if($order->status === 'pending')
                     <form action="{{ route('customer.orders.cancel', $order) }}" method="POST">
                         @csrf
                         <button type="submit"
                                 onclick="return confirm('هل أنت متأكد من إلغاء الطلب؟')"
-                                class="w-full bg-red-50 hover:bg-red-100 text-red-600 border-2 border-red-200 py-3 rounded-lg font-medium transition">
+                                class="w-full h-11 rounded-lg font-semibold text-[13px] border-2 transition"
+                                style="background-color: #fef2f2; color: #dc2626; border-color: #fecaca;">
                             ❌ إلغاء الطلب
                         </button>
                     </form>
                 @endif
-
-                {{-- Review Button --}}
-@if($order->status === 'delivered')
-    <a href="{{ route('customer.reviews.create', $order) }}"
-       class="block text-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg font-medium transition">
-        ⭐ قيّم الطلب
-    </a>
-@endif
-
-                {{-- Contact Store --}}
-                <a href="{{ route('stores.show', $order->store) }}"
-                   class="block text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg">
-                    💬 التواصل مع المتجر
-                </a>
             </div>
         </div>
     </div>

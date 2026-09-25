@@ -1,20 +1,22 @@
-<div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition group">
+<div class="bg-white border border-gray-200 hover:border-gray-400 rounded-lg overflow-hidden transition group">
 
     {{-- Image --}}
     <a href="{{ route('products.show', $product->slug) }}" class="block relative">
-        <div class="h-56 bg-gray-100 overflow-hidden">
+        <div class="aspect-square bg-gray-50 overflow-hidden">
             @if($product->primaryImage)
                 <img src="{{ asset('storage/' . $product->primaryImage->image_url) }}"
                      class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                      alt="{{ $product->name }}">
             @else
-                <div class="w-full h-full flex items-center justify-center text-5xl">👕</div>
+                <div class="w-full h-full flex items-center justify-center text-5xl">
+                    👕
+                </div>
             @endif
         </div>
 
         {{-- Discount Badge --}}
         @if($product->discount_price)
-            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <span class="absolute top-3 right-3 bg-gray-900 text-white text-xs font-medium px-2.5 py-1 rounded-md">
                 -{{ round((1 - $product->discount_price / $product->base_price) * 100) }}%
             </span>
         @endif
@@ -23,7 +25,7 @@
         @auth
             @if(auth()->user()->role === 'customer')
                 <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }})"
-                        class="absolute top-2 left-2 w-9 h-9 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition z-10">
+                        class="absolute top-3 left-3 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center text-sm hover:border-gray-400 transition">
                     ❤️
                 </button>
             @endif
@@ -33,48 +35,41 @@
     {{-- Content --}}
     <div class="p-4">
         <p class="text-xs text-gray-500 mb-1">{{ $product->store->name }}</p>
+
         <a href="{{ route('products.show', $product->slug) }}">
-            <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 hover:text-indigo-600 transition min-h-[3rem]">
+            <h3 class="font-medium text-gray-900 mb-2 line-clamp-2 hover:text-gray-600 transition min-h-[2.5rem] text-sm">
                 {{ $product->name }}
             </h3>
         </a>
 
         {{-- Rating --}}
-        <div class="flex items-center mb-2">
-            <div class="text-yellow-400 text-sm">
+        <div class="flex items-center gap-1 mb-3">
+            <div class="text-yellow-500 text-xs">
                 @for($i = 1; $i <= 5; $i++)
                     @if($i <= round($product->rating_avg))
-                        ⭐
+                        ★
                     @else
                         ☆
                     @endif
                 @endfor
             </div>
-            <span class="text-xs text-gray-500 mr-1">({{ $product->rating_avg }})</span>
+            <span class="text-xs text-gray-400">({{ $product->rating_avg }})</span>
         </div>
 
         {{-- Price --}}
-        <div class="flex items-end justify-between mb-3">
-            <div>
-                @if($product->discount_price)
-                    <span class="text-xl font-bold text-indigo-600">{{ number_format($product->discount_price, 0) }} ₪</span>
-                    <span class="text-sm text-gray-400 line-through mr-1">{{ number_format($product->base_price, 0) }} ₪</span>
-                @else
-                    <span class="text-xl font-bold text-indigo-600">{{ number_format($product->base_price, 0) }} ₪</span>
-                @endif
-            </div>
+        <div class="flex items-baseline gap-2 mb-4">
+            @if($product->discount_price)
+                <span class="text-base font-bold text-gray-900">{{ number_format($product->discount_price, 0) }} ₪</span>
+                <span class="text-xs text-gray-400 line-through">{{ number_format($product->base_price, 0) }} ₪</span>
+            @else
+                <span class="text-base font-bold text-gray-900">{{ number_format($product->base_price, 0) }} ₪</span>
+            @endif
         </div>
 
-        {{-- Actions --}}
-        <div class="flex space-x-2 space-x-reverse">
-            <a href="{{ route('products.show', $product->slug) }}"
-               class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 rounded-lg text-sm font-medium transition">
-                🛒 أضف للسلة
-            </a>
-            <a href="{{ route('products.show', $product->slug) }}"
-               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition">
-                👁️
-            </a>
-        </div>
+        {{-- Action --}}
+        <a href="{{ route('products.show', $product->slug) }}"
+           class="btn-primary btn-sm w-full">
+            عرض المنتج
+        </a>
     </div>
 </div>

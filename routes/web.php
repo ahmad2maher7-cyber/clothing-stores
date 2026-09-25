@@ -29,6 +29,8 @@ use App\Http\Controllers\Merchant\OfferController as MerchantOfferController;
 use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
 use App\Http\Controllers\Merchant\StoreController as MerchantStoreSetupController;
+
+use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -123,6 +125,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Orders
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+
+
+        // Brands
+Route::get('brands', [AdminBrandController::class, 'index'])->name('brands.index');
+Route::get('brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
+Route::post('brands', [AdminBrandController::class, 'store'])->name('brands.store');
+Route::get('brands/{brand}/edit', [AdminBrandController::class, 'edit'])->name('brands.edit');
+Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
+Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
     });
 
     /*

@@ -161,13 +161,24 @@ class ProductController extends Controller
         $avgRating = $product->reviews->avg('rating') ?? 0;
         $reviewsCount = $product->reviews->count();
 
-        return view('products.show', compact(
-            'product',
-            'relatedProducts',
-            'sizes',
-            'colors',
-            'avgRating',
-            'reviewsCount'
-        ));
+        // ✨ بناء variantsData هنا بدلاً من Blade
+$variantsData = $product->variants->map(function ($v) {
+    return [
+        'id' => $v->id,
+        'size' => $v->size,
+        'color' => $v->color,
+        'stock' => $v->stock_quantity,
+    ];
+})->values()->toArray();
+
+return view('products.show', compact(
+    'product',
+    'relatedProducts',
+    'sizes',
+    'colors',
+    'avgRating',
+    'reviewsCount',
+    'variantsData'
+));
     }
 }
