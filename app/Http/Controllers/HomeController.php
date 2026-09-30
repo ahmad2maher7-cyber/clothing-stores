@@ -41,11 +41,11 @@ class HomeController extends Controller
 
         // التصنيفات الرئيسية (التي تحتوي على منتجات)
         $mainCategories = Category::whereNull('parent_id')
-            ->where('status', 'active')
-            ->withCount('products')
-            ->having('products_count', '>', 0)
-            ->take(6)
-            ->get();
+    ->where('status', 'active')
+    ->withCount('products')
+    ->havingRaw('COUNT(products.id) > 0')
+    ->take(6)
+    ->get();
 
         return view('home', compact(
             'stores',
