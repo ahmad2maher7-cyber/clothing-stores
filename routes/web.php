@@ -271,6 +271,32 @@ Route::middleware('auth')->group(function () {
     Route::post('/verify-code', [VerifyCodeController::class, 'verify'])->name('verification.verify');
     Route::post('/verify-code/resend', [VerifyCodeController::class, 'resend'])->name('verification.resend');
 });
-
+// ═══════════════════════════════════════════════════
+//   TEMPORARY: Fix Placeholder Images
+//   ⚠️ احذف هذا الـ route بعد الاستخدام!
+// ═══════════════════════════════════════════════════
+Route::get('/fix-images', function () {
+    $updated = 0;
+    $images = \App\Models\ProductImage::where('image_url', 'LIKE', '%via.placeholder.com%')->get();
+    
+    foreach ($images as $img) {
+        $img->update([
+            'image_url' => str_replace(
+                ['via.placeholder.com/600x800', 'via.placeholder.com'],
+                ['placehold.co/600x800/166534/FFFFFF', 'placehold.co/600x800/166534/FFFFFF'],
+                $img->image_url
+            ),
+        ]);
+        $updated++;
+    }
+    
+    return response()->json([
+        'success' => true,
+        'updated' => $updated,
+        'total_images' => \App\Models\ProductImage::count(),
+        'message' => "✅ Updated {$updated} images",
+    ]);
+});
+// ═══════════════════════════════════════════════════
 
 require __DIR__.'/auth.php';
