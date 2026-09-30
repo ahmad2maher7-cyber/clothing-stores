@@ -43,7 +43,7 @@ class HomeController extends Controller
         $mainCategories = Category::whereNull('parent_id')
     ->where('status', 'active')
     ->withCount('products')
-    ->havingRaw('COUNT(products.id) > 0')
+    ->whereHas('products')
     ->take(6)
     ->get();
 

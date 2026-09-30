@@ -65,7 +65,7 @@ class StoreController extends Controller
             ->whereNull('parent_id')
             ->where('status', 'active')
             ->withCount('products')
-            ->having('products_count', '>', 0)
+            ->whereHas('products')
             ->get();
 
         return view('stores.show', compact('store', 'products', 'categories'));
