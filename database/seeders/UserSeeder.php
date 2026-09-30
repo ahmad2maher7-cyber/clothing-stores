@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'status' => 'active',
+            'email_verified_at' => now(),
         ]);
 
         // ============ التجار ============

@@ -4,78 +4,98 @@
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    {{-- ═══════════════════════════════════════
+         PAGE HEADER
+    ═══════════════════════════════════════ --}}
+    <div class="bg-stone-50 dark:bg-zinc-900/50 border-b border-stone-200 dark:border-stone-800">
+        <div class="container-x py-10 lg:py-14">
+            <nav class="flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-6">
+                <a href="{{ route('home') }}" class="hover:text-forest-700 dark:hover:text-gold-400 transition-colors">الرئيسية</a>
+                <span class="opacity-40">/</span>
+                <span class="text-ink dark:text-cream">المتاجر</span>
+            </nav>
 
-        {{-- Breadcrumb --}}
-        <nav class="mb-6 text-sm text-gray-500">
-            <a href="{{ route('home') }}" class="hover:text-gray-900">الرئيسية</a>
-            <span class="mx-2 text-gray-300">/</span>
-            <span class="text-gray-900">المتاجر</span>
-        </nav>
-
-        {{-- Header --}}
-        <div class="mb-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">المتاجر</h1>
-            <p class="text-sm text-gray-500">{{ $stores->total() }} متجر متاح</p>
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                <div>
+                    <span class="eyebrow block mb-3">— المتاجر المعتمدة</span>
+                    <h1 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-ink dark:text-cream tracking-tight mb-3">
+                        تسوّق من المتاجر
+                    </h1>
+                    <p class="text-sm text-ink-muted dark:text-cream/60">
+                        {{ $stores->total() }} متجر موثوق
+                    </p>
+                </div>
+            </div>
         </div>
+    </div>
 
-        {{-- Search --}}
-        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-8">
-            <form method="GET" class="flex gap-2">
+    {{-- ═══════════════════════════════════════
+         SEARCH
+    ═══════════════════════════════════════ --}}
+    <div class="container-x py-8">
+        <form method="GET" class="max-w-2xl">
+            <div class="relative">
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="ابحث باسم المتجر..."
-                       class="form-input flex-1">
-                <button type="submit" class="btn-primary">
-                    بحث
-                </button>
-            </form>
-        </div>
+                       class="w-full h-12 pl-12 pr-4 text-sm bg-white dark:bg-zinc-900 border border-stone-300 dark:border-stone-700 rounded focus:border-forest-600 dark:focus:border-gold-400 focus:ring-0">
+                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted dark:text-cream/40 pointer-events-none"></i>
+            </div>
+        </form>
+    </div>
 
-        {{-- Stores Grid --}}
+    {{-- ═══════════════════════════════════════
+         STORES GRID
+    ═══════════════════════════════════════ --}}
+    <div class="container-x pb-16 lg:pb-20">
         @if($stores->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                 @foreach($stores as $store)
                     <a href="{{ route('stores.show', $store) }}"
-                       class="bg-white border border-gray-200 hover:border-gray-400 rounded-lg overflow-hidden transition group">
+                       class="group bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 hover:border-forest-500 dark:hover:border-gold-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
 
                         {{-- Banner --}}
-                        @if($store->banner)
-                            <img src="{{ asset('storage/' . $store->banner) }}" 
-                                 class="w-full h-40 object-cover">
-                        @else
-                            <div class="w-full h-40 bg-gray-100 flex items-center justify-center text-5xl">
-                                🏪
-                            </div>
-                        @endif
+                        <div class="aspect-[3/1] bg-gradient-to-br from-forest-700 to-gold-500 relative overflow-hidden">
+                            @if($store->banner)
+                                <img src="{{ asset('storage/' . $store->banner) }}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-store text-white/40" style="font-size: 4rem;"></i>
+                                </div>
+                            @endif
+                        </div>
 
                         {{-- Content --}}
-                        <div class="p-5">
-                            <div class="flex items-start gap-4 mb-4">
-                                <div class="w-14 h-14 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-2xl shrink-0 -mt-10 shadow-sm">
-                                    @if($store->logo)
-                                        <img src="{{ asset('storage/' . $store->logo) }}" 
-                                             class="w-full h-full object-cover rounded-full">
-                                    @else
-                                        🏪
-                                    @endif
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-gray-900 mb-1 group-hover:text-gray-600 transition">
-                                        {{ $store->name }}
-                                    </h3>
-                                    <p class="text-xs text-gray-500">
-                                        {{ $store->products_count }} منتج
-                                    </p>
-                                </div>
+                        <div class="p-6 -mt-12 relative">
+                            
+                            {{-- Logo --}}
+                            <div class="w-20 h-20 flex items-center justify-center bg-white dark:bg-zinc-900 border-4 border-white dark:border-zinc-900 rounded-full shadow-lg mb-4 overflow-hidden">
+                                @if($store->logo)
+                                    <img src="{{ asset('storage/' . $store->logo) }}" 
+                                         class="w-full h-full object-cover">
+                                @else
+                                    <i class="fas fa-store text-forest-700 dark:text-gold-400 text-3xl"></i>
+                                @endif
                             </div>
 
+                            <h3 class="font-display font-bold text-lg text-ink dark:text-cream mb-2 group-hover:text-forest-700 dark:group-hover:text-gold-400 transition-colors">
+                                {{ $store->name }}
+                            </h3>
+
                             @if($store->description)
-                                <p class="text-sm text-gray-600 line-clamp-2 mb-4">{{ $store->description }}</p>
+                                <p class="text-sm text-ink-muted dark:text-cream/60 line-clamp-2 mb-4">
+                                    {{ $store->description }}
+                                </p>
                             @endif
 
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                                <span class="text-xs text-gray-400">زيارة المتجر</span>
-                                <span class="text-sm text-gray-600">←</span>
+                            <div class="flex items-center justify-between pt-4 border-t border-stone-100 dark:border-stone-800">
+                                <span class="badge badge-forest">
+                                    {{ $store->products_count }} منتج
+                                </span>
+                                <span class="flex items-center gap-1 text-xs font-semibold text-forest-700 dark:text-gold-400">
+                                    زيارة المتجر
+                                    <i class="fas fa-chevron-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+                                </span>
                             </div>
                         </div>
                     </a>
@@ -86,10 +106,13 @@
                 {{ $stores->links() }}
             </div>
         @else
-            <div class="bg-white border border-gray-200 rounded-lg text-center py-16">
-                <div class="text-5xl mb-4">🏪</div>
-                <h3 class="text-base font-medium text-gray-900 mb-2">لا توجد متاجر</h3>
-                <p class="text-sm text-gray-500">جرب البحث بكلمات مختلفة</p>
+            {{-- Empty State --}}
+            <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-stone-100 dark:bg-zinc-800 rounded-full">
+                    <i class="fas fa-store text-ink-muted dark:text-cream/40 text-3xl"></i>
+                </div>
+                <h3 class="font-display text-xl font-bold text-ink dark:text-cream mb-2">لا توجد متاجر</h3>
+                <p class="text-sm text-ink-muted dark:text-cream/60">جرب البحث بكلمات مختلفة</p>
             </div>
         @endif
     </div>

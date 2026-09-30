@@ -1,137 +1,113 @@
 @extends('merchant.layouts.app')
 
 @section('title', 'الكوبونات')
-@section('page-title', 'إدارة الكوبونات')
+@section('page-title', 'الكوبونات')
 
 @section('content')
 
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">الكوبونات</h2>
-            <p class="text-gray-500 text-sm">إدارة أكواد الخصم لمتجرك</p>
+            <h2 class="font-display text-2xl font-bold text-ink dark:text-cream">الكوبونات</h2>
+            <p class="text-sm text-ink-muted dark:text-cream/60">إدارة أكواد الخصم</p>
         </div>
-        <a href="{{ route('merchant.coupons.create') }}"
-           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 space-x-reverse transition">
-            <span>➕</span><span>إضافة كوبون</span>
+        <a href="{{ route('merchant.coupons.create') }}" class="btn-solid whitespace-nowrap">
+            <i class="fa-solid fa-plus"></i>
+            إضافة كوبون
         </a>
     </div>
 
-    {{-- Stats --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 border-r-4 border-indigo-500">
-            <p class="text-xs text-gray-500 mb-1">إجمالي الكوبونات</p>
-            <p class="text-2xl font-bold text-gray-800">{{ $stats['total'] }}</p>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">إجمالي</p>
+            <p class="font-display text-3xl font-bold text-ink dark:text-cream">{{ $stats['total'] }}</p>
         </div>
-        <a href="{{ route('merchant.coupons.index', ['status' => 'active']) }}"
-           class="bg-white rounded-lg shadow p-4 border-r-4 border-green-500 hover:shadow-md transition">
-            <p class="text-xs text-gray-500 mb-1">✅ نشطة</p>
-            <p class="text-2xl font-bold text-green-600">{{ $stats['active'] }}</p>
-        </a>
-        <a href="{{ route('merchant.coupons.index', ['status' => 'expired']) }}"
-           class="bg-white rounded-lg shadow p-4 border-r-4 border-red-500 hover:shadow-md transition">
-            <p class="text-xs text-gray-500 mb-1">⛔ منتهية</p>
-            <p class="text-2xl font-bold text-red-600">{{ $stats['expired'] }}</p>
-        </a>
-        <div class="bg-white rounded-lg shadow p-4 border-r-4 border-purple-500">
-            <p class="text-xs text-gray-500 mb-1">📊 مرات الاستخدام</p>
-            <p class="text-2xl font-bold text-purple-600">{{ $stats['total_used'] }}</p>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">نشطة</p>
+            <p class="font-display text-3xl font-bold text-forest-700 dark:text-gold-400">{{ $stats['active'] }}</p>
+        </div>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">منتهية</p>
+            <p class="font-display text-3xl font-bold text-ink-muted dark:text-cream/60">{{ $stats['expired'] }}</p>
+        </div>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">مرات الاستخدام</p>
+            <p class="font-display text-3xl font-bold text-forest-700 dark:text-gold-400">{{ $stats['total_used'] }}</p>
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="bg-white rounded-lg shadow p-4 mb-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" name="search" value="{{ request('search') }}"
-                   placeholder="🔍 ابحث بكود الكوبون..."
-                   class="md:col-span-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
-            <div class="flex space-x-2 space-x-reverse">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex-1">بحث</button>
-                <a href="{{ route('merchant.coupons.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">إعادة</a>
-            </div>
-        </form>
-    </div>
-
-    {{-- Table --}}
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
         @if($coupons->count() > 0)
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead class="bg-gray-50 border-b">
+                    <thead class="bg-stone-50 dark:bg-zinc-950 border-b border-stone-200 dark:border-stone-800">
                         <tr>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الكود</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الخصم</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الشروط</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الفترة</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاستخدام</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">الحالة</th>
-                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"></th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الكود</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الخصم</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الفترة</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الاستخدام</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الحالة</th>
+                            <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y">
+                    <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
                         @foreach($coupons as $coupon)
                             @php
                                 $isExpired = $coupon->end_date < now();
                                 $isFull = $coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit;
                                 $isActive = $coupon->status === 'active' && !$isExpired && !$isFull;
                             @endphp
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50 transition-colors">
                                 <td class="px-4 py-3">
-                                    <span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
+                                    <span class="font-mono font-bold text-forest-700 dark:text-gold-400 bg-forest-50 dark:bg-forest-950/40 px-2.5 py-1 rounded text-sm">
                                         {{ $coupon->code }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($coupon->type === 'percentage')
-                                        <span class="text-lg font-bold text-green-600">{{ $coupon->value }}%</span>
+                                        <span class="font-display font-bold text-ink dark:text-cream text-lg">{{ $coupon->value }}%</span>
                                     @else
-                                        <span class="text-lg font-bold text-green-600">{{ number_format($coupon->value, 0) }} ₪</span>
-                                    @endif
-                                    @if($coupon->max_discount)
-                                        <div class="text-xs text-gray-500">أقصى: {{ $coupon->max_discount }} ₪</div>
+                                        <span class="font-display font-bold text-ink dark:text-cream text-lg">{{ number_format($coupon->value, 0) }} ₪</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-xs text-gray-600">
-                                    @if($coupon->min_order_amount)
-                                        <div>حد أدنى: {{ $coupon->min_order_amount }} ₪</div>
-                                    @endif
-                                    @if($coupon->usage_limit)
-                                        <div>حد الاستخدام: {{ $coupon->usage_limit }}</div>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-xs text-gray-600">
-                                    <div>من: {{ $coupon->start_date->format('Y/m/d') }}</div>
-                                    <div>إلى: {{ $coupon->end_date->format('Y/m/d') }}</div>
+                                <td class="px-4 py-3 text-xs text-ink-muted dark:text-cream/60">
+                                    <div>{{ $coupon->start_date->format('Y/m/d') }}</div>
+                                    <div class="text-ink-faint dark:text-cream/40 mt-0.5">
+                                        <i class="fa-solid fa-arrow-left text-[8px]"></i> {{ $coupon->end_date->format('Y/m/d') }}
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="text-sm font-medium">{{ $coupon->used_count }}
-                                        @if($coupon->usage_limit) / {{ $coupon->usage_limit }} @endif
-                                    </div>
-                                    @if($coupon->usage_limit)
-                                        <div class="w-24 h-2 bg-gray-200 rounded mt-1">
-                                            <div class="h-full bg-indigo-500 rounded" 
-                                                 style="width: {{ min(100, ($coupon->used_count / $coupon->usage_limit) * 100) }}%"></div>
-                                        </div>
-                                    @endif
+                                    <span class="text-sm font-medium text-ink dark:text-cream">
+                                        {{ $coupon->used_count }}@if($coupon->usage_limit)<span class="text-ink-muted dark:text-cream/50"> / {{ $coupon->usage_limit }}</span>@endif
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($isActive)
-                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">✅ نشط</span>
+                                        <span class="badge badge-forest">نشط</span>
                                     @elseif($isExpired)
-                                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">⛔ منتهي</span>
+                                        <span class="badge badge-stone">منتهي</span>
                                     @elseif($isFull)
-                                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">🔒 استُنفد</span>
+                                        <span class="badge badge-stone">استُنفد</span>
                                     @else
-                                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">⏸️ معطل</span>
+                                        <span class="badge badge-stone">معطل</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
-                                    <div class="flex space-x-2 space-x-reverse">
+                                    <div class="flex items-center gap-3">
                                         <a href="{{ route('merchant.coupons.edit', $coupon) }}"
-                                           class="text-indigo-600 hover:text-indigo-900">✏️</a>
+                                           class="inline-flex items-center gap-1 text-xs font-medium text-forest-700 dark:text-gold-400 hover:opacity-70 transition-opacity">
+                                            <i class="fa-solid fa-pen text-xs"></i>
+                                            تعديل
+                                        </a>
                                         <form action="{{ route('merchant.coupons.destroy', $coupon) }}"
-                                              method="POST" onsubmit="return confirm('حذف الكوبون؟')">
+                                              method="POST" 
+                                              onsubmit="return confirm('هل أنت متأكد من حذف الكوبون؟')"
+                                              class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">🗑️</button>
+                                            <button type="submit" 
+                                                    class="inline-flex items-center gap-1 text-xs font-medium text-red-600 dark:text-red-400 hover:opacity-70 transition-opacity">
+                                                <i class="fa-solid fa-trash text-xs"></i>
+                                                حذف
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
@@ -140,14 +116,20 @@
                     </tbody>
                 </table>
             </div>
-            <div class="px-4 py-3 border-t bg-gray-50">{{ $coupons->links() }}</div>
+
+            <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+                {{ $coupons->links() }}
+            </div>
         @else
-            <div class="text-center py-16">
-                <div class="text-6xl mb-4">🎟️</div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">لا توجد كوبونات</h3>
-                <a href="{{ route('merchant.coupons.create') }}"
-                   class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg mt-2">
-                    ➕ إضافة كوبون
+            <div class="text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-stone-100 dark:bg-zinc-800 rounded-full">
+                    <i class="fa-solid fa-ticket text-4xl text-ink-muted dark:text-cream/40"></i>
+                </div>
+                <h3 class="font-display text-lg font-bold text-ink dark:text-cream mb-2">لا توجد كوبونات</h3>
+                <p class="text-sm text-ink-muted dark:text-cream/60 mb-6">أنشئ كوبون خصم لجذب الزبائن</p>
+                <a href="{{ route('merchant.coupons.create') }}" class="btn-solid inline-flex">
+                    <i class="fa-solid fa-plus"></i>
+                    إضافة كوبون
                 </a>
             </div>
         @endif

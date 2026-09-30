@@ -1,109 +1,140 @@
 @extends('admin.layouts.app')
 
 @section('title', 'الطلبات')
-@section('page-title', 'إدارة الطلبات')
+@section('page-title', 'الطلبات')
 
 @section('content')
 
+    {{-- ═══ Header ═══ --}}
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">🛒 جميع الطلبات</h2>
-        <p class="text-gray-500 text-sm">متابعة طلبات المنصة</p>
+        <h2 class="font-display text-2xl font-bold text-ink dark:text-cream">جميع الطلبات</h2>
+        <p class="text-sm text-ink-muted dark:text-cream/60">متابعة طلبات المنصة</p>
     </div>
 
-    {{-- Stats --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-xs text-gray-500 mb-1">إجمالي الطلبات</p>
-            <p class="text-2xl font-bold">{{ $stats['all'] }}</p>
+    {{-- ═══ Stats ═══ --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">إجمالي</p>
+            <p class="font-display text-3xl font-bold text-ink dark:text-cream">{{ $stats['all'] }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-r-4 border-yellow-500">
-            <p class="text-xs text-gray-500 mb-1">⏳ قيد المراجعة</p>
-            <p class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</p>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">⏳ قيد المراجعة</p>
+            <p class="font-display text-3xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['pending'] }}</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4 border-r-4 border-green-500">
-            <p class="text-xs text-gray-500 mb-1">✅ تم التسليم</p>
-            <p class="text-2xl font-bold text-green-600">{{ $stats['delivered'] }}</p>
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">✅ تم التسليم</p>
+            <p class="font-display text-3xl font-bold text-forest-700 dark:text-gold-400">{{ $stats['delivered'] }}</p>
         </div>
-        <div class="bg-gradient-to-l from-green-600 to-emerald-700 text-white rounded-lg shadow p-4">
-            <p class="text-xs mb-1 opacity-90">💰 الإيرادات</p>
-            <p class="text-xl font-bold">{{ number_format($stats['revenue'], 0) }} ₪</p>
+        <div class="bg-forest-900 dark:bg-forest-950 text-white rounded-lg p-5">
+            <p class="text-xs tracking-widest uppercase text-gold-400 mb-2">💰 الإيرادات</p>
+            <p class="font-display text-2xl font-bold">{{ number_format($stats['revenue'], 0) }} ₪</p>
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="bg-white rounded-lg shadow p-4 mb-6">
+    {{-- ═══ Filters ═══ --}}
+    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-4 mb-6">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <input type="text" name="search" value="{{ request('search') }}"
-                   placeholder="🔍 رقم الطلب أو اسم الزبون..."
-                   class="md:col-span-2 border-gray-300 rounded-lg focus:border-indigo-500">
-
-            <select name="status" class="border-gray-300 rounded-lg focus:border-indigo-500">
-                <option value="">كل الحالات</option>
-                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏳ قيد المراجعة</option>
-                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>⚙️ التجهيز</option>
-                <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>🚚 الشحن</option>
-                <option value="delivering" {{ request('status') == 'delivering' ? 'selected' : '' }}>📍 التوصيل</option>
-                <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>✅ التسليم</option>
-            </select>
-
-            <div class="flex gap-2">
-                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex-1">بحث</button>
-                <a href="{{ route('admin.orders.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg">إعادة</a>
+            <div class="md:col-span-2 relative">
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="ابحث برقم الطلب أو اسم الزبون..."
+                       class="form-input pl-10">
+                <svg class="w-4 h-4 text-ink-muted dark:text-cream/40 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
             </div>
+            <select name="status" class="form-input">
+                <option value="">كل الحالات</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد المراجعة</option>
+                <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>التجهيز</option>
+                <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>الشحن</option>
+                <option value="delivering" {{ request('status') == 'delivering' ? 'selected' : '' }}>التوصيل</option>
+                <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>التسليم</option>
+            </select>
+            <button type="submit" class="btn-solid">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                بحث
+            </button>
         </form>
     </div>
 
-    {{-- Orders --}}
-    <div class="bg-white rounded-lg shadow overflow-hidden">
+    {{-- ═══ Table ═══ --}}
+    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
         @if($orders->count() > 0)
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
-                    <tr>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">رقم الطلب</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">الزبون</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">المتجر</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">الإجمالي</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500">الحالة</th>
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    @foreach($orders as $order)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3">
-                                <span class="font-mono font-medium text-indigo-600">{{ $order->order_number }}</span>
-                                <p class="text-xs text-gray-500">{{ $order->created_at->format('Y/m/d') }}</p>
-                            </td>
-                            <td class="px-4 py-3">{{ $order->customer->full_name }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $order->store->name }}</td>
-                            <td class="px-4 py-3 font-bold">{{ number_format($order->total, 0) }} ₪</td>
-                            <td class="px-4 py-3">
-                                @php
-                                    $statusConfig = [
-                                        'pending' => ['⏳ قيد المراجعة', 'text-yellow-600'],
-                                        'processing' => ['⚙️ التجهيز', 'text-blue-600'],
-                                        'shipped' => ['🚚 الشحن', 'text-purple-600'],
-                                        'delivering' => ['📍 التوصيل', 'text-orange-600'],
-                                        'delivered' => ['✅ التسليم', 'text-green-600'],
-                                        'cancelled' => ['❌ ملغى', 'text-red-600'],
-                                    ];
-                                    [$label, $color] = $statusConfig[$order->status] ?? ['—', 'text-gray-600'];
-                                @endphp
-                                <span class="text-xs {{ $color }}">{{ $label }}</span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <a href="{{ route('admin.orders.show', $order) }}"
-                                   class="text-indigo-600 hover:text-indigo-900 text-xs">عرض →</a>
-                            </td>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-stone-50 dark:bg-zinc-950 border-b border-stone-200 dark:border-stone-800">
+                        <tr>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">رقم الطلب</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الزبون</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">المتجر</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الإجمالي</th>
+                            <th class="px-4 py-3 text-right text-xs tracking-widest uppercase font-semibold text-ink-muted dark:text-cream/50">الحالة</th>
+                            <th class="px-4 py-3"></th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="px-4 py-3 border-t bg-gray-50">{{ $orders->links() }}</div>
+                    </thead>
+                    <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
+                        @foreach($orders as $order)
+                            <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <p class="font-mono font-medium text-forest-700 dark:text-gold-400">{{ $order->order_number }}</p>
+                                    <p class="text-xs text-ink-muted dark:text-cream/50">{{ $order->created_at->format('Y/m/d') }}</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <p class="font-medium text-ink dark:text-cream">{{ $order->customer->full_name }}</p>
+                                </td>
+                                <td class="px-4 py-3 text-ink-soft dark:text-cream/70">
+                                    {{ $order->store->name }}
+                                </td>
+                                <td class="px-4 py-3 font-display font-bold text-ink dark:text-cream">
+                                    {{ number_format($order->total, 0) }} ₪
+                                </td>
+                                <td class="px-4 py-3">
+                                    @php
+                                        $statusConfig = [
+                                            'pending' => ['⏳ قيد المراجعة', 'badge-stone'],
+                                            'processing' => ['⚙️ التجهيز', 'badge-stone'],
+                                            'shipped' => ['🚚 الشحن', 'badge-stone'],
+                                            'delivering' => ['📍 التوصيل', 'badge-stone'],
+                                            'delivered' => ['✅ التسليم', 'badge-forest'],
+                                            'cancelled' => ['❌ ملغى', 'badge-danger'],
+                                        ];
+                                        [$label, $badgeClass] = $statusConfig[$order->status] ?? ['—', 'badge-stone'];
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }} whitespace-nowrap">
+                                        {{ $label }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.orders.show', $order) }}"
+                                       class="inline-flex items-center gap-1 text-xs font-medium text-forest-700 dark:text-gold-400 hover:gap-2 transition-all">
+                                        عرض
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+                {{ $orders->links() }}
+            </div>
         @else
-            <div class="text-center py-16">
-                <div class="text-6xl mb-4">📦</div>
-                <p class="text-gray-500">لا توجد طلبات</p>
+            {{-- ═══ Empty State ═══ --}}
+            <div class="text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-stone-100 dark:bg-zinc-800 rounded-full">
+                    <svg class="w-10 h-10 text-ink-muted dark:text-cream/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+                <h3 class="font-display text-lg font-bold text-ink dark:text-cream mb-2">لا توجد طلبات</h3>
+                <p class="text-sm text-ink-muted dark:text-cream/60">ستظهر الطلبات هنا عند وصولها</p>
             </div>
         @endif
     </div>

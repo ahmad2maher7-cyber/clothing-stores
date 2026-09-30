@@ -4,31 +4,42 @@
 
 @section('content')
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    {{-- ═══════════════════════════════════════
+         BREADCRUMB
+    ═══════════════════════════════════════ --}}
+    <div class="bg-stone-50 dark:bg-zinc-900/50 border-b border-stone-200 dark:border-stone-800">
+        <div class="container-x py-4">
+            <nav class="flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-ink-muted dark:text-cream/50 flex-wrap">
+                <a href="{{ route('home') }}" class="hover:text-forest-700 dark:hover:text-gold-400 transition-colors">الرئيسية</a>
+                <span class="opacity-40">/</span>
+                <a href="{{ route('products.index') }}" class="hover:text-forest-700 dark:hover:text-gold-400 transition-colors">المنتجات</a>
+                @if($product->category)
+                    <span class="opacity-40">/</span>
+                    <a href="{{ route('products.index', ['category' => $product->category_id]) }}" 
+                       class="hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                        {{ $product->category->name }}
+                    </a>
+                @endif
+                <span class="opacity-40">/</span>
+                <span class="text-ink dark:text-cream truncate">{{ $product->name }}</span>
+            </nav>
+        </div>
+    </div>
 
-        {{-- Breadcrumb --}}
-        <nav class="mb-6 text-sm text-gray-500">
-            <a href="{{ route('home') }}" class="hover:text-gray-900">الرئيسية</a>
-            <span class="mx-2 text-gray-300">/</span>
-            <a href="{{ route('products.index') }}" class="hover:text-gray-900">المنتجات</a>
-            @if($product->category)
-                <span class="mx-2 text-gray-300">/</span>
-                <a href="{{ route('products.index', ['category' => $product->category_id]) }}" class="hover:text-gray-900">
-                    {{ $product->category->name }}
-                </a>
-            @endif
-            <span class="mx-2 text-gray-300">/</span>
-            <span class="text-gray-900">{{ $product->name }}</span>
-        </nav>
+    {{-- ═══════════════════════════════════════
+         PRODUCT DETAILS
+    ═══════════════════════════════════════ --}}
+    <div class="container-x py-10 lg:py-14">
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden mb-10"
+             x-data="productDetail()">
 
-        {{-- Product Details --}}
-        <div class="bg-white border border-gray-200 rounded-lg mb-8" x-data="productDetail()">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
 
-                {{-- ========== Images ========== --}}
-                <div class="p-6 md:border-l border-gray-200">
+                {{-- ═══════ IMAGES ═══════ --}}
+                <div class="p-6 lg:p-8 bg-stone-50 dark:bg-zinc-950 lg:border-l border-stone-200 dark:border-stone-800">
+
                     {{-- Main Image --}}
-                    <div class="aspect-square bg-gray-50 rounded-lg overflow-hidden mb-3 border border-gray-200">
+                    <div class="aspect-square rounded-lg overflow-hidden bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 mb-4">
                         <template x-if="selectedImage">
                             <img :src="selectedImage" class="w-full h-full object-cover">
                         </template>
@@ -37,8 +48,8 @@
                                 <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
                                      class="w-full h-full object-cover">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-9xl">
-                                    👕
+                                <div class="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-700">
+                                    <i class="fas fa-tshirt" style="font-size: 8rem;"></i>
                                 </div>
                             @endif
                         </template>
@@ -46,68 +57,91 @@
 
                     {{-- Thumbnails --}}
                     @if($product->images->count() > 1)
-                        <div class="grid grid-cols-5 gap-2">
+                        <div class="grid grid-cols-5 gap-3">
                             @foreach($product->images as $image)
                                 <button @click="selectedImage = '{{ asset('storage/' . $image->image_url) }}'"
-                                        class="aspect-square bg-gray-50 rounded-md overflow-hidden border border-gray-200 hover:border-gray-400 transition">
-                                    <img src="{{ asset('storage/' . $image->image_url) }}" class="w-full h-full object-cover">
+                                        class="aspect-square rounded overflow-hidden bg-white dark:bg-zinc-900 border-2 transition-colors"
+                                        :class="selectedImage === '{{ asset('storage/' . $image->image_url) }}' 
+                                                ? 'border-forest-700 dark:border-gold-400' 
+                                                : 'border-stone-200 dark:border-stone-800 hover:border-forest-500'">
+                                    <img src="{{ asset('storage/' . $image->image_url) }}" 
+                                         class="w-full h-full object-cover">
                                 </button>
                             @endforeach
                         </div>
                     @endif
                 </div>
 
-                {{-- ========== Info ========== --}}
-                <div class="p-6 md:p-8">
-                    <p class="text-sm text-gray-500 mb-2">
-                        <a href="{{ route('stores.show', $product->store) }}" class="hover:text-gray-900">
-                            {{ $product->store->name }}
-                        </a>
-                    </p>
+                {{-- ═══════ INFO ═══════ --}}
+                <div class="p-6 lg:p-8 flex flex-col">
 
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
+                    {{-- Store --}}
+                    <a href="{{ route('stores.show', $product->store) }}" 
+                       class="inline-flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-ink-muted dark:text-cream/50 hover:text-forest-700 dark:hover:text-gold-400 transition-colors mb-4">
+                        <i class="fas fa-store"></i>
+                        {{ $product->store->name }}
+                    </a>
+
+                    {{-- Title --}}
+                    <h1 class="font-display text-2xl lg:text-3xl font-bold text-ink dark:text-cream mb-4 text-balance">
+                        {{ $product->name }}
+                    </h1>
 
                     {{-- Rating --}}
-                    <div class="flex items-center gap-2 mb-5">
-                        <div class="text-yellow-500">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="flex text-amber-500">
                             @for($i = 1; $i <= 5; $i++)
-                                {{ $i <= round($avgRating) ? '★' : '☆' }}
+                                @if($i <= round($avgRating))
+                                    <i class="fas fa-star"></i>
+                                @else
+                                    <i class="far fa-star"></i>
+                                @endif
                             @endfor
                         </div>
-                        <span class="text-sm text-gray-500">({{ $reviewsCount }} تقييم)</span>
+                        <span class="text-sm text-ink-muted dark:text-cream/60">
+                            {{ number_format($avgRating, 1) }} ({{ $reviewsCount }} تقييم)
+                        </span>
                     </div>
 
                     {{-- Price --}}
-                    <div class="mb-6 pb-6 border-b border-gray-200">
+                    <div class="pb-6 mb-6 border-b border-stone-200 dark:border-stone-800">
                         @if($product->discount_price)
                             <div class="flex items-baseline gap-3">
-                                <span class="text-3xl font-bold text-gray-900">{{ number_format($product->discount_price, 0) }} ₪</span>
-                                <span class="text-lg text-gray-400 line-through">{{ number_format($product->base_price, 0) }} ₪</span>
-                                <span class="badge badge-dark">
+                                <span class="font-display text-4xl font-bold text-forest-700 dark:text-gold-400">
+                                    {{ number_format($product->discount_price, 0) }} ₪
+                                </span>
+                                <span class="text-lg text-ink-muted dark:text-cream/40 line-through">
+                                    {{ number_format($product->base_price, 0) }} ₪
+                                </span>
+                                <span class="px-2.5 py-1 text-[10px] font-bold tracking-widest uppercase bg-red-600 text-white rounded">
                                     -{{ round((1 - $product->discount_price / $product->base_price) * 100) }}%
                                 </span>
                             </div>
                         @else
-                            <span class="text-3xl font-bold text-gray-900">{{ number_format($product->base_price, 0) }} ₪</span>
+                            <span class="font-display text-4xl font-bold text-forest-700 dark:text-gold-400">
+                                {{ number_format($product->base_price, 0) }} ₪
+                            </span>
                         @endif
                     </div>
 
                     {{-- Description --}}
                     @if($product->description)
-                        <p class="text-sm text-gray-600 leading-relaxed mb-6">{{ $product->description }}</p>
+                        <p class="text-sm text-ink-soft dark:text-cream/70 leading-relaxed mb-6">
+                            {{ $product->description }}
+                        </p>
                     @endif
 
                     {{-- Attributes --}}
                     <div class="grid grid-cols-2 gap-3 mb-6">
                         @if($product->brand)
-                            <div class="p-3 bg-gray-50 rounded-md">
-                                <p class="text-xs text-gray-500 mb-1">الماركة</p>
-                                <p class="text-sm font-medium text-gray-900">{{ $product->brand->name }}</p>
+                            <div class="p-3 bg-stone-50 dark:bg-zinc-950 rounded border border-stone-200 dark:border-stone-800">
+                                <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-1">الماركة</p>
+                                <p class="font-semibold text-sm text-ink dark:text-cream">{{ $product->brand->name }}</p>
                             </div>
                         @endif
-                        <div class="p-3 bg-gray-50 rounded-md">
-                            <p class="text-xs text-gray-500 mb-1">الفئة</p>
-                            <p class="text-sm font-medium text-gray-900">
+                        <div class="p-3 bg-stone-50 dark:bg-zinc-950 rounded border border-stone-200 dark:border-stone-800">
+                            <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-1">الفئة</p>
+                            <p class="font-semibold text-sm text-ink dark:text-cream">
                                 @switch($product->gender)
                                     @case('men') رجالي @break
                                     @case('women') نسائي @break
@@ -118,113 +152,165 @@
                         </div>
                     </div>
 
-                    {{-- Size Selection --}}
+                    {{-- ─── Size ─── --}}
                     <div class="mb-5">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="text-sm font-medium text-gray-900">المقاس</label>
-                            <span x-show="!selectedSize" class="text-xs text-red-500">يجب اختيار مقاس</span>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-xs font-semibold tracking-widest uppercase text-ink dark:text-cream">
+                                المقاس
+                            </label>
+                            <span x-show="!selectedSize" class="text-xs text-red-600 dark:text-red-400">
+                                اختر مقاساً
+                            </span>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             @foreach($sizes as $size)
                                 <button type="button" @click="selectedSize = '{{ $size }}'"
-                                        :class="selectedSize === '{{ $size }}' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'"
-                                        class="border px-4 py-2 rounded-md text-sm font-medium transition">
+                                        class="min-w-[3rem] h-11 px-4 text-sm font-semibold border-2 rounded transition-all"
+                                        :class="selectedSize === '{{ $size }}' 
+                                                ? 'bg-forest-700 text-white border-forest-700 dark:bg-gold-500 dark:text-forest-950 dark:border-gold-500' 
+                                                : 'bg-white dark:bg-zinc-900 text-ink dark:text-cream border-stone-300 dark:border-stone-700 hover:border-forest-500 dark:hover:border-gold-400'">
                                     {{ $size }}
                                 </button>
                             @endforeach
                         </div>
                     </div>
 
-                    {{-- Color Selection --}}
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="text-sm font-medium text-gray-900">اللون</label>
-                            <span x-show="!selectedColor" class="text-xs text-red-500">يجب اختيار لون</span>
+                    {{-- ─── Color ─── --}}
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-xs font-semibold tracking-widest uppercase text-ink dark:text-cream">
+                                اللون
+                            </label>
+                            <span x-show="!selectedColor" class="text-xs text-red-600 dark:text-red-400">
+                                اختر لوناً
+                            </span>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             @foreach($colors as $color)
                                 <button type="button" @click="selectedColor = '{{ $color }}'"
-                                        :class="selectedColor === '{{ $color }}' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'"
-                                        class="border px-4 py-2 rounded-md text-sm transition">
+                                        class="h-11 px-4 text-sm font-semibold border-2 rounded transition-all"
+                                        :class="selectedColor === '{{ $color }}' 
+                                                ? 'bg-forest-700 text-white border-forest-700 dark:bg-gold-500 dark:text-forest-950 dark:border-gold-500' 
+                                                : 'bg-white dark:bg-zinc-900 text-ink dark:text-cream border-stone-300 dark:border-stone-700 hover:border-forest-500 dark:hover:border-gold-400'">
                                     {{ $color }}
                                 </button>
                             @endforeach
                         </div>
                     </div>
 
-                    {{-- Quantity --}}
+                    {{-- ─── Quantity ─── --}}
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-900 mb-2">الكمية</label>
-                        <div class="inline-flex items-center border border-gray-300 rounded-md">
+                        <label class="text-xs font-semibold tracking-widest uppercase text-ink dark:text-cream block mb-3">
+                            الكمية
+                        </label>
+                        <div class="inline-flex items-center bg-white dark:bg-zinc-900 border border-stone-300 dark:border-stone-700 rounded overflow-hidden">
                             <button @click="if (qty > 1) qty--" type="button"
-                                    class="px-4 py-2 text-gray-600 hover:text-gray-900 text-lg">−</button>
+                                    class="w-11 h-11 flex items-center justify-center text-ink dark:text-cream hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors">
+                                <i class="fas fa-minus text-sm"></i>
+                            </button>
                             <input type="text" x-model="qty" readonly
-                                   class="w-16 text-center border-0 focus:ring-0 text-sm font-medium">
+                                   class="w-16 h-11 text-center border-0 bg-transparent font-bold text-ink dark:text-cream focus:ring-0">
                             <button @click="qty++" type="button"
-                                    class="px-4 py-2 text-gray-600 hover:text-gray-900 text-lg">+</button>
+                                    class="w-11 h-11 flex items-center justify-center text-ink dark:text-cream hover:bg-stone-100 dark:hover:bg-zinc-800 transition-colors">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
                         </div>
                     </div>
 
-                    {{-- Add to Cart --}}
-                    <button type="button" 
-                            @click="addToCart({{ $product->id }})"
-                            :disabled="!selectedSize || !selectedColor"
-                            :class="(!selectedSize || !selectedColor) ? 'opacity-50 cursor-not-allowed' : ''"
-                            class="btn-primary btn-lg w-full mb-3">
-                        🛒 أضف للسلة
-                    </button>
+                    {{-- ─── Actions ─── --}}
+                    <div class="space-y-3 pt-6 mt-auto border-t border-stone-200 dark:border-stone-800">
+                        <button type="button" 
+                                @click="addToCart({{ $product->id }})"
+                                :disabled="!selectedSize || !selectedColor"
+                                :class="(!selectedSize || !selectedColor) ? 'opacity-50 cursor-not-allowed' : ''"
+                                class="btn-solid w-full">
+                            <i class="fas fa-shopping-bag"></i>
+                            أضف للسلة
+                        </button>
 
-                    {{-- Wishlist --}}
-                    @auth
-                        @if(auth()->user()->role === 'customer')
-                            <button onclick="toggleWishlist({{ $product->id }})"
-                                    class="btn-secondary w-full">
-                                ❤️ أضف للمفضلة
-                            </button>
-                        @endif
-                    @endauth
+                        @auth
+                            @if(auth()->user()->role === 'customer')
+                                <button onclick="toggleWishlist({{ $product->id }})"
+                                        class="btn-outline w-full">
+                                    <i class="fas fa-heart"></i>
+                                    أضف للمفضلة
+                                </button>
+                            @endif
+                        @endauth
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- ========== Reviews ========== --}}
+        {{-- ═══════════════════════════════════════
+             REVIEWS
+        ═══════════════════════════════════════ --}}
         @if($product->reviews->count() > 0)
-            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
-                <h2 class="text-xl font-bold text-gray-900 mb-6">التقييمات ({{ $reviewsCount }})</h2>
+            <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6 lg:p-8 mb-10">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <span class="eyebrow block mb-2">— التقييمات</span>
+                        <h2 class="font-display text-2xl font-bold text-ink dark:text-cream">
+                            آراء العملاء ({{ $reviewsCount }})
+                        </h2>
+                    </div>
+                </div>
 
-                <div class="space-y-5">
+                <div class="space-y-6">
                     @foreach($product->reviews->take(5) as $review)
-                        <div class="border-b border-gray-200 pb-5 last:border-0 last:pb-0">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold">
-                                        {{ mb_substr($review->customer->full_name, 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-sm text-gray-900">{{ $review->customer->full_name }}</p>
-                                        <p class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</p>
-                                    </div>
+                        <div class="pb-6 border-b border-stone-100 dark:border-stone-800 last:border-0 last:pb-0">
+                            <div class="flex items-start gap-4">
+                                <div class="w-11 h-11 flex items-center justify-center bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded-full font-bold shrink-0">
+                                    {{ mb_substr($review->customer->full_name, 0, 1) }}
                                 </div>
-                                <div class="text-yellow-500 text-sm">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        {{ $i <= $review->rating ? '★' : '☆' }}
-                                    @endfor
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-3 mb-2">
+                                        <div>
+                                            <p class="font-semibold text-sm text-ink dark:text-cream">
+                                                {{ $review->customer->full_name }}
+                                            </p>
+                                            <p class="text-xs text-ink-muted dark:text-cream/40 mt-0.5">
+                                                {{ $review->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                        <div class="flex text-amber-500 shrink-0">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($i <= $review->rating)
+                                                    <i class="fas fa-star text-sm"></i>
+                                                @else
+                                                    <i class="far fa-star text-sm"></i>
+                                                @endif
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    @if($review->comment)
+                                        <p class="text-sm text-ink-soft dark:text-cream/70 leading-relaxed">
+                                            {{ $review->comment }}
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
-                            @if($review->comment)
-                                <p class="text-sm text-gray-600 leading-relaxed">{{ $review->comment }}</p>
-                            @endif
                         </div>
                     @endforeach
                 </div>
             </div>
         @endif
 
-        {{-- ========== Related Products ========== --}}
+        {{-- ═══════════════════════════════════════
+             RELATED PRODUCTS
+        ═══════════════════════════════════════ --}}
         @if($relatedProducts->count() > 0)
             <div>
-                <h2 class="text-xl font-bold text-gray-900 mb-6">منتجات مشابهة</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                <div class="flex items-end justify-between mb-8">
+                    <div>
+                        <span class="eyebrow block mb-2">— مقترحات</span>
+                        <h2 class="font-display text-2xl font-bold text-ink dark:text-cream">
+                            منتجات مشابهة
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
                     @foreach($relatedProducts as $related)
                         @include('partials.product-card', ['product' => $related])
                     @endforeach
@@ -246,7 +332,7 @@ function productDetail() {
 
         addToCart(productId) {
             if (!this.selectedSize || !this.selectedColor) {
-                alert('يجب اختيار المقاس واللون');
+                showToast('يجب اختيار المقاس واللون', 'error');
                 return;
             }
 
@@ -267,13 +353,19 @@ function productDetail() {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    alert('✅ ' + data.message);
-                    window.location.reload();
+                    showToast(data.message, 'success');
+                    
+                    const badge = document.querySelector('[data-cart-count]');
+                    if (badge && data.cart_count !== undefined) {
+                        badge.textContent = data.cart_count > 9 ? '9+' : data.cart_count;
+                    } else if (data.cart_count > 0) {
+                        setTimeout(() => window.location.reload(), 800);
+                    }
                 } else {
-                    alert('❌ ' + data.message);
+                    showToast(data.message, 'error');
                 }
             })
-            .catch(() => alert('حدث خطأ في الاتصال'));
+            .catch(() => showToast('حدث خطأ في الاتصال', 'error'));
         }
     }
 }

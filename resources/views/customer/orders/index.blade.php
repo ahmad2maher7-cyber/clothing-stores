@@ -1,148 +1,129 @@
-@extends('layouts.public')
+@extends('customer.layouts.app')
 
 @section('title', 'طلباتي')
 
 @section('content')
 
-    <div class="max-w-[1400px] mx-auto px-4 py-6">
+    <div class="container-x py-10 lg:py-14">
 
-        {{-- Breadcrumb --}}
-        <nav class="flex items-center gap-2 text-[12px] mb-5" style="color: var(--text-tertiary);">
-            <a href="{{ route('customer.dashboard') }}" class="transition hover:text-[color:var(--gold)]">حسابي</a>
-            <span>/</span>
-            <span style="color: var(--text-primary);">طلباتي</span>
-        </nav>
-
-        <div class="mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold mb-1" style="color: var(--text-primary);">
-                📦 طلباتي
+        {{-- ═══ Header ═══ --}}
+        <div class="mb-8">
+            <span class="eyebrow block mb-3">— حسابي</span>
+            <h1 class="font-display text-3xl font-bold text-ink dark:text-cream mb-2">
+                طلباتي
             </h1>
-            <p class="text-[13px]" style="color: var(--text-secondary);">
-                تتبع وإدارة جميع طلباتك
-            </p>
+            <p class="text-sm text-ink-muted dark:text-cream/60">تتبع وإدارة طلباتك</p>
         </div>
 
-        {{-- Stats --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+        {{-- ═══ Stats ═══ --}}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+
+            {{-- All --}}
             <a href="{{ route('customer.orders.index') }}"
-               class="rounded-xl border p-4 text-center transition hover:-translate-y-0.5"
-               style="background-color: var(--bg-primary); border-color: var(--border-light); {{ !request('status') ? 'border-color: var(--gold);' : '' }}">
-                <p class="text-[11px] mb-1" style="color: var(--text-secondary);">الكل</p>
-                <p class="text-2xl font-bold" style="color: var(--text-primary);">{{ $stats['all'] }}</p>
+               class="bg-white dark:bg-zinc-900 border rounded-lg p-5 text-center hover:border-forest-500 dark:hover:border-gold-500 transition
+                      {{ !request('status') ? 'border-forest-700 dark:border-gold-400' : 'border-stone-200 dark:border-stone-800' }}">
+                <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">الكل</p>
+                <p class="font-display text-2xl font-bold text-ink dark:text-cream">{{ $stats['all'] }}</p>
             </a>
 
+            {{-- Pending --}}
             <a href="{{ route('customer.orders.index', ['status' => 'pending']) }}"
-               class="rounded-xl border p-4 text-center transition hover:-translate-y-0.5"
-               style="background-color: var(--bg-primary); border-color: var(--border-light); {{ request('status') == 'pending' ? 'border-color: var(--gold);' : '' }}">
-                <p class="text-[11px] mb-1" style="color: var(--text-secondary);">⏳ قيد المعالجة</p>
-                <p class="text-2xl font-bold" style="color: #d97706;">{{ $stats['pending'] }}</p>
+               class="bg-white dark:bg-zinc-900 border rounded-lg p-5 text-center hover:border-forest-500 dark:hover:border-gold-500 transition
+                      {{ request('status') == 'pending' ? 'border-forest-700 dark:border-gold-400' : 'border-stone-200 dark:border-stone-800' }}">
+                <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">⏳ قيد المعالجة</p>
+                <p class="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['pending'] }}</p>
             </a>
 
+            {{-- Delivering --}}
             <a href="{{ route('customer.orders.index', ['status' => 'delivering']) }}"
-               class="rounded-xl border p-4 text-center transition hover:-translate-y-0.5"
-               style="background-color: var(--bg-primary); border-color: var(--border-light); {{ request('status') == 'delivering' ? 'border-color: var(--gold);' : '' }}">
-                <p class="text-[11px] mb-1" style="color: var(--text-secondary);">🚚 قيد التوصيل</p>
-                <p class="text-2xl font-bold" style="color: #7c3aed;">{{ $stats['delivering'] }}</p>
+               class="bg-white dark:bg-zinc-900 border rounded-lg p-5 text-center hover:border-forest-500 dark:hover:border-gold-500 transition
+                      {{ request('status') == 'delivering' ? 'border-forest-700 dark:border-gold-400' : 'border-stone-200 dark:border-stone-800' }}">
+                <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">🚚 قيد التوصيل</p>
+                <p class="font-display text-2xl font-bold text-violet-600 dark:text-violet-400">{{ $stats['delivering'] }}</p>
             </a>
 
+            {{-- Delivered --}}
             <a href="{{ route('customer.orders.index', ['status' => 'delivered']) }}"
-               class="rounded-xl border p-4 text-center transition hover:-translate-y-0.5"
-               style="background-color: var(--bg-primary); border-color: var(--border-light); {{ request('status') == 'delivered' ? 'border-color: var(--gold);' : '' }}">
-                <p class="text-[11px] mb-1" style="color: var(--text-secondary);">✅ تم التسليم</p>
-                <p class="text-2xl font-bold" style="color: #166534;">{{ $stats['delivered'] }}</p>
+               class="bg-white dark:bg-zinc-900 border rounded-lg p-5 text-center hover:border-forest-500 dark:hover:border-gold-500 transition
+                      {{ request('status') == 'delivered' ? 'border-forest-700 dark:border-gold-400' : 'border-stone-200 dark:border-stone-800' }}">
+                <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">✅ تم التسليم</p>
+                <p class="font-display text-2xl font-bold text-forest-700 dark:text-gold-400">{{ $stats['delivered'] }}</p>
             </a>
         </div>
 
-        {{-- Search --}}
-        <div class="rounded-xl border p-4 mb-5"
-             style="background-color: var(--bg-primary); border-color: var(--border-light);">
+        {{-- ═══ Search ═══ --}}
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-4 mb-6">
             <form method="GET" class="flex gap-2">
-                <input type="text" name="search" value="{{ request('search') }}"
-                       placeholder="🔍 ابحث برقم الطلب..."
-                       class="form-input flex-1">
-                <button type="submit"
-                        class="h-11 px-5 rounded-lg font-semibold text-white text-[13px] transition hover:opacity-90"
-                        style="background-color: var(--gold);">
-                    بحث
-                </button>
+                <div class="flex-1 relative">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="ابحث برقم الطلب..."
+                           class="form-input pl-10">
+                    <svg class="w-4 h-4 text-ink-muted dark:text-cream/40 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <button type="submit" class="btn-solid">بحث</button>
             </form>
         </div>
 
-        {{-- Orders --}}
+        {{-- ═══ Orders ═══ --}}
         @if($orders->count() > 0)
             <div class="space-y-4">
                 @foreach($orders as $order)
                     @php
                         $statusConfig = [
-                            'pending' => ['⏳ قيد المراجعة', '#fef3c7', '#92400e'],
-                            'processing' => ['⚙️ جاري التجهيز', '#dbeafe', '#1e40af'],
-                            'shipped' => ['🚚 تم الشحن', '#ede9fe', '#6d28d9'],
-                            'delivering' => ['📍 جاري التوصيل', '#fed7aa', '#9a3412'],
-                            'delivered' => ['✅ تم التسليم', '#d1fae5', '#065f46'],
-                            'cancelled' => ['❌ ملغى', '#fee2e2', '#991b1b'],
-                            'returned' => ['↩️ مُرجع', '#f3f4f6', '#374151'],
+                            'pending' => ['⏳ قيد المراجعة', 'badge-stone'],
+                            'processing' => ['⚙️ جاري التجهيز', 'badge-stone'],
+                            'shipped' => ['🚚 تم الشحن', 'badge-stone'],
+                            'delivering' => ['📍 جاري التوصيل', 'badge-stone'],
+                            'delivered' => ['✅ تم التسليم', 'badge-forest'],
+                            'cancelled' => ['❌ ملغى', 'badge-danger'],
+                            'returned' => ['↩️ مُرجع', 'badge-stone'],
                         ];
-                        [$label, $bg, $color] = $statusConfig[$order->status] ?? ['غير معروف', '#f3f4f6', '#374151'];
+                        [$statusLabel, $badgeClass] = $statusConfig[$order->status] ?? ['—', 'badge-stone'];
                     @endphp
-
-                    <div class="rounded-xl border overflow-hidden transition hover:shadow-md"
-                         style="background-color: var(--bg-primary); border-color: var(--border-light);">
+                    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden hover:border-forest-500 dark:hover:border-gold-500 transition-colors">
 
                         {{-- Header --}}
-                        <div class="p-4 border-b flex flex-wrap justify-between items-center gap-3"
-                             style="border-color: var(--border-light); background-color: var(--bg-tertiary);">
-                            <div class="flex items-center gap-4">
+                        <div class="p-5 bg-stone-50 dark:bg-zinc-950 border-b border-stone-200 dark:border-stone-800 flex flex-wrap justify-between items-center gap-4">
+                            <div class="flex items-center gap-5">
                                 <div>
-                                    <p class="text-[10px]" style="color: var(--text-tertiary);">رقم الطلب</p>
-                                    <p class="text-[13px] font-bold font-mono" style="color: var(--gold);">
-                                        {{ $order->order_number }}
-                                    </p>
+                                    <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-1">رقم الطلب</p>
+                                    <p class="font-mono font-bold text-sm text-forest-700 dark:text-gold-400">{{ $order->order_number }}</p>
                                 </div>
-                                <div class="border-r pr-4" style="border-color: var(--border-light);">
-                                    <p class="text-[10px]" style="color: var(--text-tertiary);">التاريخ</p>
-                                    <p class="text-[12px] font-medium" style="color: var(--text-primary);">
-                                        {{ $order->created_at->format('Y/m/d') }}
-                                    </p>
+                                <div>
+                                    <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-1">التاريخ</p>
+                                    <p class="text-sm text-ink-soft dark:text-cream/70">{{ $order->created_at->format('Y/m/d') }}</p>
                                 </div>
                             </div>
-
-                            <span class="text-[11px] font-bold px-3 py-1.5 rounded-lg"
-                                  style="background-color: {{ $bg }}; color: {{ $color }};">
-                                {{ $label }}
-                            </span>
+                            <span class="badge {{ $badgeClass }}">{{ $statusLabel }}</span>
                         </div>
 
                         {{-- Body --}}
-                        <div class="p-4">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                                     style="background-color: var(--gold-soft);">
-                                    🏪
+                        <div class="p-5">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="w-10 h-10 bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
                                 </div>
-                                <div>
-                                    <p class="text-[13px] font-medium" style="color: var(--text-primary);">
-                                        {{ $order->store->name }}
-                                    </p>
-                                    <p class="text-[11px]" style="color: var(--text-tertiary);">
-                                        {{ $order->items_count }} {{ $order->items_count == 1 ? 'منتج' : 'منتجات' }}
-                                    </p>
+                                <div class="min-w-0">
+                                    <p class="font-medium text-sm text-ink dark:text-cream truncate">{{ $order->store->name }}</p>
+                                    <p class="text-xs text-ink-muted dark:text-cream/50">{{ $order->items_count }} منتج</p>
                                 </div>
                             </div>
 
-                            <div class="flex justify-between items-center pt-3 border-t"
-                                 style="border-color: var(--border-light);">
+                            <div class="flex justify-between items-center pt-5 border-t border-stone-100 dark:border-stone-800">
                                 <div>
-                                    <p class="text-[10px]" style="color: var(--text-tertiary);">الإجمالي</p>
-                                    <p class="text-xl font-bold" style="color: var(--gold);">
-                                        {{ number_format($order->total, 0) }} ₪
-                                    </p>
+                                    <p class="text-xs text-ink-muted dark:text-cream/50 mb-1">الإجمالي</p>
+                                    <p class="font-display text-xl font-bold text-ink dark:text-cream">{{ number_format($order->total, 0) }} ₪</p>
                                 </div>
-                                <a href="{{ route('customer.orders.show', $order) }}"
-                                   class="inline-flex items-center gap-1 h-9 px-4 rounded-lg font-semibold text-white text-[12px] transition hover:opacity-90"
-                                   style="background-color: var(--gold);">
+                                <a href="{{ route('customer.orders.show', $order) }}" 
+                                   class="inline-flex items-center gap-2 h-10 px-5 text-xs font-semibold tracking-widest uppercase bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 hover:bg-forest-800 dark:hover:bg-gold-400 rounded transition-colors">
                                     عرض التفاصيل
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                                     </svg>
                                 </a>
                             </div>
@@ -151,19 +132,22 @@
                 @endforeach
             </div>
 
-            <div class="mt-5">{{ $orders->links() }}</div>
+            <div class="mt-6 flex justify-center">{{ $orders->links() }}</div>
         @else
-            <div class="rounded-xl border p-14 text-center"
-                 style="background-color: var(--bg-primary); border-color: var(--border-light);">
-                <div class="text-6xl mb-4">📭</div>
-                <h3 class="text-lg font-bold mb-2" style="color: var(--text-primary);">لا توجد طلبات</h3>
-                <p class="text-[13px] mb-5" style="color: var(--text-secondary);">
-                    ابدأ التسوق لإنشاء أول طلب
-                </p>
-                <a href="{{ route('products.index') }}"
-                   class="inline-flex items-center gap-2 h-11 px-6 rounded-lg font-bold text-white text-[13px]"
-                   style="background-color: var(--gold);">
-                    🛍️ تسوق الآن
+            {{-- ═══ Empty State ═══ --}}
+            <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg text-center py-20">
+                <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-stone-100 dark:bg-zinc-800 rounded-full">
+                    <svg class="w-10 h-10 text-ink-muted dark:text-cream/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                    </svg>
+                </div>
+                <h3 class="font-display text-lg font-bold text-ink dark:text-cream mb-2">لا توجد طلبات</h3>
+                <p class="text-sm text-ink-muted dark:text-cream/60 mb-6">ابدأ التسوق لإنشاء أول طلب</p>
+                <a href="{{ route('products.index') }}" class="btn-solid inline-flex">
+                    تسوق الآن
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
                 </a>
             </div>
         @endif

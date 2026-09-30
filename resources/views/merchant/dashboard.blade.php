@@ -2,210 +2,139 @@
 
 @section('title', 'لوحة التحكم')
 @section('page-title', 'لوحة التحكم')
-@section('page-subtitle', 'نظرة سريعة على أداء متجرك')
 
 @section('content')
 
-    {{-- Welcome Banner --}}
-    <div class="rounded-xl p-6 mb-6 text-white relative overflow-hidden"
-         style="background-color: var(--gold);">
-        <div class="relative z-10">
-            <h2 class="text-xl md:text-2xl font-bold mb-1">
-                مرحباً {{ auth()->user()->full_name }} 👋
-            </h2>
-            <p class="text-[13px] opacity-90">
-                إليك نظرة سريعة على أداء متجرك اليوم
-            </p>
-        </div>
-
-        {{-- Decorative --}}
-        <div class="absolute -left-8 -bottom-8 text-[180px] opacity-20 pointer-events-none select-none">
-            🏪
-        </div>
+    {{-- Welcome --}}
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-1">
+            مرحباً {{ auth()->user()->full_name }} 👋
+        </h1>
+        <p class="text-sm text-gray-500">إليك نظرة سريعة على متجرك</p>
     </div>
 
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    {{-- Stats Grid --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
         {{-- Products --}}
-        <a href="{{ route('merchant.products.index') }}"
-           class="rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md"
-           style="background-color: var(--bg-primary); border-color: var(--border-light);">
+        <div class="bg-white border border-gray-200 rounded-lg p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                     style="background-color: var(--gold-soft);">
-                    👕
-                </div>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="color: var(--text-tertiary);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
+                <span class="text-2xl">👕</span>
+                <span class="text-xs text-gray-400">المنتجات</span>
             </div>
-            <p class="text-[11px] mb-1" style="color: var(--text-secondary);">إجمالي المنتجات</p>
-            <p class="text-2xl md:text-3xl font-bold" style="color: var(--text-primary);">
-                {{ $stats['products'] }}
-            </p>
-        </a>
+            <p class="text-2xl font-bold text-gray-900">{{ $stats['products'] }}</p>
+            <a href="{{ route('merchant.products.index') }}" 
+               class="text-xs text-gray-500 hover:text-gray-900 mt-2 inline-block">
+                إدارة المنتجات ←
+            </a>
+        </div>
 
         {{-- Orders --}}
-        <a href="{{ route('merchant.orders.index') }}"
-           class="rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md"
-           style="background-color: var(--bg-primary); border-color: var(--border-light);">
+        <div class="bg-white border border-gray-200 rounded-lg p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                     style="background-color: #dbeafe;">
-                    🛒
-                </div>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="color: var(--text-tertiary);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
+                <span class="text-2xl">🛒</span>
+                <span class="text-xs text-gray-400">الطلبات</span>
             </div>
-            <p class="text-[11px] mb-1" style="color: var(--text-secondary);">إجمالي الطلبات</p>
-            <p class="text-2xl md:text-3xl font-bold" style="color: #2563eb;">
-                {{ $stats['orders'] }}
-            </p>
-        </a>
+            <p class="text-2xl font-bold text-gray-900">{{ $stats['orders'] }}</p>
+            <a href="{{ route('merchant.orders.index') }}" 
+               class="text-xs text-gray-500 hover:text-gray-900 mt-2 inline-block">
+                إدارة الطلبات ←
+            </a>
+        </div>
 
-        {{-- Pending Orders --}}
-        <a href="{{ route('merchant.orders.index', ['status' => 'pending']) }}"
-           class="rounded-xl border p-5 transition hover:-translate-y-0.5 hover:shadow-md"
-           style="background-color: var(--bg-primary); border-color: var(--border-light);">
+        {{-- Pending --}}
+        <div class="bg-white border border-gray-200 rounded-lg p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                     style="background-color: #fef3c7;">
-                    ⏳
-                </div>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="color: var(--text-tertiary);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
+                <span class="text-2xl">⏳</span>
+                <span class="text-xs text-gray-400">قيد الانتظار</span>
             </div>
-            <p class="text-[11px] mb-1" style="color: var(--text-secondary);">طلبات قيد الانتظار</p>
-            <p class="text-2xl md:text-3xl font-bold" style="color: #d97706;">
-                {{ $stats['pending_orders'] }}
-            </p>
-        </a>
+            <p class="text-2xl font-bold text-gray-900">{{ $stats['pending_orders'] }}</p>
+            @if($stats['pending_orders'] > 0)
+                <a href="{{ route('merchant.orders.index', ['status' => 'pending']) }}" 
+                   class="text-xs text-gray-500 hover:text-gray-900 mt-2 inline-block">
+                    عرض الطلبات ←
+                </a>
+            @else
+                <p class="text-xs text-gray-400 mt-2">لا توجد طلبات معلقة</p>
+            @endif
+        </div>
 
         {{-- Revenue --}}
-        <div class="rounded-xl border p-5"
-             style="background-color: var(--bg-primary); border-color: var(--border-light);">
+        <div class="bg-white border border-gray-200 rounded-lg p-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                     style="background-color: #d1fae5;">
-                    💰
-                </div>
+                <span class="text-2xl">💰</span>
+                <span class="text-xs text-gray-400">الإيرادات</span>
             </div>
-            <p class="text-[11px] mb-1" style="color: var(--text-secondary);">الإيرادات</p>
-            <p class="text-2xl md:text-3xl font-bold" style="color: #166534;">
-                {{ number_format($stats['revenue'], 0) }}
-            </p>
-            <p class="text-[10px] mt-1" style="color: var(--text-tertiary);">جنيه إسترليني</p>
+            <p class="text-2xl font-bold text-gray-900">{{ number_format($stats['revenue'], 0) }} ₪</p>
+            <p class="text-xs text-gray-400 mt-2">إجمالي المدخول</p>
         </div>
     </div>
 
     {{-- Quick Actions + Low Stock --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- Quick Actions --}}
-        <div class="rounded-xl border overflow-hidden"
-             style="background-color: var(--bg-primary); border-color: var(--border-light);">
-            <div class="px-5 py-4 border-b" style="border-color: var(--border-light);">
-                <h3 class="text-[14px] font-bold" style="color: var(--text-primary);">
-                    ⚡ إجراءات سريعة
-                </h3>
+        <div class="bg-white border border-gray-200 rounded-lg">
+            <div class="p-5 border-b border-gray-200">
+                <h3 class="font-bold text-gray-900">⚡ إجراءات سريعة</h3>
             </div>
-            <div class="p-4 grid grid-cols-2 gap-3">
-
+            <div class="p-5 grid grid-cols-2 gap-3">
                 <a href="{{ route('merchant.products.create') }}"
-                   class="flex flex-col items-center justify-center p-4 rounded-lg transition border"
-                   style="background-color: var(--bg-tertiary); border-color: var(--border-light);"
-                   onmouseover="this.style.borderColor='var(--gold)'; this.style.backgroundColor='var(--gold-soft)';"
-                   onmouseout="this.style.borderColor='var(--border-light)'; this.style.backgroundColor='var(--bg-tertiary)';">
-                    <span class="text-3xl mb-2">➕</span>
-                    <span class="text-[12px] font-medium" style="color: var(--text-primary);">إضافة منتج</span>
+                   class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition text-center">
+                    <span class="text-2xl">➕</span>
+                    <span class="text-sm text-gray-700">إضافة منتج</span>
                 </a>
 
                 <a href="{{ route('merchant.categories.create') }}"
-                   class="flex flex-col items-center justify-center p-4 rounded-lg transition border"
-                   style="background-color: var(--bg-tertiary); border-color: var(--border-light);"
-                   onmouseover="this.style.borderColor='var(--gold)'; this.style.backgroundColor='var(--gold-soft)';"
-                   onmouseout="this.style.borderColor='var(--border-light)'; this.style.backgroundColor='var(--bg-tertiary)';">
-                    <span class="text-3xl mb-2">📂</span>
-                    <span class="text-[12px] font-medium" style="color: var(--text-primary);">إضافة تصنيف</span>
+                   class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition text-center">
+                    <span class="text-2xl">📂</span>
+                    <span class="text-sm text-gray-700">إضافة تصنيف</span>
                 </a>
 
                 <a href="{{ route('merchant.coupons.create') }}"
-                   class="flex flex-col items-center justify-center p-4 rounded-lg transition border"
-                   style="background-color: var(--bg-tertiary); border-color: var(--border-light);"
-                   onmouseover="this.style.borderColor='var(--gold)'; this.style.backgroundColor='var(--gold-soft)';"
-                   onmouseout="this.style.borderColor='var(--border-light)'; this.style.backgroundColor='var(--bg-tertiary)';">
-                    <span class="text-3xl mb-2">🎟️</span>
-                    <span class="text-[12px] font-medium" style="color: var(--text-primary);">إنشاء كوبون</span>
+                   class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition text-center">
+                    <span class="text-2xl">🎟️</span>
+                    <span class="text-sm text-gray-700">إنشاء كوبون</span>
                 </a>
 
                 <a href="{{ route('merchant.offers.create') }}"
-                   class="flex flex-col items-center justify-center p-4 rounded-lg transition border"
-                   style="background-color: var(--bg-tertiary); border-color: var(--border-light);"
-                   onmouseover="this.style.borderColor='var(--gold)'; this.style.backgroundColor='var(--gold-soft)';"
-                   onmouseout="this.style.borderColor='var(--border-light)'; this.style.backgroundColor='var(--bg-tertiary)';">
-                    <span class="text-3xl mb-2">🔥</span>
-                    <span class="text-[12px] font-medium" style="color: var(--text-primary);">إضافة عرض</span>
+                   class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition text-center">
+                    <span class="text-2xl">🔥</span>
+                    <span class="text-sm text-gray-700">إضافة عرض</span>
                 </a>
             </div>
         </div>
 
         {{-- Low Stock Alert --}}
-        <div class="rounded-xl border overflow-hidden"
-             style="background-color: var(--bg-primary); border-color: var(--border-light);">
-            <div class="px-5 py-4 border-b flex items-center justify-between"
-                 style="border-color: var(--border-light);">
-                <h3 class="text-[14px] font-bold" style="color: var(--text-primary);">
-                    ⚠️ تنبيهات المخزون
-                </h3>
-                <a href="{{ route('merchant.inventory.lowStock') }}"
-                   class="text-[12px] font-semibold"
-                   style="color: var(--gold);">
-                    عرض الكل
+        <div class="bg-white border border-gray-200 rounded-lg">
+            <div class="p-5 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="font-bold text-gray-900">⚠️ تنبيهات المخزون</h3>
+                <a href="{{ route('merchant.inventory.index', ['filter' => 'low_stock']) }}" 
+                   class="text-xs text-gray-500 hover:text-gray-900">
+                    عرض الكل ←
                 </a>
             </div>
-
-            <div class="p-4">
+            <div class="p-5">
                 @if($stats['low_stock'] > 0)
-                    <div class="rounded-lg p-4 border"
-                         style="background-color: #fef2f2; border-color: #fecaca;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                                 style="background-color: #dc2626;">
-                                ⚠️
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-[14px] font-bold" style="color: #991b1b;">
-                                    يوجد {{ $stats['low_stock'] }} منتج بمخزون منخفض
+                    <div class="border border-gray-200 rounded-md p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">📦</span>
+                            <div>
+                                <p class="font-medium text-gray-900">
+                                    {{ $stats['low_stock'] }} منتج بمخزون منخفض
                                 </p>
-                                <p class="text-[12px]" style="color: #b91c1c;">
-                                    يُنصح بإعادة التعبئة قريباً
-                                </p>
+                                <p class="text-xs text-gray-500">تحتاج إعادة تعبئة</p>
                             </div>
                         </div>
+                        <a href="{{ route('merchant.inventory.index', ['filter' => 'low_stock']) }}" 
+                           class="btn-secondary btn-sm w-full">
+                            عرض القائمة
+                        </a>
                     </div>
                 @else
-                    <div class="rounded-lg p-4 border"
-                         style="background-color: #f0fdf4; border-color: #bbf7d0;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                                 style="background-color: #166534;">
-                                ✅
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-[14px] font-bold" style="color: #166534;">
-                                    جميع المنتجات بمخزون جيد
-                                </p>
-                                <p class="text-[12px]" style="color: #15803d;">
-                                    لا توجد تنبيهات حالياً
-                                </p>
-                            </div>
-                        </div>
+                    <div class="text-center py-6">
+                        <div class="text-4xl mb-2">✅</div>
+                        <p class="text-sm text-gray-600">جميع المنتجات بمخزون جيد</p>
                     </div>
                 @endif
             </div>

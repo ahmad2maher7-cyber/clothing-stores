@@ -4,138 +4,171 @@
 @section('page-title', 'حالة المتجر')
 
 @section('content')
+
     <div class="max-w-3xl mx-auto">
 
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
 
-            {{-- Header --}}
             @if($store->banner)
-                <img src="{{ asset('storage/' . $store->banner) }}" class="w-full h-40 object-cover">
+                <img src="{{ asset('storage/' . $store->banner) }}"
+                     alt="{{ $store->name }}"
+                     class="w-full h-40 object-cover">
             @else
-                <div class="w-full h-40 bg-gradient-to-l from-yellow-400 to-orange-500"></div>
+                <div class="w-full h-40 bg-gradient-to-br from-forest-700 to-gold-500"></div>
             @endif
 
             <div class="p-8 text-center">
 
-                {{-- Logo --}}
-                <div class="w-24 h-24 mx-auto -mt-20 mb-4 rounded-full bg-white shadow-lg flex items-center justify-center text-4xl border-4 border-white">
+                <div class="w-24 h-24 mx-auto -mt-20 mb-4 rounded-full bg-white dark:bg-zinc-900 shadow-lg flex items-center justify-center border-4 border-white dark:border-zinc-900 overflow-hidden">
                     @if($store->logo)
-                        <img src="{{ asset('storage/' . $store->logo) }}" class="w-full h-full object-cover rounded-full">
+                        <img src="{{ asset('storage/' . $store->logo) }}"
+                             alt="{{ $store->name }}"
+                             class="w-full h-full object-cover">
                     @else
-                        🏪
+                        <i class="fa-solid fa-store text-forest-700 dark:text-gold-400 text-3xl"></i>
                     @endif
                 </div>
 
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ $store->name }}</h1>
+                <h1 class="font-display text-2xl font-bold text-ink dark:text-cream mb-4">
+                    {{ $store->name }}
+                </h1>
 
-                {{-- Status Badge --}}
                 @if($store->status === 'pending')
-                    <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full mb-4">
-                        <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
-                        <span class="font-medium">⏳ قيد المراجعة</span>
+                    <div class="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 px-4 py-2 rounded-full mb-5">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                        <span class="font-medium text-sm">
+                            <i class="fa-solid fa-clock"></i> قيد المراجعة
+                        </span>
                     </div>
                 @elseif($store->status === 'inactive')
-                    <div class="inline-flex items-center gap-2 bg-red-100 text-red-800 px-4 py-2 rounded-full mb-4">
+                    <div class="inline-flex items-center gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-300 px-4 py-2 rounded-full mb-5">
                         <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                        <span class="font-medium">❌ متجر مرفوض</span>
+                        <span class="font-medium text-sm">
+                            <i class="fa-solid fa-circle-xmark"></i> متجر مرفوض
+                        </span>
+                    </div>
+                @elseif($store->status === 'active')
+                    <div class="inline-flex items-center gap-2 bg-forest-50 dark:bg-forest-950/30 border border-forest-200 dark:border-forest-900/50 text-forest-800 dark:text-forest-300 px-4 py-2 rounded-full mb-5">
+                        <span class="w-2 h-2 bg-forest-500 rounded-full"></span>
+                        <span class="font-medium text-sm">
+                            <i class="fa-solid fa-circle-check"></i> متجر معتمد
+                        </span>
                     </div>
                 @endif
 
-                <p class="text-gray-600 leading-relaxed mb-6">
+                <p class="text-ink-muted dark:text-cream/70 leading-relaxed mb-6 max-w-lg mx-auto">
                     @if($store->status === 'pending')
                         طلب إنشاء متجرك قيد المراجعة من قبل الإدارة.<br>
-                        سيتم تفعيل متجرك خلال 24-48 ساعة.
+                        سيتم تفعيل متجرك خلال <strong class="text-ink dark:text-cream">24-48 ساعة</strong>.
                     @elseif($store->status === 'inactive')
                         للأسف، لم يتم اعتماد متجرك.<br>
                         للاستفسار، يرجى التواصل مع الدعم الفني.
+                    @else
+                        متجرك جاهز للبيع! يمكنك البدء بإضافة منتجاتك الآن.
                     @endif
                 </p>
 
-                {{-- Timeline --}}
-                <div class="bg-gray-50 rounded-lg p-6 text-right mb-6">
-                    <h3 class="font-bold text-gray-800 mb-4">📋 مراحل الإنشاء</h3>
+                <div class="bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 text-right mb-6">
+                    <h3 class="font-display font-bold text-ink dark:text-cream mb-5 flex items-center gap-2 justify-end">
+                        <i class="fa-solid fa-list-check text-forest-700 dark:text-gold-400 text-sm"></i>
+                        مراحل الإنشاء
+                    </h3>
 
                     <div class="space-y-4">
-                        {{-- Step 1 --}}
                         <div class="flex gap-3">
-                            <div class="flex flex-col items-center">
-                                <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm">✓</div>
-                                <div class="w-0.5 h-full bg-green-300 my-1"></div>
+                            <div class="flex flex-col items-center shrink-0">
+                                <div class="w-8 h-8 flex items-center justify-center bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 rounded-full">
+                                    <i class="fa-solid fa-check text-xs"></i>
+                                </div>
+                                <div class="w-0.5 h-full bg-forest-300 dark:bg-forest-800 my-1"></div>
                             </div>
                             <div class="flex-1 pb-4">
-                                <p class="font-medium text-green-700">تم إنشاء الحساب</p>
-                                <p class="text-xs text-gray-500">{{ $store->created_at->format('Y/m/d H:i') }}</p>
+                                <p class="font-medium text-forest-700 dark:text-gold-400">تم إنشاء الحساب</p>
+                                <p class="text-xs text-ink-muted dark:text-cream/50 mt-1">
+                                    {{ $store->created_at->format('Y/m/d — H:i') }}
+                                </p>
                             </div>
                         </div>
 
-                        {{-- Step 2 --}}
                         <div class="flex gap-3">
-                            <div class="flex flex-col items-center">
+                            <div class="flex flex-col items-center shrink-0">
                                 @if($store->status === 'pending')
-                                    <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm animate-pulse">⏳</div>
+                                    <div class="w-8 h-8 flex items-center justify-center bg-amber-500 text-white rounded-full animate-pulse">
+                                        <i class="fa-solid fa-clock text-xs"></i>
+                                    </div>
                                 @elseif($store->status === 'active')
-                                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm">✓</div>
+                                    <div class="w-8 h-8 flex items-center justify-center bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 rounded-full">
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                    </div>
                                 @else
-                                    <div class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm">✕</div>
+                                    <div class="w-8 h-8 flex items-center justify-center bg-red-600 text-white rounded-full">
+                                        <i class="fa-solid fa-xmark text-xs"></i>
+                                    </div>
                                 @endif
-                                <div class="w-0.5 h-full bg-gray-300 my-1"></div>
+                                <div class="w-0.5 h-full bg-stone-300 dark:bg-stone-700 my-1"></div>
                             </div>
                             <div class="flex-1 pb-4">
-                                <p class="font-medium {{ $store->status === 'pending' ? 'text-yellow-700' : ($store->status === 'active' ? 'text-green-700' : 'text-red-700') }}">
+                                <p class="font-medium
+                                          @if($store->status === 'pending') text-amber-700 dark:text-amber-400
+                                          @elseif($store->status === 'active') text-forest-700 dark:text-gold-400
+                                          @else text-red-700 dark:text-red-400 @endif">
                                     مراجعة الإدارة
                                 </p>
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-ink-muted dark:text-cream/50 mt-1">
                                     @if($store->status === 'pending')
                                         جاري المراجعة...
                                     @elseif($store->status === 'active')
-                                        تم الاعتماد
+                                        تم الاعتماد بنجاح
                                     @else
-                                        تم الرفض
+                                        تم الرفض — تواصل مع الدعم
                                     @endif
                                 </p>
                             </div>
                         </div>
 
-                        {{-- Step 3 --}}
                         <div class="flex gap-3">
-                            <div class="flex flex-col items-center">
+                            <div class="flex flex-col items-center shrink-0">
                                 @if($store->status === 'active')
-                                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm">✓</div>
+                                    <div class="w-8 h-8 flex items-center justify-center bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 rounded-full">
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                    </div>
                                 @else
-                                    <div class="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center text-sm">🔓</div>
+                                    <div class="w-8 h-8 flex items-center justify-center bg-stone-300 dark:bg-zinc-800 text-ink-muted dark:text-cream/40 rounded-full">
+                                        <i class="fa-solid fa-lock text-xs"></i>
+                                    </div>
                                 @endif
                             </div>
                             <div class="flex-1">
-                                <p class="font-medium {{ $store->status === 'active' ? 'text-green-700' : 'text-gray-400' }}">
+                                <p class="font-medium {{ $store->status === 'active' ? 'text-forest-700 dark:text-gold-400' : 'text-ink-faint dark:text-cream/40' }}">
                                     تفعيل المتجر
                                 </p>
-                                <p class="text-xs text-gray-500">
-                                    {{ $store->status === 'active' ? 'متجرك جاهز للبيع' : 'في انتظار المراجعة' }}
+                                <p class="text-xs text-ink-muted dark:text-cream/50 mt-1">
+                                    {{ $store->status === 'active' ? 'متجرك جاهز للبيع 🎉' : 'في انتظار المراجعة' }}
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Actions --}}
                 <div class="flex flex-wrap gap-3 justify-center">
                     @if($store->status === 'active')
-                        <a href="{{ route('merchant.dashboard') }}"
-                           class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium">
-                            🚀 الذهاب للوحة التحكم
+                        <a href="{{ route('merchant.dashboard') }}" class="btn-solid">
+                            <i class="fa-solid fa-bolt"></i>
+                            الذهاب للوحة التحكم
                         </a>
                     @else
-                        <a href="{{ route('pages.contact') }}"
-                           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium">
-                            📞 تواصل مع الدعم
+                        <a href="{{ route('pages.contact') }}" class="btn-solid">
+                            <i class="fa-solid fa-headset"></i>
+                            تواصل مع الدعم
                         </a>
-                        <a href="{{ route('home') }}"
-                           class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium">
-                            🏠 الرئيسية
+                        <a href="{{ route('home') }}" class="btn-outline">
+                            <i class="fa-solid fa-house"></i>
+                            الرئيسية
                         </a>
                     @endif
                 </div>
             </div>
         </div>
     </div>
+
 @endsection

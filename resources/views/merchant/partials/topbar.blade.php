@@ -1,168 +1,260 @@
-@php
-    $user = auth()->user();
-    $store = $user->stores()->first();
-    $unreadNotifications = 0;
-    if ($user) {
-       $unreadNotifications = \App\Models\Notification::where('user_id', $user->id)->where('is_read', false)->count();
-    }
-@endphp
+<header x-data="{ searchOpen: false, userMenu: false, mobileMenuOpen: false }" 
+        class="bg-white dark:bg-zinc-950 border-b border-stone-200 dark:border-stone-800 sticky top-0 z-40">
 
-<header class="h-16 flex items-center justify-between px-4 md:px-6 shrink-0 border-b"
-        style="background-color: var(--bg-primary); border-color: var(--border-light);">
+    {{-- ════════════════════════════════════
+         TOP BAR
+    ════════════════════════════════════ --}}
+    <div class="hidden md:block bg-forest-900 dark:bg-forest-950 text-white text-xs">
+        <div class="container-x flex items-center justify-between py-2.5">
 
-    {{-- Right: Toggle + Title --}}
-    <div class="flex items-center gap-3 min-w-0">
-        {{-- Mobile Toggle --}}
-        <button @click="sidebarOpen = true"
-        class="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg transition"
-                style="color: var(--text-secondary);"
-                onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                onmouseout="this.style.backgroundColor='transparent';">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-        </button>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-truck-fast text-gold-400"></i>
+                <span class="font-medium">توصيل مجاني للطلبات فوق 200 ₪</span>
+            </div>
 
-        {{-- Page Title --}}
-        <div class="min-w-0">
-            <h1 class="text-[15px] md:text-lg font-bold truncate" style="color: var(--text-primary);">
-                @yield('page-title', 'لوحة التحكم')
-            </h1>
-            @hasSection('page-subtitle')
-                <p class="text-[11px] truncate hidden md:block" style="color: var(--text-tertiary);">
-                    @yield('page-subtitle')
-                </p>
-            @endif
-        </div>
-    </div>
-
-    {{-- Left: Actions --}}
-    <div class="flex items-center gap-1 md:gap-2">
-
-        {{-- Visit Store (Desktop) --}}
-        <a href="{{ route('home') }}" target="_blank"
-           class="hidden md:flex items-center gap-2 h-9 px-3 rounded-lg text-[12px] font-medium transition"
-           style="color: var(--text-secondary);"
-           onmouseover="this.style.backgroundColor='var(--bg-tertiary)'; this.style.color='var(--text-primary)';"
-           onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--text-secondary)';">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <span>زيارة المتجر</span>
-        </a>
-
-        {{-- Dark Mode --}}
-        <button onclick="toggleDarkMode()" title="الوضع الليلي"
-                class="w-9 h-9 flex items-center justify-center rounded-lg transition"
-                style="color: var(--text-secondary);"
-                onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                onmouseout="this.style.backgroundColor='transparent';">
-            <svg class="w-4 h-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-            </svg>
-            <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-        </button>
-
-        {{-- Notifications --}}
-        <a href="#" title="الإشعارات"
-   onclick="event.preventDefault(); alert('الإشعارات قيد التطوير');"
-           class="relative w-9 h-9 flex items-center justify-center rounded-lg transition"
-           style="color: var(--text-secondary);"
-           onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-           onmouseout="this.style.backgroundColor='transparent';">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-            </svg>
-            @if($unreadNotifications > 0)
-                <span class="absolute top-1 right-1 min-w-[16px] h-4 px-1 text-white text-[9px] font-bold rounded-full flex items-center justify-center"
-                      style="background-color: #dc2626;">
-                    {{ $unreadNotifications > 9 ? '9+' : $unreadNotifications }}
-                </span>
-            @endif
-        </a>
-
-        {{-- User Menu --}}
-        <div x-data="{ userMenu: false }" class="relative">
-            <button @click="userMenu = !userMenu"
-                    class="flex items-center gap-2 h-9 px-2 rounded-lg transition"
-                    onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                    onmouseout="this.style.backgroundColor='transparent';">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
-                     style="background-color: var(--gold);">
-                    {{ mb_substr($user->full_name, 0, 1) }}
-                </div>
-                <span class="hidden md:block text-[13px] font-medium" style="color: var(--text-primary);">
-                    {{ explode(' ', $user->full_name)[0] }}
-                </span>
-                <svg class="w-3 h-3 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="color: var(--text-tertiary);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-
-            {{-- Dropdown --}}
-            <div x-show="userMenu" @click.outside="userMenu = false" x-cloak x-transition
-                 class="absolute left-0 mt-2 w-56 rounded-xl shadow-lg border py-1 z-50"
-                 style="background-color: var(--bg-primary); border-color: var(--border-light);">
-
-                <div class="px-4 py-3 border-b" style="border-color: var(--border-light);">
-                    <p class="text-[13px] font-semibold" style="color: var(--text-primary);">
-                        {{ $user->full_name }}
-                    </p>
-                    <p class="text-[11px] truncate" style="color: var(--text-tertiary);">{{ $user->email }}</p>
-                </div>
-
-                <a href="{{ route('merchant.settings.index') }}"
-                   class="block px-4 py-2.5 text-[13px] transition"
-                   style="color: var(--text-primary);"
-                   onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                   onmouseout="this.style.backgroundColor='transparent';">
-                    ⚙️ إعدادات المتجر
+            <div class="flex items-center gap-6">
+                <a href="{{ route('pages.contact') }}" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-headset"></i>
+                    تواصل معنا
                 </a>
-
-                <a href="{{ route('profile.edit') }}"
-                   class="block px-4 py-2.5 text-[13px] transition"
-                   style="color: var(--text-primary);"
-                   onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                   onmouseout="this.style.backgroundColor='transparent';">
-                    👤 الملف الشخصي
+                <span class="opacity-30">|</span>
+                <a href="{{ route('register') }}?role=merchant" class="hover:text-gold-400 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-store"></i>
+                    كن تاجراً
                 </a>
-
-                <div class="border-t my-1" style="border-color: var(--border-light);"></div>
-
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                            class="w-full text-right px-4 py-2.5 text-[13px] transition"
-                            style="color: #dc2626;"
-                            onmouseover="this.style.backgroundColor='#fef2f2';"
-                            onmouseout="this.style.backgroundColor='transparent';">
-                        🚪 تسجيل الخروج
-                    </button>
-                </form>
             </div>
         </div>
     </div>
-</header>
 
-<script>
-    function toggleDarkMode() {
-        const html = document.documentElement;
-        const isDark = html.classList.contains('dark');
-        if (isDark) {
-            html.classList.remove('dark');
-            localStorage.setItem('darkMode', 'false');
-        } else {
-            html.classList.add('dark');
-            localStorage.setItem('darkMode', 'true');
-        }
-    }
-</script>
+    {{-- ════════════════════════════════════
+         MAIN HEADER
+    ════════════════════════════════════ --}}
+    <div class="container-x py-4">
+        <div class="flex items-center justify-between gap-6">
+
+            {{-- ─── Logo ─── --}}
+            <a href="{{ route('home') }}" class="flex items-center gap-3 shrink-0 group">
+                <div class="w-10 h-10 flex items-center justify-center bg-forest-900 dark:bg-gold-500 text-white dark:text-ink rounded transition-transform group-hover:scale-105">
+                    <i class="fa-solid fa-shirt text-lg"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="font-display text-lg font-bold text-ink dark:text-cream leading-tight">متجر الملابس</h1>
+                    <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50">أزياء عصرية</p>
+                </div>
+            </a>
+
+            {{-- ─── Search (Desktop) ─── --}}
+            <div class="hidden md:flex flex-1 max-w-xl">
+                <form action="{{ route('products.search') }}" method="GET" class="w-full relative">
+                    <input type="text" name="q" value="{{ request('q') }}"
+                           placeholder="ابحث عن منتج، ماركة، متجر..."
+                           class="w-full h-11 pl-11 pr-4 text-sm bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded text-ink dark:text-cream placeholder:text-ink-faint dark:placeholder:text-cream/30 focus:border-forest-600 dark:focus:border-gold-400 focus:bg-white dark:focus:bg-zinc-900 focus:ring-0 transition-colors">
+                    <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+
+            {{-- ─── Actions ─── --}}
+            <div class="flex items-center gap-1">
+
+                {{-- Dark Mode Toggle --}}
+                <button onclick="toggleDarkMode()" 
+                        class="hidden md:flex w-10 h-10 items-center justify-center text-ink-muted hover:text-forest-700 dark:text-cream/60 dark:hover:text-gold-400 hover:bg-stone-100 dark:hover:bg-zinc-900 rounded transition-colors"
+                        title="تبديل الوضع الليلي">
+                    <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+                    <i class="fa-solid fa-moon text-lg block dark:hidden"></i>
+                </button>
+
+                {{-- Search (Mobile) --}}
+                <button @click="searchOpen = !searchOpen" 
+                        class="md:hidden w-10 h-10 flex items-center justify-center text-ink-muted hover:text-forest-700 rounded transition-colors">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+                {{-- Wishlist --}}
+                @auth
+                    @if(auth()->user()->role === 'customer')
+                        <a href="{{ route('customer.wishlist') }}"
+                           class="hidden md:flex w-10 h-10 items-center justify-center text-ink-muted hover:text-forest-700 dark:text-cream/60 dark:hover:text-gold-400 hover:bg-stone-100 dark:hover:bg-zinc-900 rounded transition-colors relative">
+                            <i class="fa-solid fa-heart"></i>
+                            @php $wishlistCount = auth()->user()->wishlists()->count(); @endphp
+                            @if($wishlistCount > 0)
+                                <span data-wishlist-count
+                                      class="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold text-white bg-forest-700 dark:bg-gold-500 dark:text-ink rounded-full">
+                                    {{ $wishlistCount > 9 ? '9+' : $wishlistCount }}
+                                </span>
+                            @endif
+                        </a>
+                    @endif
+                @endauth
+
+                {{-- Cart --}}
+                @auth
+                    @if(auth()->user()->role === 'customer')
+                        <a href="{{ route('cart.index') }}"
+                           class="w-10 h-10 flex items-center justify-center text-ink-muted hover:text-forest-700 dark:text-cream/60 dark:hover:text-gold-400 hover:bg-stone-100 dark:hover:bg-zinc-900 rounded transition-colors relative">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            @php
+                                $cart = auth()->user()->carts()->latest()->first();
+                                $cartCount = $cart ? $cart->items()->sum('quantity') : 0;
+                            @endphp
+                            @if($cartCount > 0)
+                                <span data-cart-count
+                                      class="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-[10px] font-bold text-white bg-forest-700 dark:bg-gold-500 dark:text-ink rounded-full">
+                                    {{ $cartCount > 9 ? '9+' : $cartCount }}
+                                </span>
+                            @endif
+                        </a>
+                    @endif
+                @endauth
+
+                {{-- ─── User Menu ─── --}}
+                @auth
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open"
+                                class="flex items-center gap-2 h-10 pl-2 pr-3 rounded hover:bg-stone-100 dark:hover:bg-zinc-900 transition-colors">
+                            <div class="w-8 h-8 flex items-center justify-center bg-forest-900 dark:bg-gold-500 text-white dark:text-ink rounded-full text-xs font-bold">
+                                {{ mb_substr(auth()->user()->full_name, 0, 1) }}
+                            </div>
+                            <span class="hidden md:block text-sm font-medium text-ink dark:text-cream max-w-[80px] truncate">
+                                {{ explode(' ', auth()->user()->full_name)[0] }}
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-ink-muted hidden md:block transition-transform" 
+                               :class="open ? 'rotate-180' : ''"></i>
+                        </button>
+
+                        <div x-show="open" @click.outside="open = false" x-cloak
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 translate-y-1"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             class="absolute left-0 mt-2 w-64 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded shadow-lg py-1.5 z-50">
+
+                            <div class="px-4 py-3 border-b border-stone-100 dark:border-stone-800">
+                                <p class="font-medium text-sm text-ink dark:text-cream truncate">
+                                    {{ auth()->user()->full_name }}
+                                </p>
+                                <p class="text-xs text-ink-muted dark:text-cream/50 truncate mt-0.5">
+                                    {{ auth()->user()->email }}
+                                </p>
+                            </div>
+
+                            <div class="py-1.5">
+                                @if(auth()->user()->role === 'admin')
+                                    <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft dark:text-cream/80 hover:bg-stone-50 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                        <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+                                        لوحة المشرف
+                                    </a>
+                                @elseif(auth()->user()->role === 'merchant')
+                                    <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft dark:text-cream/80 hover:bg-stone-50 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                        <i class="fa-solid fa-store w-4 text-center"></i>
+                                        لوحة التاجر
+                                    </a>
+                                @else
+                                    <a href="{{ route('customer.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft dark:text-cream/80 hover:bg-stone-50 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                        <i class="fa-solid fa-user w-4 text-center"></i>
+                                        حسابي
+                                    </a>
+                                    <a href="{{ route('customer.orders.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft dark:text-cream/80 hover:bg-stone-50 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                        <i class="fa-solid fa-box w-4 text-center"></i>
+                                        طلباتي
+                                    </a>
+                                    <a href="{{ route('customer.wishlist') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-ink-soft dark:text-cream/80 hover:bg-stone-50 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                        <i class="fa-solid fa-heart w-4 text-center"></i>
+                                        المفضلة
+                                    </a>
+                                @endif
+                            </div>
+
+                            <div class="border-t border-stone-100 dark:border-stone-800"></div>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
+                                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
+                                    تسجيل الخروج
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" 
+                       class="hidden md:flex items-center gap-2 h-10 px-4 text-sm font-medium text-ink-soft dark:text-cream/80 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        دخول
+                    </a>
+                    <a href="{{ route('register') }}" 
+                       class="hidden md:inline-flex items-center justify-center gap-2 h-10 px-5 text-xs font-semibold tracking-widest uppercase bg-forest-900 dark:bg-gold-500 text-white dark:text-ink hover:bg-forest-800 dark:hover:bg-gold-400 rounded transition-colors">
+                        <i class="fa-solid fa-user-plus"></i>
+                        إنشاء حساب
+                    </a>
+                @endauth
+
+                {{-- Mobile Menu --}}
+                <button @click="$dispatch('toggle-mobile-menu')"
+                        class="md:hidden w-10 h-10 flex items-center justify-center text-ink-muted hover:text-forest-700 rounded transition-colors">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- ─── Mobile Search ─── --}}
+        <div x-show="searchOpen" x-cloak x-transition
+             class="md:hidden mt-4 pb-2">
+            <form action="{{ route('products.search') }}" method="GET" class="relative">
+                <input type="text" name="q" value="{{ request('q') }}"
+                       placeholder="ابحث..."
+                       class="w-full h-11 pl-11 pr-4 text-sm bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded focus:border-forest-600 dark:focus:border-gold-400 focus:ring-0">
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {{-- ════════════════════════════════════
+         NAV BAR (Desktop)
+    ════════════════════════════════════ --}}
+    <nav class="hidden md:block border-t border-stone-200 dark:border-stone-800">
+        <div class="container-x">
+            <ul class="flex items-center gap-1 py-1.5">
+                @php
+                    $navItems = [
+                        ['route' => 'home',            'label' => 'الرئيسية',  'icon' => 'fa-house'],
+                        ['route' => 'products.index',  'label' => 'المنتجات',  'icon' => 'fa-shirt'],
+                        ['route' => 'stores.index',    'label' => 'المتاجر',   'icon' => 'fa-store'],
+                        ['route' => 'offers.index',    'label' => 'العروض',    'icon' => 'fa-fire', 'accent' => true],
+                    ];
+                @endphp
+
+                @foreach($navItems as $item)
+                    @php
+                        $isActive = request()->routeIs($item['route']) || request()->routeIs(explode('.', $item['route'])[0] . '.*');
+                    @endphp
+                    <li>
+                        <a href="{{ route($item['route']) }}"
+                           class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded transition-colors
+                                  {{ $isActive 
+                                     ? 'bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400' 
+                                     : 'text-ink-soft dark:text-cream/70 hover:text-forest-700 dark:hover:text-gold-400 hover:bg-stone-50 dark:hover:bg-zinc-900' }}
+                                  {{ isset($item['accent']) ? 'text-red-600 dark:text-red-400 hover:text-red-700' : '' }}">
+                            <i class="fa-solid {{ $item['icon'] }}"></i>
+                            {{ $item['label'] }}
+                        </a>
+                    </li>
+                @endforeach
+
+                <li class="mx-2 h-5 w-px bg-stone-200 dark:bg-stone-800"></li>
+
+                @foreach(['men' => 'رجالي', 'women' => 'نسائي', 'kids' => 'أطفال'] as $gender => $label)
+                    <li>
+                        <a href="{{ route('products.index', ['gender' => $gender]) }}"
+                           class="px-4 py-2 text-sm font-medium text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400 rounded transition-colors">
+                            {{ $label }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    </nav>
+</header>

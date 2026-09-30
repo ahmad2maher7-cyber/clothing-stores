@@ -5,206 +5,251 @@
 
 @section('content')
 
-    {{-- Tabs --}}
-    <div class="bg-white rounded-lg shadow mb-6">
-        <div class="flex border-b overflow-x-auto">
-            <a href="{{ route('merchant.settings.index') }}"
-               class="px-6 py-4 whitespace-nowrap border-b-2 font-medium transition
-                      {{ request()->routeIs('merchant.settings.index') ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                🏪 المعلومات الأساسية
-            </a>
-            <a href="{{ route('merchant.settings.branches') }}"
-               class="px-6 py-4 whitespace-nowrap border-b-2 font-medium transition
-                      {{ request()->routeIs('merchant.settings.branches') ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                🏢 الفروع
-            </a>
-            <a href="{{ route('merchant.settings.shipping') }}"
-               class="px-6 py-4 whitespace-nowrap border-b-2 font-medium transition
-                      {{ request()->routeIs('merchant.settings.shipping') ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                🚚 مناطق الشحن
-            </a>
-            <a href="{{ route('merchant.settings.policies') }}"
-               class="px-6 py-4 whitespace-nowrap border-b-2 font-medium transition
-                      {{ request()->routeIs('merchant.settings.policies') ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                📜 السياسات
-            </a>
+    {{-- ═══ Tabs ═══ --}}
+    <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden mb-6">
+        <div class="flex overflow-x-auto">
+            @php
+                $tabs = [
+                    ['route' => 'merchant.settings.index',       'label' => 'المعلومات الأساسية', 'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'],
+                    ['route' => 'merchant.settings.appearance',  'label' => 'الهوية البصرية',    'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'],
+                    ['route' => 'merchant.settings.branches',    'label' => 'الفروع',             'icon' => 'M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01'],
+                    ['route' => 'merchant.settings.shipping',    'label' => 'مناطق الشحن',        'icon' => 'M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0'],
+                    ['route' => 'merchant.settings.policies',    'label' => 'السياسات',           'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                ];
+            @endphp
+
+            @foreach($tabs as $tab)
+                @php $isActive = request()->routeIs($tab['route']); @endphp
+                <a href="{{ route($tab['route']) }}"
+                   class="flex items-center gap-2 px-5 py-4 whitespace-nowrap border-b-2 text-sm font-medium transition-colors
+                          {{ $isActive 
+                             ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                             : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $tab['icon'] }}"/>
+                    </svg>
+                    {{ $tab['label'] }}
+                </a>
+            @endforeach
         </div>
     </div>
 
-    <div x-data="settingsForm()">
+    <form action="{{ route('merchant.settings.update') }}" method="POST" enctype="multipart/form-data">
+        @csrf @method('PUT')
 
-        <form action="{{ route('merchant.settings.update') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- ═══ Main Column ═══ --}}
+            <div class="lg:col-span-2 space-y-6">
 
-                {{-- Main Column --}}
-                <div class="lg:col-span-2 space-y-6">
-
-                    {{-- Basic Info --}}
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="p-6 border-b">
-                            <h3 class="text-lg font-bold text-gray-800">📝 المعلومات الأساسية</h3>
+                {{-- Basic Info --}}
+                <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
+                    <div class="p-6 border-b border-stone-200 dark:border-stone-800 flex items-center gap-3">
+                        <div class="w-10 h-10 flex items-center justify-center bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
                         </div>
-                        <div class="p-6 space-y-5">
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    اسم المتجر <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="name" value="{{ old('name', $store->name) }}" required
-                                       class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
-                                @error('name') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">وصف المتجر</label>
-                                <textarea name="description" rows="4" maxlength="1000"
-                                          placeholder="اكتب وصفاً جاذباً لمتجرك..."
-                                          class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $store->description) }}</textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">السجل التجاري</label>
-                                    <input type="text" name="commercial_register" value="{{ old('commercial_register', $store->commercial_register) }}"
-                                           placeholder="CR-12345"
-                                           class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
-                                    <input type="text" value="{{ auth()->user()->phone }}" disabled
-                                           class="w-full border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
-                                    <p class="text-xs text-gray-500 mt-1">يُعدل من الملف الشخصي</p>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">العنوان الرئيسي</label>
-                                <textarea name="address" rows="2"
-                                          placeholder="المدينة - الحي - الشارع"
-                                          class="w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">{{ old('address', $store->address) }}</textarea>
-                            </div>
+                        <div>
+                            <h3 class="font-display text-lg font-bold text-ink dark:text-cream">المعلومات الأساسية</h3>
+                            <p class="text-xs text-ink-muted dark:text-cream/60">بيانات متجرك الأساسية</p>
                         </div>
                     </div>
 
-                    {{-- Working Hours --}}
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="p-6 border-b">
-                            <h3 class="text-lg font-bold text-gray-800">⏰ أوقات العمل</h3>
-                            <p class="text-sm text-gray-500 mt-1">اتركها فارغة للأيام المغلقة</p>
+                    <div class="p-6 space-y-5">
+                        <div>
+                            <label class="form-label">
+                                اسم المتجر <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="name" value="{{ old('name', $store->name) }}" required
+                                   class="form-input">
+                            @error('name') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
-                        <div class="p-6">
-                            @php
-                                $days = [
-                                    'saturday' => 'السبت',
-                                    'sunday' => 'الأحد',
-                                    'monday' => 'الاثنين',
-                                    'tuesday' => 'الثلاثاء',
-                                    'wednesday' => 'الأربعاء',
-                                    'thursday' => 'الخميس',
-                                    'friday' => 'الجمعة',
-                                ];
-                                $workingHours = $store->working_hours ?? [];
-                            @endphp
 
-                            <div class="space-y-3">
-                                @foreach($days as $key => $label)
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-24 text-sm font-medium text-gray-700">{{ $label }}</div>
-                                        <input type="text"
-                                               name="working_hours[{{ $key }}]"
-                                               value="{{ old('working_hours.' . $key, $workingHours[$key] ?? '') }}"
-                                               placeholder="09:00 - 22:00 أو CLOSED"
-                                               class="flex-1 border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    </div>
-                                @endforeach
+                        <div>
+                            <label class="form-label">وصف المتجر</label>
+                            <textarea name="description" rows="4" maxlength="1000"
+                                      placeholder="اكتب وصفاً جاذباً لمتجرك..."
+                                      class="form-input h-auto py-3 resize-none">{{ old('description', $store->description) }}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">السجل التجاري</label>
+                                <input type="text" name="commercial_register" 
+                                       value="{{ old('commercial_register', $store->commercial_register) }}"
+                                       placeholder="CR-12345"
+                                       class="form-input">
                             </div>
+                            <div>
+                                <label class="form-label">رقم الهاتف</label>
+                                <input type="text" value="{{ auth()->user()->phone }}" disabled
+                                       class="form-input bg-stone-50 dark:bg-zinc-800 cursor-not-allowed opacity-70">
+                                <p class="text-xs text-ink-muted dark:text-cream/40 mt-2">يُعدل من الملف الشخصي</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">العنوان الرئيسي</label>
+                            <textarea name="address" rows="2"
+                                      placeholder="المدينة - الحي - الشارع"
+                                      class="form-input h-auto py-3 resize-none">{{ old('address', $store->address) }}</textarea>
                         </div>
                     </div>
                 </div>
 
-                {{-- Sidebar --}}
-                <div class="space-y-6">
-
-                    {{-- Logo --}}
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="font-bold text-gray-800 mb-4">🏪 شعار المتجر</h3>
-
-                        <div class="text-center">
-                            @if($store->logo)
-                                <img src="{{ asset('storage/' . $store->logo) }}"
-                                     class="w-32 h-32 rounded-full mx-auto object-cover border-4 border-gray-100 mb-3">
-                            @else
-                                <div class="w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center text-4xl mx-auto mb-3">
-                                    🏪
-                                </div>
-                            @endif
-
-                            <label for="logo" class="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-block text-sm">
-                                📸 تغيير الشعار
-                            </label>
-                            <input type="file" name="logo" id="logo" accept="image/*" class="hidden"
-                                   onchange="document.getElementById('logo-name').textContent = this.files[0].name">
-                            <p id="logo-name" class="text-xs text-gray-500 mt-1"></p>
+                {{-- Working Hours --}}
+                <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
+                    <div class="p-6 border-b border-stone-200 dark:border-stone-800 flex items-center gap-3">
+                        <div class="w-10 h-10 flex items-center justify-center bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         </div>
-                        @error('logo') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        <div>
+                            <h3 class="font-display text-lg font-bold text-ink dark:text-cream">أوقات العمل</h3>
+                            <p class="text-xs text-ink-muted dark:text-cream/60">اتركها فارغة للأيام المغلقة</p>
+                        </div>
                     </div>
 
-                    {{-- Banner --}}
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="font-bold text-gray-800 mb-4">🖼️ غلاف المتجر</h3>
+                    <div class="p-6">
+                        @php
+                            $days = [
+                                'saturday' => 'السبت',
+                                'sunday' => 'الأحد',
+                                'monday' => 'الاثنين',
+                                'tuesday' => 'الثلاثاء',
+                                'wednesday' => 'الأربعاء',
+                                'thursday' => 'الخميس',
+                                'friday' => 'الجمعة',
+                            ];
+                            $workingHours = $store->working_hours ?? [];
+                        @endphp
 
-                        @if($store->banner)
-                            <img src="{{ asset('storage/' . $store->banner) }}"
-                                 class="w-full h-32 object-cover rounded-lg mb-3">
+                        <div class="space-y-3">
+                            @foreach($days as $key => $label)
+                                <div class="flex items-center gap-3">
+                                    <div class="w-24 text-sm font-medium text-ink dark:text-cream shrink-0">{{ $label }}</div>
+                                    <input type="text"
+                                           name="working_hours[{{ $key }}]"
+                                           value="{{ old('working_hours.' . $key, $workingHours[$key] ?? '') }}"
+                                           placeholder="09:00 - 22:00 أو CLOSED"
+                                           class="form-input flex-1 text-sm">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ═══ Sidebar ═══ --}}
+            <div class="space-y-6">
+
+                {{-- Logo --}}
+                <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6">
+                    <h3 class="font-display font-bold text-ink dark:text-cream mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-forest-700 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        شعار المتجر
+                    </h3>
+
+                    <div class="text-center">
+                        @if($store->logo)
+                            <img src="{{ asset('storage/' . $store->logo) }}"
+                                 alt="{{ $store->name }}"
+                                 class="w-28 h-28 rounded-full mx-auto object-cover border-4 border-stone-100 dark:border-zinc-800 mb-4">
                         @else
-                            <div class="w-full h-32 bg-gradient-to-l from-indigo-400 to-purple-500 rounded-lg flex items-center justify-center mb-3">
-                                <span class="text-white text-sm">لا يوجد غلاف</span>
+                            <div class="w-28 h-28 rounded-full bg-forest-50 dark:bg-forest-950/40 flex items-center justify-center mx-auto mb-4 border-4 border-stone-100 dark:border-zinc-800">
+                                <svg class="w-12 h-12 text-forest-700 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
                             </div>
                         @endif
 
-                        <label for="banner" class="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg inline-block text-sm w-full text-center">
-                            📸 تغيير الغلاف
+                        <label for="logo" class="btn-outline cursor-pointer inline-flex">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            تغيير الشعار
                         </label>
-                        <input type="file" name="banner" id="banner" accept="image/*" class="hidden"
-                               onchange="document.getElementById('banner-name').textContent = this.files[0].name">
-                        <p id="banner-name" class="text-xs text-gray-500 mt-1"></p>
-
-                        <p class="text-xs text-gray-400 mt-2">الحجم المقترح: 1200x400 بكسل</p>
-                        @error('banner') <p class="text-red-500 text-sm mt-2">{{ $message }}</p> @enderror
+                        <input type="file" name="logo" id="logo" accept="image/*" class="hidden"
+                               onchange="document.getElementById('logo-name').textContent = this.files[0].name">
+                        <p id="logo-name" class="text-xs text-ink-muted dark:text-cream/50 mt-2"></p>
                     </div>
+                    @error('logo') <p class="form-error mt-2">{{ $message }}</p> @enderror
+                </div>
 
-                    {{-- Store Info --}}
-                    <div class="bg-gray-50 rounded-lg p-4 text-sm">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-gray-500">حالة المتجر:</span>
+                {{-- Banner --}}
+                <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6">
+                    <h3 class="font-display font-bold text-ink dark:text-cream mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-forest-700 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        غلاف المتجر
+                    </h3>
+
+                    @if($store->banner)
+                        <img src="{{ asset('storage/' . $store->banner) }}"
+                             alt="{{ $store->name }}"
+                             class="w-full h-32 object-cover rounded mb-3 border border-stone-200 dark:border-stone-800">
+                    @else
+                        <div class="w-full h-32 bg-gradient-to-br from-forest-700 to-gold-500 rounded mb-3 flex items-center justify-center">
+                            <svg class="w-10 h-10 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    @endif
+
+                    <label for="banner" class="btn-outline cursor-pointer w-full justify-center inline-flex">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        تغيير الغلاف
+                    </label>
+                    <input type="file" name="banner" id="banner" accept="image/*" class="hidden"
+                           onchange="document.getElementById('banner-name').textContent = this.files[0].name">
+                    <p id="banner-name" class="text-xs text-ink-muted dark:text-cream/50 mt-2"></p>
+
+                    <p class="text-xs text-ink-muted dark:text-cream/40 mt-3">المقاس المقترح: 1200×400 بكسل</p>
+                    @error('banner') <p class="form-error mt-2">{{ $message }}</p> @enderror
+                </div>
+
+                {{-- Store Info --}}
+                <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-ink-muted dark:text-cream/50">حالة المتجر:</span>
                             @if($store->status === 'active')
-                                <span class="text-green-600 font-medium">✅ نشط</span>
+                                <span class="badge badge-forest">✅ نشط</span>
                             @else
-                                <span class="text-red-600 font-medium">⛔ معطل</span>
+                                <span class="badge badge-danger">⛔ معطل</span>
                             @endif
                         </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-gray-500">تاريخ الإنشاء:</span>
-                            <span class="font-medium">{{ $store->created_at->format('Y/m/d') }}</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-ink-muted dark:text-cream/50">تاريخ الإنشاء:</span>
+                            <span class="font-medium text-ink dark:text-cream">{{ $store->created_at->format('Y/m/d') }}</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">معرّف المتجر:</span>
-                            <span class="font-mono text-xs">{{ $store->id }}</span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-ink-muted dark:text-cream/50">معرّف المتجر:</span>
+                            <span class="font-mono text-xs text-ink dark:text-cream">#{{ $store->id }}</span>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Actions --}}
-            <div class="flex justify-end mt-6">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium">
-                    💾 حفظ الإعدادات
-                </button>
-            </div>
-        </form>
-    </div>
+        {{-- Actions --}}
+        <div class="flex justify-end mt-6">
+            <button type="submit" class="btn-solid">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                حفظ الإعدادات
+            </button>
+        </div>
+    </form>
 
 @endsection

@@ -8,7 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\PageController;
-
+use App\Http\Controllers\Auth\VerifyCodeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\StoreController as AdminStoreController;
@@ -90,7 +90,7 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified.custom'])->group(function () {
 
     Route::get('/dashboard', function () {
         return match (auth()->user()->role) {
@@ -134,7 +134,21 @@ Route::post('brands', [AdminBrandController::class, 'store'])->name('brands.stor
 Route::get('brands/{brand}/edit', [AdminBrandController::class, 'edit'])->name('brands.edit');
 Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
 Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
-    });
+    
+
+// Security Logs
+Route::get('security-logs', function () {
+    $stats = \App\Services\SecurityLoggerService::getStats();
+    $logs = \App\Models\FailedLoginAttempt::with('user')
+        ->latest()
+        ->paginate(50);
+
+    return view('admin.security-logs', compact('stats', 'logs'));
+})->name('security.logs');
+
+
+
+});
 
     /*
 |--------------------------------------------------------------------------
@@ -243,5 +257,20 @@ Route::middleware('role:merchant')->prefix('merchant')->name('merchant.')->group
         Route::put('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password');
     });
 });
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Email Verification with OTP
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get('/verify-code', [VerifyCodeController::class, 'notice'])->name('verification.notice');
+    Route::post('/verify-code', [VerifyCodeController::class, 'verify'])->name('verification.verify');
+    Route::post('/verify-code/resend', [VerifyCodeController::class, 'resend'])->name('verification.resend');
+});
+
 
 require __DIR__.'/auth.php';

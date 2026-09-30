@@ -1,36 +1,73 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="ar" dir="rtl">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'حسابي') — متجر الملابس</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('darkMode');
+            if (saved === 'true' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    @stack('styles')
+</head>
+
+<body class="bg-stone-50 dark:bg-zinc-950 antialiased min-h-screen flex flex-col">
+
+    {{-- Header --}}
+    @include('partials.header')
+
+    {{-- Customer Tabs --}}
+    @include('partials.customer-tabs')
+
+    {{-- Main Content --}}
+    <main class="flex-1">
+        @if(session('success'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                 x-transition
+                 class="fixed top-24 left-1/2 -translate-x-1/2 z-50 
+                        bg-forest-700 dark:bg-gold-500 dark:text-ink text-white 
+                        px-6 py-3 text-sm font-medium rounded shadow-lg flex items-center gap-3">
+                <i class="fas fa-check-circle text-lg"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+                 x-transition
+                 class="fixed top-24 left-1/2 -translate-x-1/2 z-50 
+                        bg-red-600 text-white 
+                        px-6 py-3 text-sm font-medium rounded shadow-lg flex items-center gap-3">
+                <i class="fas fa-times-circle text-lg"></i>
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @yield('content')
+    </main>
+
+    {{-- Footer --}}
+    @include('partials.footer')
+
+    @stack('scripts')
+</body>
+
 </html>

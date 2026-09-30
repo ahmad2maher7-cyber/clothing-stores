@@ -1,57 +1,72 @@
-<div class="bg-white border-b shadow-sm">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="flex overflow-x-auto">
-            {{-- Dashboard --}}
+<div class="bg-white dark:bg-zinc-900 border-b border-stone-200 dark:border-stone-800">
+    <div class="container-x">
+        <nav class="flex overflow-x-auto">
+
+            {{-- ═══ Dashboard ═══ --}}
             <a href="{{ route('customer.dashboard') }}"
-               class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-                      {{ request()->routeIs('customer.dashboard') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                <span class="text-lg ml-2">📊</span>
-                <span>لوحة التحكم</span>
+               class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+                      {{ request()->routeIs('customer.dashboard') 
+                         ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                         : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                <i class="fa-solid fa-chart-line w-4 text-center"></i>
+                لوحة التحكم
             </a>
 
-            {{-- Orders --}}
+            {{-- ═══ Orders ═══ --}}
             <a href="{{ route('customer.orders.index') }}"
-               class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-                      {{ request()->routeIs('customer.orders.*') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                <span class="text-lg ml-2">📦</span>
-                <span>طلباتي</span>
+               class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+                      {{ request()->routeIs('customer.orders.*') 
+                         ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                         : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                <i class="fa-solid fa-box w-4 text-center"></i>
+                طلباتي
                 @php
-                    $ordersCount = auth()->user()->orders()->whereIn('status', ['pending', 'processing', 'shipped', 'delivering'])->count();
+                    $activeOrders = auth()->user()->orders()
+                        ->whereIn('status', ['pending', 'processing', 'shipped', 'delivering'])
+                        ->count();
                 @endphp
-                @if($ordersCount > 0)
-                    <span class="mr-2 bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">{{ $ordersCount }}</span>
+                @if($activeOrders > 0)
+                    <span class="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold bg-forest-700 dark:bg-gold-500 text-white dark:text-ink rounded-full">
+                        {{ $activeOrders > 9 ? '9+' : $activeOrders }}
+                    </span>
                 @endif
             </a>
 
-            {{-- Wishlist --}}
+            {{-- ═══ Reviews ═══ --}}
+            <a href="{{ route('customer.reviews.index') }}"
+               class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+                      {{ request()->routeIs('customer.reviews.*') 
+                         ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                         : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                <i class="fa-solid fa-star w-4 text-center"></i>
+                تقييماتي
+            </a>
+
+            {{-- ═══ Wishlist ═══ --}}
             <a href="{{ route('customer.wishlist') }}"
-               class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-                      {{ request()->routeIs('customer.wishlist') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                <span class="text-lg ml-2">❤️</span>
-                <span>المفضلة</span>
-                @php
-                    $wishlistCount = auth()->user()->wishlists()->count();
-                @endphp
+               class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+                      {{ request()->routeIs('customer.wishlist') 
+                         ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                         : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                <i class="fa-solid fa-heart w-4 text-center"></i>
+                المفضلة
+                @php $wishlistCount = auth()->user()->wishlists()->count(); @endphp
                 @if($wishlistCount > 0)
-                    <span class="mr-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $wishlistCount }}</span>
+                    <span class="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full">
+                        {{ $wishlistCount > 9 ? '9+' : $wishlistCount }}
+                    </span>
                 @endif
             </a>
 
-            {{-- Reviews --}}
-<a href="{{ route('customer.reviews.index') }}"
-   class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-          {{ request()->routeIs('customer.reviews.*') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-    <span class="text-lg ml-2">⭐</span>
-    <span>تقييماتي</span>
-</a>
-
-            {{-- Profile --}}
+            {{-- ═══ Profile ═══ --}}
             <a href="{{ route('customer.profile') }}"
-               class="flex items-center px-5 py-4 border-b-2 whitespace-nowrap transition
-                      {{ request()->routeIs('customer.profile') ? 'border-indigo-600 text-indigo-600 font-medium' : 'border-transparent text-gray-600 hover:text-indigo-600' }}">
-                <span class="text-lg ml-2">👤</span>
-                <span>الملف الشخصي</span>
+               class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+                      {{ request()->routeIs('customer.profile') 
+                         ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+                         : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+                <i class="fa-solid fa-user w-4 text-center"></i>
+                الملف الشخصي
             </a>
-        </div>
+        </nav>
     </div>
 </div>

@@ -1,24 +1,31 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجر الملابس</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100">
-    <div class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
-            <h1 class="text-3xl font-bold text-blue-600 mb-4">
-                🎉 مرحباً بك في متجر الملابس
+@extends('layouts.public')
+
+@section('title', 'مرحباً')
+
+@section('content')
+
+    <div class="container-x py-20 lg:py-28">
+        <div class="max-w-2xl mx-auto text-center">
+
+            {{-- Icon --}}
+            <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded-2xl">
+                <i class="fas fa-tshirt text-4xl"></i>
+            </div>
+
+            <span class="eyebrow block mb-3">— مرحباً بك</span>
+            <h1 class="font-display text-4xl md:text-5xl font-bold text-ink dark:text-cream mb-4">
+                متجر الملابس
             </h1>
-            <p class="text-gray-600">
-                Tailwind CSS v4 يعمل بنجاح!
+            <p class="text-base text-ink-muted dark:text-cream/60 mb-8 max-w-md mx-auto">
+                تسوّق الأناقة بأبسط طريقة
             </p>
-            <button class="mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                ابدأ التسوق
-            </button>
+
+            <a href="{{ route('products.index') }}" class="btn-solid">
+                <i class="fas fa-shopping-bag"></i>
+                تسوق الآن
+                <i class="fas fa-chevron-left"></i>
+            </a>
         </div>
     </div>
-</body>
-</html>
+
+@endsection

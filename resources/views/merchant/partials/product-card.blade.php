@@ -1,80 +1,81 @@
-<div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition group">
+<div class="group bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 hover:border-forest-500 dark:hover:border-gold-500 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
 
-    {{-- Image --}}
     <a href="{{ route('products.show', $product->slug) }}" class="block relative">
-        <div class="h-56 bg-gray-100 overflow-hidden">
+        <div class="aspect-square overflow-hidden bg-stone-50 dark:bg-zinc-950">
             @if($product->primaryImage)
                 <img src="{{ asset('storage/' . $product->primaryImage->image_url) }}"
-                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                     alt="{{ $product->name }}">
+                     alt="{{ $product->name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             @else
-                <div class="w-full h-full flex items-center justify-center text-5xl">👕</div>
+                <div class="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-700">
+                    <i class="fa-solid fa-shirt text-6xl"></i>
+                </div>
             @endif
         </div>
 
-        {{-- Discount Badge --}}
         @if($product->discount_price)
-            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <div class="absolute top-3 right-3 bg-red-600 text-white px-2.5 py-1 text-[10px] font-bold tracking-widest uppercase rounded">
                 -{{ round((1 - $product->discount_price / $product->base_price) * 100) }}%
-            </span>
+            </div>
         @endif
 
-        {{-- Wishlist --}}
         @auth
             @if(auth()->user()->role === 'customer')
-                <button onclick="event.preventDefault(); toggleWishlist({{ $product->id }})"
-                        class="absolute top-2 left-2 w-9 h-9 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition">
-                    ❤️
+                <button type="button"
+                        onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }})"
+                        title="أضف للمفضلة"
+                        class="absolute top-3 left-3 w-9 h-9 flex items-center justify-center bg-white/95 dark:bg-zinc-900/95 backdrop-blur border border-stone-200 dark:border-stone-700 rounded-full text-ink-muted dark:text-cream/60 hover:text-red-500 hover:border-red-300 dark:hover:border-red-800 transition-all shadow-sm z-10">
+                    <i class="fa-regular fa-heart"></i>
                 </button>
             @endif
         @endauth
     </a>
 
-    {{-- Content --}}
     <div class="p-4">
-        <p class="text-xs text-gray-500 mb-1">{{ $product->store->name }}</p>
+        <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-1.5 truncate">
+            {{ $product->store->name }}
+        </p>
+
         <a href="{{ route('products.show', $product->slug) }}">
-            <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 hover:text-indigo-600 transition min-h-[3rem]">
+            <h3 class="font-display text-sm font-bold text-ink dark:text-cream mb-3 line-clamp-2 min-h-[2.5rem] hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
                 {{ $product->name }}
             </h3>
         </a>
 
-        {{-- Rating --}}
-        <div class="flex items-center mb-2">
-            <div class="text-yellow-400 text-sm">
+        <div class="flex items-center gap-1.5 mb-3">
+            <div class="flex text-amber-500">
                 @for($i = 1; $i <= 5; $i++)
                     @if($i <= round($product->rating_avg))
-                        ⭐
+                        <i class="fa-solid fa-star text-xs"></i>
                     @else
-                        ☆
+                        <i class="fa-regular fa-star text-xs"></i>
                     @endif
                 @endfor
             </div>
-            <span class="text-xs text-gray-500 mr-1">({{ $product->rating_avg }})</span>
+            <span class="text-[10px] text-ink-muted dark:text-cream/40">
+                ({{ $product->rating_avg }})
+            </span>
         </div>
 
-        {{-- Price --}}
-        <div class="flex items-end justify-between mb-3">
-            <div>
-                @if($product->discount_price)
-                    <span class="text-xl font-bold text-indigo-600">{{ number_format($product->discount_price, 0) }} ₪</span>
-                    <span class="text-sm text-gray-400 line-through mr-1">{{ number_format($product->base_price, 0) }} ₪</span>
-                @else
-                    <span class="text-xl font-bold text-indigo-600">{{ number_format($product->base_price, 0) }} ₪</span>
-                @endif
-            </div>
+        <div class="flex items-baseline gap-2 mb-4">
+            @if($product->discount_price)
+                <span class="font-display text-lg font-bold text-forest-700 dark:text-gold-400">
+                    {{ number_format($product->discount_price, 0) }} ₪
+                </span>
+                <span class="text-xs text-ink-muted dark:text-cream/40 line-through">
+                    {{ number_format($product->base_price, 0) }} ₪
+                </span>
+            @else
+                <span class="font-display text-lg font-bold text-forest-700 dark:text-gold-400">
+                    {{ number_format($product->base_price, 0) }} ₪
+                </span>
+            @endif
         </div>
 
-        {{-- Actions --}}
-        <div class="flex space-x-2 space-x-reverse">
-            <a href="{{ route('products.show', $product->slug) }}"
-               class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-center py-2 rounded-lg text-sm font-medium transition">
-                🛒 أضف للسلة
-            </a>
-            <a href="{{ route('products.show', $product->slug) }}"
-               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition">
-                👁️
-            </a>
-        </div>
+        <a href="{{ route('products.show', $product->slug) }}"
+           class="flex items-center justify-center gap-2 w-full h-10 text-xs font-semibold tracking-widest uppercase text-forest-700 dark:text-gold-400 border border-forest-700/20 dark:border-gold-400/20 hover:bg-forest-700 hover:text-white dark:hover:bg-gold-500 dark:hover:text-forest-950 rounded transition-colors">
+            عرض المنتج
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        </a>
     </div>
 </div>

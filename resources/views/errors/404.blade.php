@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 — الصفحة غير موجودة</title>
-    <link href="https://fonts.bunny.net/css?family=cairo:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <title>404 - الصفحة غير موجودة</title>
+    <link href="https://fonts.bunny.net/css?family=tajawal:400,500,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css'])
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-    </style>
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4"
-      style="background-color: var(--bg-secondary);">
-
+<body class="bg-white min-h-screen flex items-center justify-center p-4">
     <div class="text-center max-w-md">
-        <div class="text-[150px] leading-none mb-4">🔍</div>
-        <h1 class="text-6xl font-bold mb-4" style="color: var(--gold);">404</h1>
-        <h2 class="text-2xl font-bold mb-3" style="color: var(--text-primary);">الصفحة غير موجودة</h2>
-        <p class="text-[13px] mb-8" style="color: var(--text-secondary);">
+        <div class="text-[140px] leading-none mb-4 text-gray-200">404</div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-3">الصفحة غير موجودة</h1>
+        <p class="text-sm text-gray-500 mb-8 leading-relaxed">
             عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها
         </p>
         <div class="flex flex-wrap gap-3 justify-center">
-            <a href="/"
-               class="inline-flex items-center gap-2 h-11 px-6 rounded-lg font-bold text-white text-[13px] transition hover:opacity-90"
-               style="background-color: var(--gold);">
+            <a href="{{ url('/') }}" class="btn-primary">
                 🏠 الرئيسية
             </a>
-            <a href="/products"
-               class="inline-flex items-center gap-2 h-11 px-6 rounded-lg font-semibold text-[13px] transition"
-               style="background-color: var(--bg-tertiary); color: var(--text-primary);">
+            <a href="{{ url('/products') }}" class="btn-secondary">
                 🛍️ تسوق الآن
             </a>
         </div>

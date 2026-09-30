@@ -20,32 +20,31 @@
 </head>
 <body class="bg-gray-50 antialiased">
 
-    {{-- Header --}}
     @include('partials.header')
-
-    {{-- Mobile Menu --}}
     @include('partials.mobile-menu')
 
-    {{-- Main Content --}}
     <main>
         @if(session('success'))
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                 class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
-                ✅ {{ session('success') }}
+                 x-transition
+                 class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-forest-700 dark:bg-gold-500 dark:text-ink text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
 
         @if(session('error'))
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                 class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
-                ❌ {{ session('error') }}
+                 x-transition
+                 class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
 
         @yield('content')
     </main>
 
-    {{-- Footer --}}
     @include('partials.footer')
 
     @stack('scripts')

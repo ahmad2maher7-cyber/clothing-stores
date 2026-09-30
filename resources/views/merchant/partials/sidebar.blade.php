@@ -1,201 +1,125 @@
-<!-- @php
-    $store = auth()->user()->stores()->first();
-
-    $menuItems = [
-        [
-            'label' => 'لوحة التحكم',
-            'icon' => '📊',
-            'route' => 'merchant.dashboard',
-            'pattern' => 'merchant.dashboard',
-        ],
-        [
-            'label' => 'المنتجات',
-            'icon' => '👕',
-            'route' => 'merchant.products.index',
-            'pattern' => 'merchant.products.*',
-        ],
-        [
-            'label' => 'التصنيفات',
-            'icon' => '📂',
-            'route' => 'merchant.categories.index',
-            'pattern' => 'merchant.categories.*',
-        ],
-        [
-            'label' => 'المخزون',
-            'icon' => '📦',
-            'route' => 'merchant.inventory.index',
-            'pattern' => 'merchant.inventory.*',
-        ],
-        [
-            'label' => 'الطلبات',
-            'icon' => '🛒',
-            'route' => 'merchant.orders.index',
-            'pattern' => 'merchant.orders.*',
-            'badge' => $store ? $store->orders()->where('status', 'pending')->count() : 0,
-            'badge_color' => '#dc2626',
-        ],
-        [
-            'label' => 'الكوبونات',
-            'icon' => '🎟️',
-            'route' => 'merchant.coupons.index',
-            'pattern' => 'merchant.coupons.*',
-        ],
-        [
-            'label' => 'العروض',
-            'icon' => '🔥',
-            'route' => 'merchant.offers.index',
-            'pattern' => 'merchant.offers.*',
-        ],
-        [
-            'label' => 'التقييمات',
-            'icon' => '⭐',
-            'route' => 'merchant.reviews.index',
-            'pattern' => 'merchant.reviews.*',
-            'badge' => $store ? $store->reviews()->where('status', 'pending')->count() : 0,
-            'badge_color' => '#d97706',
-        ],
-        [
-            'label' => 'الإعدادات',
-            'icon' => '⚙️',
-            'route' => 'merchant.settings.index',
-            'pattern' => 'merchant.settings.*',
-        ],
-    ];
+@php
+    $sidebarStore = auth()->user()->stores()->first();
+    $storeIsActive = $sidebarStore && $sidebarStore->status === 'active';
+    $pendingReviews = $sidebarStore?->reviews()->where('status', 'pending')->count() ?? 0;
+    $pendingOrders = $sidebarStore?->orders()->where('status', 'pending')->count() ?? 0;
+    $lowStockCount = $sidebarStore?->products()
+        ->whereHas('variants', fn($q) => $q->whereColumn('stock_quantity', '<=', 'low_stock_threshold')->where('stock_quantity', '>', 0))
+        ->count() ?? 0;
 @endphp
 
-<aside class="h-screen lg:h-screen flex flex-col shadow-xl"
-       :class="sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'"
-       style="background-color: var(--bg-primary); border-left: 1px solid var(--border-light); width: inherit; transition: width 0.3s;">
+{{-- ═══ Logo ═══ --}}
+<div class="h-16 flex items-center px-5 border-b border-stone-200 dark:border-stone-800 shrink-0">
+    <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 flex items-center justify-center bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 rounded transition-transform group-hover:scale-105 shrink-0">
+            <i class="fa-solid fa-store text-sm"></i>
+        </div>
+        <div class="overflow-hidden">
+            <p class="font-display text-sm font-bold text-ink dark:text-cream leading-tight truncate">
+                {{ $sidebarStore->name ?? 'متجري' }}
+            </p>
+            <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50">لوحة التاجر</p>
+        </div>
+    </a>
+</div>
 
-    {{-- Logo / Store Name --}}
-    <div class="h-16 flex items-center justify-between px-4 border-b shrink-0"
-         style="border-color: var(--border-light);">
+{{-- ═══ Navigation ═══ --}}
+<nav class="flex-1 py-3 overflow-y-auto">
 
-        <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-2 min-w-0">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg shrink-0"
-                 style="background-color: var(--gold);">
-                🏪
-            </div>
-            <div x-show="!sidebarCollapsed" class="min-w-0">
-                <p class="text-[13px] font-bold truncate" style="color: var(--text-primary);">
-                    {{ $store->name ?? 'متجري' }}
-                </p>
-                <p class="text-[10px]" style="color: var(--text-tertiary);">
-                    لوحة التاجر
-                </p>
-            </div>
+    @php
+        $menuItems = $storeIsActive ? [
+            ['route' => 'merchant.dashboard',         'label' => 'لوحة التحكم',  'icon' => 'fa-chart-line'],
+            ['route' => 'merchant.products.index',    'label' => 'المنتجات',     'icon' => 'fa-shirt'],
+            ['route' => 'merchant.categories.index',  'label' => 'التصنيفات',    'icon' => 'fa-folder-tree'],
+            ['route' => 'merchant.inventory.index',   'label' => 'المخزون',      'icon' => 'fa-boxes-stacked', 'badge' => $lowStockCount, 'badge_color' => 'amber'],
+            ['route' => 'merchant.orders.index',      'label' => 'الطلبات',      'icon' => 'fa-cart-shopping', 'badge' => $pendingOrders, 'badge_color' => 'red'],
+            ['route' => 'merchant.coupons.index',     'label' => 'الكوبونات',    'icon' => 'fa-ticket'],
+            ['route' => 'merchant.offers.index',      'label' => 'العروض',       'icon' => 'fa-fire'],
+            ['route' => 'merchant.reviews.index',     'label' => 'التقييمات',    'icon' => 'fa-star', 'badge' => $pendingReviews, 'badge_color' => 'amber'],
+        ] : [
+            ['route' => 'merchant.dashboard', 'label' => 'لوحة التحكم', 'icon' => 'fa-chart-line'],
+        ];
+    @endphp
+
+    @foreach($menuItems as $item)
+        @php
+            $routeParts = explode('.', $item['route']);
+            $pattern = count($routeParts) > 1 ? $routeParts[0] . '.' . $routeParts[1] . '.*' : $item['route'];
+            $isActive = request()->routeIs($item['route']) || request()->routeIs($pattern);
+        @endphp
+        <a href="{{ route($item['route']) }}"
+           class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors
+                  {{ $isActive 
+                     ? 'bg-forest-700 text-white font-medium' 
+                     : 'text-ink-soft dark:text-cream/70 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400' }}">
+            <i class="fa-solid {{ $item['icon'] }} w-5 text-center shrink-0"></i>
+            <span class="flex-1 truncate">{{ $item['label'] }}</span>
+            @if(!empty($item['badge']) && $item['badge'] > 0)
+                <span class="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold rounded-full
+                             {{ ($item['badge_color'] ?? 'red') === 'amber' ? 'bg-amber-500 text-white' : 'bg-red-600 text-white' }}">
+                    {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                </span>
+            @endif
         </a>
+    @endforeach
 
-        {{-- Collapse Button (Desktop) --}}
-        <button @click="sidebarCollapsed = !sidebarCollapsed"
-                class="hidden lg:flex w-7 h-7 items-center justify-center rounded-lg transition"
-                style="color: var(--text-secondary);"
-                onmouseover="this.style.backgroundColor='var(--bg-tertiary)';"
-                onmouseout="this.style.backgroundColor='transparent';">
-            <svg class="w-4 h-4" :class="sidebarCollapsed ? 'rotate-180' : ''" style="transition: transform 0.3s;"
-                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </button>
+    @if($storeIsActive)
+        <div class="border-t border-stone-200 dark:border-stone-800 mx-4 my-3"></div>
 
-        {{-- Close Button (Mobile) --}}
-        <button @click="sidebarOpen = false" class="lg:hidden text-2xl" style="color: var(--text-secondary);">
-            ×
-        </button>
-    </div>
-
-    {{-- Navigation --}}
-    <nav class="flex-1 py-4 overflow-y-auto">
-
-        <ul class="space-y-1 px-2">
-            @foreach($menuItems as $item)
-                @php
-                    $isActive = request()->routeIs($item['pattern']);
-                @endphp
-
-                <li>
-                    <a href="{{ route($item['route']) }}"
-                       class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group relative"
-                       @if($isActive)
-                           style="background-color: var(--gold); color: white;"
-                       @else
-                           style="color: var(--text-secondary);"
-                           onmouseover="this.style.backgroundColor='var(--bg-tertiary)'; this.style.color='var(--text-primary)';"
-                           onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--text-secondary)';"
-                       @endif>
-
-                        {{-- Icon --}}
-                        <span class="text-xl shrink-0">{{ $item['icon'] }}</span>
-
-                        {{-- Label --}}
-                        <span x-show="!sidebarCollapsed" 
-                              class="text-[13px] font-medium flex-1">
-                            {{ $item['label'] }}
-                        </span>
-
-                        {{-- Badge --}}
-                        @if(!empty($item['badge']) && $item['badge'] > 0)
-                            <span x-show="!sidebarCollapsed"
-                                  class="text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1.5 flex items-center justify-center"
-                                  style="background-color: {{ $item['badge_color'] }};">
-                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
-                            </span>
-
-                            {{-- Dot when collapsed --}}
-                            <span x-show="sidebarCollapsed"
-                                  class="absolute top-2 right-2 w-2 h-2 rounded-full"
-                                  style="background-color: {{ $item['badge_color'] }};"></span>
-                        @endif
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-
-        {{-- Divider --}}
-        <div x-show="!sidebarCollapsed" class="my-4 mx-4 border-t" style="border-color: var(--border-light);"></div>
-
-        {{-- Visit Store --}}
-        <ul class="space-y-1 px-2 mt-4">
-            <li>
-                <a href="{{ route('home') }}" target="_blank"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150"
-                   style="color: var(--text-secondary);"
-                   onmouseover="this.style.backgroundColor='var(--bg-tertiary)'; this.style.color='var(--text-primary)';"
-                   onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--text-secondary)';">
-                    <span class="text-xl shrink-0">👁️</span>
-                    <span x-show="!sidebarCollapsed" class="text-[13px] font-medium flex-1">
-                        زيارة المتجر
-                    </span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    {{-- Footer: Store Info --}}
-    <div class="border-t p-4 shrink-0" style="border-color: var(--border-light);">
-        @if($store)
-            <div class="flex items-center gap-2" x-show="!sidebarCollapsed">
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
-                     style="background-color: var(--gold);">
-                    {{ mb_substr($store->name, 0, 1) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-medium truncate" style="color: var(--text-primary);">
-                        {{ $store->name }}
-                    </p>
-                    <p class="text-[10px]" style="color: {{ $store->status === 'active' ? '#166534' : '#d97706' }};">
-                        {{ $store->status === 'active' ? '✅ نشط' : ($store->status === 'pending' ? '⏳ قيد المراجعة' : '⛔ موقوف') }}
-                    </p>
+        <a href="{{ route('merchant.settings.index') }}"
+           class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors
+                  {{ request()->routeIs('merchant.settings.*') 
+                     ? 'bg-forest-700 text-white font-medium' 
+                     : 'text-ink-soft dark:text-cream/70 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400' }}">
+            <i class="fa-solid fa-gear w-5 text-center shrink-0"></i>
+            <span>الإعدادات</span>
+        </a>
+    @else
+        <div class="mx-3 mt-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded">
+            <div class="flex items-start gap-2">
+                <i class="fa-solid fa-clock text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 text-sm"></i>
+                <div class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                    <p class="font-semibold mb-1">متجرك قيد المراجعة</p>
+                    <a href="{{ route('merchant.store.pending') }}" class="underline">عرض الحالة</a>
                 </div>
             </div>
+        </div>
+    @endif
 
-            {{-- Collapsed: Only avatar --}}
-            <div x-show="sidebarCollapsed" class="flex justify-center">
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-                     style="background-color: var(--gold);">
-                    {{ mb_substr($store->name, 0, 1) }}
-                </div>
-            </div>
-        @endif
+    <div class="border-t border-stone-200 dark:border-stone-800 mx-4 my-3"></div>
+
+    <a href="{{ route('home') }}" target="_blank"
+       class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm text-ink-muted dark:text-cream/50 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+        <i class="fa-solid fa-house w-5 text-center shrink-0"></i>
+        <span>زيارة المتجر</span>
+    </a>
+</nav>
+
+{{-- ═══ Footer ═══ --}}
+<div class="border-t border-stone-200 dark:border-stone-800 p-4 shrink-0">
+    <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-forest-50 dark:bg-forest-950/40 flex items-center justify-center shrink-0 overflow-hidden">
+            @if($sidebarStore?->logo)
+                <img src="{{ asset('storage/' . $sidebarStore->logo) }}" class="w-full h-full object-cover">
+            @else
+                <i class="fa-solid fa-store text-forest-700 dark:text-gold-400 text-sm"></i>
+            @endif
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-ink dark:text-cream truncate">
+                {{ $sidebarStore->name ?? 'متجري' }}
+            </p>
+            <p class="text-[10px] text-ink-muted dark:text-cream/50 truncate">
+                @if(!$sidebarStore)
+                    لم يُنشأ بعد
+                @elseif($sidebarStore->status === 'active')
+                    <i class="fa-solid fa-circle-check text-forest-600 dark:text-gold-400"></i> نشط
+                @elseif($sidebarStore->status === 'pending')
+                    <i class="fa-solid fa-clock text-amber-500"></i> قيد المراجعة
+                @else
+                    <i class="fa-solid fa-ban text-red-500"></i> موقوف
+                @endif
+            </p>
+        </div>
     </div>
-</aside> -->
+</div>
