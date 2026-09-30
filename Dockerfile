@@ -11,9 +11,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --no-audit --no-fund
 
-COPY vite.config.js tailwind.config.js postcss.config.js ./
-COPY resources/ ./resources/
+# Copy all project files (respecting .dockerignore)
+COPY . .
 
+# Build assets
 RUN npm run build
 
 # ─────────────── Stage 2: PHP Runtime ───────────────
