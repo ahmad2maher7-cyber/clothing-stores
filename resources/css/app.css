@@ -89,6 +89,13 @@
         @apply bg-canvas text-ink dark:bg-zinc-950 dark:text-cream;
         line-height: 1.65;
     }
+    html[dir="rtl"] body {
+    text-align: right;
+}
+
+.container-x {
+    text-align: start;
+}
 
     h1, h2, h3, h4, h5, h6 {
         @apply font-bold;

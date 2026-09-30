@@ -298,5 +298,14 @@ Route::get('/fix-images', function () {
     ]);
 });
 // ═══════════════════════════════════════════════════
+// ⚠️ TEMPORARY: Fix placeholder images
+Route::get('/fix-images', function () {
+    $count = \App\Models\ProductImage::where('image_url', 'LIKE', '%via.placeholder.com%')
+        ->update([
+            'image_url' => \DB::raw("REPLACE(REPLACE(image_url, 'via.placeholder.com/600x800', 'placehold.co/600x800/166534/FFFFFF'), 'via.placeholder.com', 'placehold.co/600x800/166534/FFFFFF')")
+        ]);
+    
+    return "✅ Updated: {$count} images";
+});
 
 require __DIR__.'/auth.php';
