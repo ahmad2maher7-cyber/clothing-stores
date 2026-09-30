@@ -51,27 +51,29 @@ RUN apk add --no-cache \
         opcache
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 # ─── Copy composer files ───
 COPY composer.json composer.lock ./
 
-# ─── Install dependencies (with fallback) ───
+# ─── Configure Composer ───
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_NO_INTERACTION=1
+
+# ─── Install dependencies ───
 RUN composer install \
         --no-dev \
-        --no-interaction \
         --prefer-dist \
-        --no-progress \
         --optimize-autoloader \
+        --verbose \
     || composer update \
         --no-dev \
-        --no-interaction \
         --prefer-dist \
-        --no-progress \
-        --optimize-autoloader
-
+        --optimize-autoloader \
+        --verbose
 # ─── Copy application ───
 COPY . .
 
