@@ -1,6 +1,5 @@
 # ═══════════════════════════════════════════════════
-#   Laravel 12/13 + PHP 8.3 + Nginx on Render
-#   Optimized Multi-stage Docker Build
+#   Laravel + PHP 8.3 + Nginx on Render
 # ═══════════════════════════════════════════════════
 
 # ─────────────── Stage 1: Build Frontend ───────────────
@@ -11,10 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --no-audit --no-fund
 
-# Copy all project files (respecting .dockerignore)
 COPY . .
-
-# Build assets
 RUN npm run build
 
 # ─────────────── Stage 2: PHP Runtime ───────────────
@@ -50,35 +46,28 @@ RUN apk add --no-cache \
         zip \
         opcache
 
-# Install Composer
+# Install Composer (latest)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# ─── Copy composer files ───
-COPY composer.json composer.lock ./
-
-# ─── Configure Composer ───
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV COMPOSER_NO_INTERACTION=1
-
-# ─── Install dependencies ───
-RUN composer install \
-        --no-dev \
-        --prefer-dist \
-        --optimize-autoloader \
-        --verbose \
-    || composer update \
-        --no-dev \
-        --prefer-dist \
-        --optimize-autoloader \
-        --verbose
-# ─── Copy application ───
+# ─── Copy application FIRST ───
 COPY . .
 
 # ─── Copy built assets from Node stage ───
 COPY --from=node-builder /app/public/build ./public/build
+
+# ─── Configure Composer ───
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# ─── Install dependencies (no scripts) ───
+RUN composer install \
+        --no-dev \
+        --prefer-dist \
+        --optimize-autoloader \
+        --no-scripts \
+    && php artisan package:discover --ansi
 
 # ─── Set permissions ───
 RUN mkdir -p storage/framework/{sessions,views,cache} \
