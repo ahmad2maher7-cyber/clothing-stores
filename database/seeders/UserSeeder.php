@@ -10,7 +10,9 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // ============ المشرف ============
+        // ════════════════════════════════════════
+        //   المشرف
+        // ════════════════════════════════════════
         User::create([
             'full_name' => 'المشرف العام',
             'email' => 'admin@store.com',
@@ -18,26 +20,16 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'status' => 'active',
-            'email_verified_at' => now(),
+            'email_verified_at' => now(),   // ✅ موثّق
         ]);
 
-        // ============ التجار ============
+        // ════════════════════════════════════════
+        //   التجار
+        // ════════════════════════════════════════
         $merchants = [
-            [
-                'full_name' => 'أحمد الأناقة',
-                'email' => 'ahmed@store.com',
-                'phone' => '0599000002',
-            ],
-            [
-                'full_name' => 'سارة الأزياء',
-                'email' => 'sara@store.com',
-                'phone' => '0599000003',
-            ],
-            [
-                'full_name' => 'خالد الموضة',
-                'email' => 'khaled@store.com',
-                'phone' => '0599000004',
-            ],
+            ['full_name' => 'أحمد الأناقة',    'email' => 'ahmed@store.com',  'phone' => '0599000002'],
+            ['full_name' => 'سارة الأزياء',     'email' => 'sara@store.com',   'phone' => '0599000003'],
+            ['full_name' => 'خالد الموضة',      'email' => 'khaled@store.com', 'phone' => '0599000004'],
         ];
 
         foreach ($merchants as $merchant) {
@@ -46,16 +38,19 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'merchant',
                 'status' => 'active',
+                'email_verified_at' => now(),   // ✅ موثّق
             ]);
         }
 
-        // ============ الزبائن ============
+        // ════════════════════════════════════════
+        //   الزبائن
+        // ════════════════════════════════════════
         $customers = [
-            ['full_name' => 'محمد العميل', 'email' => 'mohamed@test.com', 'phone' => '0599111111'],
-            ['full_name' => 'فاطمة الزهراء', 'email' => 'fatima@test.com', 'phone' => '0599222222'],
-            ['full_name' => 'علي الحسن', 'email' => 'ali@test.com', 'phone' => '0599333333'],
-            ['full_name' => 'نور الهدى', 'email' => 'noor@test.com', 'phone' => '0599444444'],
-            ['full_name' => 'يوسف الكريم', 'email' => 'yousef@test.com', 'phone' => '0599555555'],
+            ['full_name' => 'محمد العميل',  'email' => 'mohamed@test.com', 'phone' => '0599111111'],
+            ['full_name' => 'فاطمة الزهراء', 'email' => 'fatima@test.com',  'phone' => '0599222222'],
+            ['full_name' => 'علي الحسن',    'email' => 'ali@test.com',     'phone' => '0599333333'],
+            ['full_name' => 'نور الهدى',    'email' => 'noor@test.com',    'phone' => '0599444444'],
+            ['full_name' => 'يوسف الكريم',  'email' => 'yousef@test.com',  'phone' => '0599555555'],
         ];
 
         foreach ($customers as $customer) {
@@ -64,9 +59,10 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'customer',
                 'status' => 'active',
+                'email_verified_at' => now(),   // ✅ موثّق
             ]);
         }
 
-        $this->command->info('✅ Users seeded: 1 admin + 3 merchants + 5 customers');
+        $this->command->info('✅ Users seeded: 1 admin + 3 merchants + 5 customers (all verified)');
     }
 }

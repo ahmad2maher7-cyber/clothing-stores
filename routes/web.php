@@ -256,4 +256,17 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     });
 });
 
+
+// ⚠️ TEMPORARY: Verify all existing users
+Route::get('/verify-all-users', function () {
+    $count = \App\Models\User::whereNull('email_verified_at')
+        ->update(['email_verified_at' => now()]);
+    
+    return response()->json([
+        'success' => true,
+        'verified' => $count,
+        'message' => "✅ Verified {$count} users",
+    ]);
+});
+
 require __DIR__.'/auth.php';
