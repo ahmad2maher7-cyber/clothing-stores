@@ -114,20 +114,7 @@
                            class="form-input">
                 </div>
             </div>
-
-            <div class="p-6 border-t border-stone-200 dark:border-stone-800 flex justify-end gap-3">
-                <a href="{{ route('merchant.products.index') }}" class="btn-outline">إلغاء</a>
-                <button type="submit" class="btn-solid">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    حفظ التعديلات
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- ═══ Images ═══ --}}
+             {{-- ═══ Images ═══ --}}
     <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden mb-6">
         <div class="p-6 border-b border-stone-200 dark:border-stone-800 flex items-center gap-3">
             <div class="w-10 h-10 flex items-center justify-center bg-forest-50 dark:bg-forest-950/40 text-forest-700 dark:text-gold-400 rounded">
@@ -216,6 +203,20 @@
     </div>
 </div>
     </div>
+
+            <div class="p-6 border-t border-stone-200 dark:border-stone-800 flex justify-end gap-3">
+                <a href="{{ route('merchant.products.index') }}" class="btn-outline">إلغاء</a>
+                <button type="submit" class="btn-solid">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    حفظ التعديلات
+                </button>
+            </div>
+        </form>
+    </div>
+
+   
 
     {{-- ═══ Variants ═══ --}}
     <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
