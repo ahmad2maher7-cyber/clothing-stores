@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <form action="{{ route('merchant.products.update', $product) }}" method="POST">
+        <form action="{{ route('merchant.products.update', $product) }}" method="POST" enctype="multipart/form-data">
             @csrf @method('PUT')
 
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -141,28 +141,80 @@
             </div>
         </div>
 
-        <div class="p-6">
-            @if($product->images->count() > 0)
+        {{-- ═══════════════════════════════════════════════════ --}}
+{{-- الصور --}}
+{{-- ═══════════════════════════════════════════════════ --}}
+<div class="bg-white border border-gray-200 rounded-lg mb-6">
+    <div class="p-5 border-b border-gray-200">
+        <h3 class="font-bold text-gray-900">📸 صور المنتج</h3>
+        <p class="text-xs text-gray-500 mt-1">الصورة الأولى رئيسية — الحد الأقصى 5 صور</p>
+    </div>
+
+    <div class="p-5">
+
+        {{-- الصور الحالية --}}
+        @if($product->images->count() > 0)
+            <div class="mb-6">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
+                    الصور الحالية
+                </p>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     @foreach($product->images as $image)
-                        <div class="relative aspect-square rounded overflow-hidden border border-stone-200 dark:border-stone-800 group">
+                        <div class="relative group">
                             <img src="{{ asset('storage/' . $image->image_url) }}"
-                                 alt="{{ $product->name }}"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                 class="w-full h-32 object-cover rounded-lg border border-gray-200">
+
+                            {{-- Primary Badge --}}
                             @if($image->is_primary)
-                                <span class="absolute top-2 right-2 bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded">
+                                <span class="absolute top-2 right-2 bg-gray-900 text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded">
                                     رئيسية
                                 </span>
                             @endif
+
+                            {{-- Delete Button --}}
+                            <form action="{{ route('merchant.products.images.delete', $image) }}"
+                                  method="POST"
+                                  class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition"
+                                  onsubmit="return confirm('حذف هذه الصورة؟')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition shadow-lg">
+                                    ×
+                                </button>
+                            </form>
                         </div>
                     @endforeach
                 </div>
-            @else
-                <div class="text-center py-8 text-ink-muted dark:text-cream/50 text-sm">
-                    لا توجد صور
-                </div>
-            @endif
+            </div>
+        @else
+            <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                <p class="text-sm text-gray-500">لا توجد صور حالياً</p>
+            </div>
+        @endif
+
+        {{-- رفع صور جديدة --}}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                ➕ إضافة صور جديدة (حتى 5 صور)
+            </label>
+            <input type="file"
+                   name="new_images[]"
+                   multiple
+                   accept="image/*"
+                   class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:border-gray-500 focus:ring-0">
+            <p class="text-xs text-gray-500 mt-2">
+                JPG, PNG, WEBP — أقل من 3MB لكل صورة
+            </p>
+            @error('new_images')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+            @error('new_images.*')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
+    </div>
+</div>
     </div>
 
     {{-- ═══ Variants ═══ --}}
