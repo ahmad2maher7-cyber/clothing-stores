@@ -185,32 +185,7 @@
                     إنشاء حساب جديد
                 </a>
 
-                {{-- Demo Accounts --}}
-                <div class="mt-8 bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-                    <p class="text-[10px] font-semibold tracking-widest uppercase text-ink-muted dark:text-cream/50 text-center mb-4">
-                        — حسابات تجريبية للاختبار
-                    </p>
-                    <div class="grid grid-cols-3 gap-3 text-center">
-                        <div>
-                            <div class="w-8 h-8 mx-auto mb-2 flex items-center justify-center bg-forest-700 text-white rounded text-sm font-bold">A</div>
-                            <p class="text-[10px] font-bold tracking-widest uppercase text-ink dark:text-cream mb-1">مشرف</p>
-                            <p class="text-[9px] text-ink-muted dark:text-cream/50 font-mono truncate">admin@store.com</p>
-                        </div>
-                        <div>
-                            <div class="w-8 h-8 mx-auto mb-2 flex items-center justify-center bg-forest-700 text-white rounded text-sm font-bold">T</div>
-                            <p class="text-[10px] font-bold tracking-widest uppercase text-ink dark:text-cream mb-1">تاجر</p>
-                            <p class="text-[9px] text-ink-muted dark:text-cream/50 font-mono truncate">ahmed@store.com</p>
-                        </div>
-                        <div>
-                            <div class="w-8 h-8 mx-auto mb-2 flex items-center justify-center bg-forest-700 text-white rounded text-sm font-bold">C</div>
-                            <p class="text-[10px] font-bold tracking-widest uppercase text-ink dark:text-cream mb-1">زبون</p>
-                            <p class="text-[9px] text-ink-muted dark:text-cream/50 font-mono truncate">mohamed@test.com</p>
-                        </div>
-                    </div>
-                    <p class="text-[10px] text-ink-muted dark:text-cream/40 text-center mt-4">
-                        كلمة المرور للجميع: <span class="font-mono font-bold text-forest-700 dark:text-gold-400">password</span>
-                    </p>
-                </div>
+                
             </div>
         </div>
     </div>
