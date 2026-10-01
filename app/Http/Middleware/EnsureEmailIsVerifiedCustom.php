@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureEmailIsVerifiedCustom
 {
+    /**
+     * Handle an incoming request.
+     */
     public function handle(Request $request, Closure $next): Response
     {
         // إذا لم يكن مسجلاً → لصفحة الدخول

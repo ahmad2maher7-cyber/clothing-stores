@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboard;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
@@ -30,12 +31,11 @@ use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
 use App\Http\Controllers\Merchant\StoreController as MerchantStoreSetupController;
 
-use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes - الواجهة الأمامية
+| Public Routes
 |--------------------------------------------------------------------------
 */
 
@@ -53,7 +53,7 @@ Route::get('/stores/{store}', [StoreController::class, 'show'])->name('stores.sh
 // Offers
 Route::get('/offers', [OfferController::class, 'index'])->name('offers.index');
 
-// Pages ✅ هنا المكان الصحيح
+// Static Pages
 Route::get('/about', [PageController::class, 'about'])->name('pages.about');
 Route::get('/contact', [PageController::class, 'contact'])->name('pages.contact');
 Route::post('/contact', [PageController::class, 'sendContact'])->name('pages.contact.send');
@@ -61,7 +61,7 @@ Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 
 /*
 |--------------------------------------------------------------------------
-| Cart, Checkout & Wishlist (تحتاج تسجيل دخول)
+| Cart, Checkout & Profile (تحتاج تسجيل دخول فقط)
 |--------------------------------------------------------------------------
 */
 
@@ -80,13 +80,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 
-    // Profile Edit (Breeze)
+    // Profile Edit
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Email Verification with OTP
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get('/verify-code', [VerifyCodeController::class, 'notice'])->name('verification.notice');
+    Route::post('/verify-code', [VerifyCodeController::class, 'verify'])->name('verification.verify');
+    Route::post('/verify-code/resend', [VerifyCodeController::class, 'resend'])->name('verification.resend');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated + Verified Routes
 |--------------------------------------------------------------------------
 */
 
@@ -126,105 +138,91 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
 
-
         // Brands
-Route::get('brands', [AdminBrandController::class, 'index'])->name('brands.index');
-Route::get('brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
-Route::post('brands', [AdminBrandController::class, 'store'])->name('brands.store');
-Route::get('brands/{brand}/edit', [AdminBrandController::class, 'edit'])->name('brands.edit');
-Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
-Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
-    
+        Route::get('brands', [AdminBrandController::class, 'index'])->name('brands.index');
+        Route::get('brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
+        Route::post('brands', [AdminBrandController::class, 'store'])->name('brands.store');
+        Route::get('brands/{brand}/edit', [AdminBrandController::class, 'edit'])->name('brands.edit');
+        Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
+        Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
 
-// Security Logs
-Route::get('security-logs', function () {
-    $stats = \App\Services\SecurityLoggerService::getStats();
-    $logs = \App\Models\FailedLoginAttempt::with('user')
-        ->latest()
-        ->paginate(50);
+        // Security Logs
+        Route::get('security-logs', function () {
+            $stats = \App\Services\SecurityLoggerService::getStats();
+            $logs = \App\Models\FailedLoginAttempt::with('user')
+                ->latest()
+                ->paginate(50);
 
-    return view('admin.security-logs', compact('stats', 'logs'));
-})->name('security.logs');
-
-
-
-});
+            return view('admin.security-logs', compact('stats', 'logs'));
+        })->name('security.logs');
+    });
 
     /*
-|--------------------------------------------------------------------------
-| Merchant Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware('role:merchant')->prefix('merchant')->name('merchant.')->group(function () {
+    |--------------------------------------------------------------------------
+    | Merchant Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:merchant')->prefix('merchant')->name('merchant.')->group(function () {
 
-    // ========== Store Setup (بدون active.store) ==========
-    Route::get('store/create', [MerchantStoreSetupController::class, 'create'])->name('store.create');
-    Route::post('store', [MerchantStoreSetupController::class, 'store'])->name('store.store');
-    Route::get('store/pending', [MerchantStoreSetupController::class, 'pending'])->name('store.pending');
+        // Store Setup
+        Route::get('store/create', [MerchantStoreSetupController::class, 'create'])->name('store.create');
+        Route::post('store', [MerchantStoreSetupController::class, 'store'])->name('store.store');
+        Route::get('store/pending', [MerchantStoreSetupController::class, 'pending'])->name('store.pending');
 
-    // ========== Dashboard ==========
-    Route::get('/dashboard', [MerchantDashboard::class, 'index'])->name('dashboard');
+        // Dashboard
+        Route::get('/dashboard', [MerchantDashboard::class, 'index'])->name('dashboard');
 
-    // ========== الباقي (يتطلب متجر نشط) ==========
-    Route::middleware('active.store')->group(function () {
+        // Requires active store
+        Route::middleware('active.store')->group(function () {
 
-        // Categories
-        Route::resource('categories', CategoryController::class);
+            Route::resource('categories', CategoryController::class);
 
-        // Products
-        Route::resource('products', MerchantProductController::class);
-        Route::delete('products/images/{image}', [MerchantProductController::class, 'deleteImage'])
-            ->name('products.images.delete');
+            Route::resource('products', MerchantProductController::class);
+            Route::delete('products/images/{image}', [MerchantProductController::class, 'deleteImage'])
+                ->name('products.images.delete');
 
-        // Orders
-        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-        Route::put('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+            Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+            Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+            Route::put('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
-        // Inventory
-        Route::prefix('inventory')->name('inventory.')->group(function () {
-            Route::get('/', [InventoryController::class, 'index'])->name('index');
-            Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('lowStock');
-            Route::get('/logs', [InventoryController::class, 'logs'])->name('logs');
-            Route::get('/logs/{variant}', [InventoryController::class, 'logs'])->name('variantLogs');
-            Route::put('/variants/{variant}/stock', [InventoryController::class, 'updateStock'])->name('updateStock');
-        });
+            Route::prefix('inventory')->name('inventory.')->group(function () {
+                Route::get('/', [InventoryController::class, 'index'])->name('index');
+                Route::get('/low-stock', [InventoryController::class, 'lowStock'])->name('lowStock');
+                Route::get('/logs', [InventoryController::class, 'logs'])->name('logs');
+                Route::get('/logs/{variant}', [InventoryController::class, 'logs'])->name('variantLogs');
+                Route::put('/variants/{variant}/stock', [InventoryController::class, 'updateStock'])->name('updateStock');
+            });
 
-        // Coupons
-        Route::resource('coupons', CouponController::class)->except(['show']);
+            Route::resource('coupons', CouponController::class)->except(['show']);
+            Route::resource('offers', MerchantOfferController::class)->except(['show']);
 
-        // Offers
-        Route::resource('offers', MerchantOfferController::class)->except(['show']);
+            Route::get('reviews', [MerchantReviewController::class, 'index'])->name('reviews.index');
+            Route::put('reviews/{review}/approve', [MerchantReviewController::class, 'approve'])->name('reviews.approve');
+            Route::put('reviews/{review}/reject', [MerchantReviewController::class, 'reject'])->name('reviews.reject');
+            Route::delete('reviews/{review}', [MerchantReviewController::class, 'destroy'])->name('reviews.destroy');
 
-        // Reviews
-        Route::get('reviews', [MerchantReviewController::class, 'index'])->name('reviews.index');
-        Route::put('reviews/{review}/approve', [MerchantReviewController::class, 'approve'])->name('reviews.approve');
-        Route::put('reviews/{review}/reject', [MerchantReviewController::class, 'reject'])->name('reviews.reject');
-        Route::delete('reviews/{review}', [MerchantReviewController::class, 'destroy'])->name('reviews.destroy');
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', [StoreSettingsController::class, 'index'])->name('index');
+                Route::put('/', [StoreSettingsController::class, 'update'])->name('update');
 
-        // Settings
-        Route::prefix('settings')->name('settings.')->group(function () {
-            Route::get('/', [StoreSettingsController::class, 'index'])->name('index');
-            Route::put('/', [StoreSettingsController::class, 'update'])->name('update');
+                Route::get('/appearance', [StoreSettingsController::class, 'appearance'])->name('appearance');
+                Route::put('/appearance', [StoreSettingsController::class, 'updateAppearance'])->name('appearance.update');
 
-            Route::get('/appearance', [StoreSettingsController::class, 'appearance'])->name('appearance');
-    Route::put('/appearance', [StoreSettingsController::class, 'updateAppearance'])->name('appearance.update');
+                Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
+                Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
 
-            Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
-            Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
+                Route::get('/branches', [StoreSettingsController::class, 'branches'])->name('branches');
+                Route::post('/branches', [StoreSettingsController::class, 'storeBranch'])->name('branches.store');
+                Route::put('/branches/{branch}', [StoreSettingsController::class, 'updateBranch'])->name('branches.update');
+                Route::delete('/branches/{branch}', [StoreSettingsController::class, 'destroyBranch'])->name('branches.destroy');
 
-            Route::get('/branches', [StoreSettingsController::class, 'branches'])->name('branches');
-            Route::post('/branches', [StoreSettingsController::class, 'storeBranch'])->name('branches.store');
-            Route::put('/branches/{branch}', [StoreSettingsController::class, 'updateBranch'])->name('branches.update');
-            Route::delete('/branches/{branch}', [StoreSettingsController::class, 'destroyBranch'])->name('branches.destroy');
-
-            Route::get('/shipping', [StoreSettingsController::class, 'shipping'])->name('shipping');
-            Route::post('/shipping', [StoreSettingsController::class, 'storeShipping'])->name('shipping.store');
-            Route::put('/shipping/{zone}', [StoreSettingsController::class, 'updateShipping'])->name('shipping.update');
-            Route::delete('/shipping/{zone}', [StoreSettingsController::class, 'destroyShipping'])->name('shipping.destroy');
+                Route::get('/shipping', [StoreSettingsController::class, 'shipping'])->name('shipping');
+                Route::post('/shipping', [StoreSettingsController::class, 'storeShipping'])->name('shipping.store');
+                Route::put('/shipping/{zone}', [StoreSettingsController::class, 'updateShipping'])->name('shipping.update');
+                Route::delete('/shipping/{zone}', [StoreSettingsController::class, 'destroyShipping'])->name('shipping.destroy');
+            });
         });
     });
-});
 
     /*
     |--------------------------------------------------------------------------
@@ -256,56 +254,6 @@ Route::middleware('role:merchant')->prefix('merchant')->name('merchant.')->group
         Route::put('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
         Route::put('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password');
     });
-});
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Email Verification with OTP
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware('auth')->group(function () {
-    Route::get('/verify-code', [VerifyCodeController::class, 'notice'])->name('verification.notice');
-    Route::post('/verify-code', [VerifyCodeController::class, 'verify'])->name('verification.verify');
-    Route::post('/verify-code/resend', [VerifyCodeController::class, 'resend'])->name('verification.resend');
-});
-// ═══════════════════════════════════════════════════
-//   TEMPORARY: Fix Placeholder Images
-//   ⚠️ احذف هذا الـ route بعد الاستخدام!
-// ═══════════════════════════════════════════════════
-Route::get('/fix-images', function () {
-    $updated = 0;
-    $images = \App\Models\ProductImage::where('image_url', 'LIKE', '%via.placeholder.com%')->get();
-    
-    foreach ($images as $img) {
-        $img->update([
-            'image_url' => str_replace(
-                ['via.placeholder.com/600x800', 'via.placeholder.com'],
-                ['placehold.co/600x800/166534/FFFFFF', 'placehold.co/600x800/166534/FFFFFF'],
-                $img->image_url
-            ),
-        ]);
-        $updated++;
-    }
-    
-    return response()->json([
-        'success' => true,
-        'updated' => $updated,
-        'total_images' => \App\Models\ProductImage::count(),
-        'message' => "✅ Updated {$updated} images",
-    ]);
-});
-// ═══════════════════════════════════════════════════
-// ⚠️ TEMPORARY: Fix placeholder images
-Route::get('/fix-images', function () {
-    $count = \App\Models\ProductImage::where('image_url', 'LIKE', '%via.placeholder.com%')
-        ->update([
-            'image_url' => \DB::raw("REPLACE(REPLACE(image_url, 'via.placeholder.com/600x800', 'placehold.co/600x800/166534/FFFFFF'), 'via.placeholder.com', 'placehold.co/600x800/166534/FFFFFF')")
-        ]);
-    
-    return "✅ Updated: {$count} images";
 });
 
 require __DIR__.'/auth.php';
