@@ -271,28 +271,46 @@
 
 @push('scripts')
 <script>
-function deleteImage(imageId) {
+async function deleteImage(imageId) {
     if (!confirm('حذف هذه الصورة؟')) return;
 
-    // Create a hidden form for DELETE
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/merchant/products/images/${imageId}`;
-    
-    // CSRF
-    const csrf = document.createElement('input');
-    csrf.name = '_token';
-    csrf.value = '{{ csrf_token() }}';
-    form.appendChild(csrf);
-    
-    // Method
-    const method = document.createElement('input');
-    method.name = '_method';
-    method.value = 'DELETE';
-    form.appendChild(method);
-    
-    document.body.appendChild(form);
-    form.submit();
+    try {
+        const response = await fetch(`/merchant/products/images/${imageId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-HTTP-Method-Override': 'DELETE',
+            },
+            body: JSON.stringify({ _method: 'DELETE' }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // 🎯 إزالة الصورة من الصفحة مباشرة (بدون reload)
+            const img = document.querySelector(`button[onclick="deleteImage(${imageId})"]`)?.closest('.relative');
+            if (img) {
+                img.style.transition = 'opacity 0.3s ease';
+                img.style.opacity = '0';
+                setTimeout(() => {
+                    img.remove();
+                    
+                    // إذا لم تبقَ صور، أظهر "لا توجد صور"
+                    const remainingImages = document.querySelectorAll('.grid.grid-cols-2.md\\:grid-cols-4.gap-4 > div').length;
+                    if (remainingImages === 0) {
+                        location.reload(); // reload سريع إذا لم تبقَ صور
+                    }
+                }, 300);
+            }
+        } else {
+            alert(data.error || 'حدث خطأ أثناء الحذف');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ في الاتصال');
+    }
 }
 </script>
 @endpush
