@@ -40,7 +40,10 @@
                     <i class="fa-solid fa-triangle-exclamation"></i>
                 </div>
             </div>
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">⚠️ مخزون منخفض</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-triangle-exclamation text-[10px] text-amber-600 dark:text-amber-400 ml-1"></i>
+                مخزون منخفض
+            </p>
             <p class="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $stats['low_stock'] }}</p>
         </a>
 
@@ -52,7 +55,10 @@
                     <i class="fa-solid fa-ban"></i>
                 </div>
             </div>
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">⛔ نفد المخزون</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-ban text-[10px] text-red-600 dark:text-red-400 ml-1"></i>
+                نفد المخزون
+            </p>
             <p class="font-display text-2xl font-bold text-red-600 dark:text-red-400">{{ $stats['out_of_stock'] }}</p>
         </a>
     </div>
@@ -123,11 +129,20 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($variant->stock_quantity <= 0)
-                                        <span class="badge badge-danger">نفد</span>
+                                        <span class="badge badge-danger">
+                                            <i class="fa-solid fa-ban text-[10px]"></i>
+                                            نفد
+                                        </span>
                                     @elseif($variant->stock_quantity <= $variant->low_stock_threshold)
-                                        <span class="badge badge-stone">منخفض</span>
+                                        <span class="badge badge-stone">
+                                            <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                                            منخفض
+                                        </span>
                                     @else
-                                        <span class="badge badge-forest">متوفر</span>
+                                        <span class="badge badge-forest">
+                                            <i class="fa-solid fa-check text-[10px]"></i>
+                                            متوفر
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
@@ -146,10 +161,12 @@
                                     <div x-show="editing" x-cloak class="flex items-center gap-1">
                                         <button @click="saveStock({{ $variant->id }}, newStock)"
                                                 class="inline-flex items-center justify-center gap-1 h-8 px-3 text-xs font-semibold bg-forest-700 dark:bg-gold-500 text-white dark:text-forest-950 hover:bg-forest-800 dark:hover:bg-gold-400 rounded transition-colors">
+                                            <i class="fa-solid fa-check text-xs"></i>
                                             حفظ
                                         </button>
                                         <button @click="editing = false; newStock = {{ $variant->stock_quantity }}"
-                                                class="inline-flex items-center justify-center h-8 px-3 text-xs font-medium text-ink dark:text-cream border border-stone-300 dark:border-stone-700 hover:border-forest-500 dark:hover:border-gold-400 rounded transition-colors">
+                                                class="inline-flex items-center justify-center gap-1 h-8 px-3 text-xs font-medium text-ink dark:text-cream border border-stone-300 dark:border-stone-700 hover:border-forest-500 dark:hover:border-gold-400 rounded transition-colors">
+                                            <i class="fa-solid fa-xmark text-xs"></i>
                                             إلغاء
                                         </button>
                                     </div>
