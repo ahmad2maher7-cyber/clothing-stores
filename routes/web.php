@@ -61,32 +61,7 @@ Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 
 /*
 |--------------------------------------------------------------------------
-| Cart, Checkout & Profile (تحتاج تسجيل دخول فقط)
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth'])->group(function () {
-
-    // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
-
-    // Checkout
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
-
-    // Profile Edit
-    Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
-});
-
-/*
-|--------------------------------------------------------------------------
-| Email Verification with OTP
+| Email Verification with OTP (يحتاج تسجيل دخول فقط - بدون verified)
 |--------------------------------------------------------------------------
 */
 
@@ -98,12 +73,29 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated + Verified Routes
+| Authenticated + Verified Routes (يحتاج تسجيل دخول + بريد مؤكد)
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'verified.custom'])->group(function () {
 
+    // ========== Cart ==========
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+
+    // ========== Checkout ==========
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
+
+    // ========== Profile Edit ==========
+    Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
+
+    // ========== Dashboard ==========
     Route::get('/dashboard', function () {
         return match (auth()->user()->role) {
             'admin' => redirect()->route('admin.dashboard'),
@@ -254,19 +246,6 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::put('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
         Route::put('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password');
     });
-});
-
-
-// ⚠️ TEMPORARY: Verify all existing users
-Route::get('/verify-all-users', function () {
-    $count = \App\Models\User::whereNull('email_verified_at')
-        ->update(['email_verified_at' => now()]);
-    
-    return response()->json([
-        'success' => true,
-        'verified' => $count,
-        'message' => "✅ Verified {$count} users",
-    ]);
 });
 
 require __DIR__.'/auth.php';
