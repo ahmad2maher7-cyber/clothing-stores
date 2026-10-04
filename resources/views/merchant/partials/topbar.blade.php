@@ -75,6 +75,7 @@
                 {{-- Notifications Bell (Customer) --}}
                 @auth
                     @if(auth()->user()->role === 'customer')
+                    <a href=""><i class="fa-solid fa-bell"></i></a>
                         @include('partials.notifications-bell')
                     @endif
                 @endauth
