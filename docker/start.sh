@@ -31,10 +31,14 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# 2. Clear cache
+# 2. Clear cache (قوي - يحذف كل شيء قديم)
 echo ""
 echo "🧹 [2/6] Clearing cache..."
 php artisan optimize:clear || true
+php artisan view:clear || true
+rm -rf storage/framework/views/* || true
+rm -rf storage/framework/cache/data/* || true
+rm -f bootstrap/cache/*.php || true
 
 # 3. Migrations
 echo ""
