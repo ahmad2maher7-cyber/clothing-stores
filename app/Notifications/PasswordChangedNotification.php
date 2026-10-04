@@ -2,42 +2,43 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PasswordChangedNotification extends Notification implements ShouldQueue
+class PasswordChangedNotification extends Notification
 {
-    use Queueable;
-
     public function __construct(
         public string $ipAddress,
         public string $userAgent,
         public string $changedAt
     ) {}
 
+    /**
+     * قنوات الإرسال - mail فقط (بدون queue وبدون database)
+     */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail'];
     }
 
+    /**
+     * محتوى الإيميل
+     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('🔐 تنبيه أمني: تم تغيير كلمة المرور')
             ->greeting("مرحباً {$notifiable->full_name},")
-            ->line('تم **تغيير كلمة المرور** الخاصة بحسابك بنجاح.')
-            ->line('**تفاصيل التغيير:**')
+            ->line('تم تغيير كلمة المرور الخاصة بحسابك بنجاح.')
             ->line("🕐 التاريخ: {$this->changedAt}")
-            ->line("🌐 عنوان IP: {$this->ipAddress}")
-            ->line("💻 الجهاز: " . \Illuminate\Support\Str::limit($this->userAgent, 80))
-            ->line('**⚠️ إذا لم تقم بهذا التغيير:**')
-            ->line('• تواصل معنا فوراً')
-            ->line('• قم بتغيير كلمة المرور مرة أخرى')
-            ->salutation('مع تحيات، فريق الأمان — متجر الملابس');
+            ->line("🌐 IP: {$this->ipAddress}")
+            ->line('إذا لم تقم بهذا الإجراء، يرجى التواصل معنا فوراً لتأمين حسابك.')
+            ->salutation('مع تحيات، فريق متجر الملابس');
     }
 
+    /**
+     * محتوى الإشعار (للاستخدام المستقبلي مع database channel)
+     */
     public function toArray(object $notifiable): array
     {
         return [
@@ -45,7 +46,6 @@ class PasswordChangedNotification extends Notification implements ShouldQueue
             'title' => '🔐 تم تغيير كلمة المرور',
             'body' => 'تم تغيير كلمة مرور حسابك بنجاح',
             'ip_address' => $this->ipAddress,
-            'user_agent' => $this->userAgent,
             'changed_at' => $this->changedAt,
         ];
     }
