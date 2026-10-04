@@ -51,7 +51,7 @@
             <template x-if="!loading">
                 <div>
                     <template x-for="notif in notifications" :key="notif.id">
-                        <a :href="notif.url || '#'"
+                        <a :href="notif.action_url || '#'"
                            @click="if(!notif.is_read) markAsRead(notif.id)"
                            class="flex gap-3 p-3 border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-zinc-800 transition"
                            :class="!notif.is_read ? 'bg-forest-50/50 dark:bg-forest-950/20' : ''">
@@ -62,7 +62,7 @@
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-ink dark:text-cream" x-text="notif.title"></p>
                                 <p class="text-xs text-ink-muted dark:text-cream/60 line-clamp-2 mt-0.5" x-text="notif.body"></p>
-                                <p class="text-[10px] text-ink-faint dark:text-cream/40 mt-1" x-text="notif.time"></p>
+                                <p class="text-[10px] text-ink-faint dark:text-cream/40 mt-1" x-text="formatTime(notif.created_at)"></p>
                             </div>
                             <template x-if="!notif.is_read">
                                 <span class="w-2 h-2 bg-forest-700 dark:bg-gold-400 rounded-full mt-2"></span>
@@ -75,7 +75,7 @@
 
         {{-- Footer --}}
         <div class="p-3 border-t border-stone-200 dark:border-stone-800 text-center">
-            <a href="{{ route('notifications.all') }}"
+            <a href="{{ route('notifications.index') }}"
                class="text-sm font-medium text-forest-700 dark:text-gold-400 hover:opacity-70 transition">
                 عرض كل الإشعارات
                 <i class="fa-solid fa-arrow-left text-xs ml-1"></i>
@@ -96,7 +96,7 @@ function notificationsBell() {
         async loadNotifications() {
             this.loading = true;
             try {
-                const res = await fetch('{{ route('notifications.index') }}', {
+                const res = await fetch('{{ route('notifications.latest') }}', {
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -115,7 +115,7 @@ function notificationsBell() {
         async markAsRead(id) {
             try {
                 await fetch(`/notifications/${id}/read`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -131,8 +131,8 @@ function notificationsBell() {
 
         async markAllAsRead() {
             try {
-                await fetch('{{ route('notifications.markAllAsRead') }}', {
-                    method: 'PUT',
+                await fetch('{{ route('notifications.readAll') }}', {
+                    method: 'POST',
                     headers: {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -145,16 +145,33 @@ function notificationsBell() {
             }
         },
 
+        formatTime(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `قبل ${Math.floor(diff / 60)} دقيقة`;
+            if (diff < 86400) return `قبل ${Math.floor(diff / 3600)} ساعة`;
+            if (diff < 604800) return `قبل ${Math.floor(diff / 86400)} يوم`;
+            return date.toLocaleDateString('ar-EG');
+        },
+
         getIcon(type) {
             const icons = {
                 'login': 'fa-solid fa-right-to-bracket',
+                'security': 'fa-solid fa-shield-halved',
+                'order': 'fa-solid fa-cart-shopping',
                 'order_created': 'fa-solid fa-cart-shopping',
                 'order_placed': 'fa-solid fa-check',
                 'order_status_changed': 'fa-solid fa-truck',
                 'product_created': 'fa-solid fa-shirt',
+                'review': 'fa-solid fa-star',
                 'review_created': 'fa-solid fa-star',
                 'review_approved': 'fa-solid fa-circle-check',
                 'offer_created': 'fa-solid fa-fire',
+                'store': 'fa-solid fa-store',
+                'welcome': 'fa-solid fa-gift',
+                'stock': 'fa-solid fa-triangle-exclamation',
                 'test': 'fa-solid fa-flask',
             };
             return icons[type] || 'fa-solid fa-bell';
