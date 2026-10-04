@@ -113,6 +113,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'admin';
     }
+    
 
     public function isMerchant(): bool
     {
@@ -159,4 +160,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
+
+    
 }

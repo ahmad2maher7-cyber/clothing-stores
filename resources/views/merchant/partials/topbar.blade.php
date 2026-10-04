@@ -72,6 +72,13 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
 
+                {{-- Notifications Bell (Customer) --}}
+                @auth
+                    @if(auth()->user()->role === 'customer')
+                        @include('partials.notifications-bell')
+                    @endif
+                @endauth
+
                 {{-- Wishlist --}}
                 @auth
                     @if(auth()->user()->role === 'customer')

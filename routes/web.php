@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\VerifyCodeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -94,6 +95,15 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 
     // ========== Profile Edit ==========
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
+
+    // ========== Notifications ==========
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/all', [NotificationController::class, 'all'])->name('all');
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unreadCount');
+        Route::put('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
+        Route::put('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
+    });
 
     // ========== Dashboard ==========
     Route::get('/dashboard', function () {
