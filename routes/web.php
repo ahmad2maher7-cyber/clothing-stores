@@ -97,12 +97,14 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
 
     // ========== Notifications ==========
+       // ========== Notifications ==========
     Route::prefix('notifications')->name('notifications.')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('index');
-        Route::get('/all', [NotificationController::class, 'all'])->name('all');
-        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unreadCount');
-        Route::put('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('markAllAsRead');
-        Route::put('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
+        Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread');
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
+        Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     });
 
     // ========== Dashboard ==========
@@ -154,7 +156,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::put('/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('profile');
         Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
     });
-    
+
         // Security Logs
         Route::get('security-logs', function () {
             $stats = \App\Services\SecurityLoggerService::getStats();

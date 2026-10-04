@@ -8,36 +8,12 @@ use Illuminate\Http\Request;
 class NotificationController extends Controller
 {
     /**
-     * عرض آخر 10 إشعارات (AJAX - للقائمة المنسدلة)
+     * صفحة كل الإشعارات
      */
     public function index()
     {
-        $notifications = auth()->user()->notifications()
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(fn($n) => [
-                'id' => $n->id,
-                'title' => $n->title,
-                'body' => $n->body,
-                'type' => $n->type,
-                'is_read' => (bool) $n->is_read,
-                'time' => $n->created_at->diffForHumans(),
-                'url' => $this->getNotificationUrl($n),
-            ]);
-
-        return response()->json([
-            'notifications' => $notifications,
-            'unread_count' => auth()->user()->notifications()->where('is_read', false)->count(),
-        ]);
-    }
-
-    /**
-     * صفحة كل الإشعارات
-     */
-    public function all()
-    {
-        $notifications = auth()->user()->notifications()
+        $notifications = auth()->user()
+            ->notifications()
             ->latest()
             ->paginate(20);
 
@@ -45,56 +21,92 @@ class NotificationController extends Controller
     }
 
     /**
-     * عدد غير المقروءة
+     * آخر 5 إشعارات (للـ Dropdown)
      */
-    public function unreadCount()
+    public function latest()
     {
+        $notifications = auth()->user()
+            ->notifications()
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $unreadCount = auth()->user()
+            ->notifications()
+            ->where('is_read', false)
+            ->count();
+
         return response()->json([
-            'count' => auth()->user()->notifications()->where('is_read', false)->count(),
+            'notifications' => $notifications,
+            'unread_count' => $unreadCount,
         ]);
     }
 
     /**
-     * تعليم إشعار واحد كمقروء
+     * عدد الإشعارات غير المقروءة فقط (Badge)
+     */
+    public function unreadCount()
+    {
+        $count = auth()->user()
+            ->notifications()
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * تعليم إشعار كمقروء
      */
     public function markAsRead(Notification $notification)
     {
+        // تحقق الملكية
         if ($notification->user_id !== auth()->id()) {
             abort(403);
         }
 
         $notification->update(['is_read' => true]);
 
-        return response()->json(['success' => true]);
+        // إذا كان الطلب AJAX
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back();
     }
 
     /**
-     * تعليم الكل كمقروء
+     * تعليم كل الإشعارات كمقروءة
      */
     public function markAllAsRead()
     {
-        auth()->user()->notifications()
+        auth()->user()
+            ->notifications()
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return response()->json(['success' => true]);
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', '✅ تم تعليم جميع الإشعارات كمقروءة');
     }
 
     /**
-     * توليد رابط الإشعار
+     * حذف إشعار
      */
-    protected function getNotificationUrl(Notification $notification): string
+    public function destroy(Notification $notification)
     {
-        return match ($notification->type) {
-            'order_created', 'order_status_changed' => route('customer.orders.index'),
-            'order_placed' => route('customer.orders.index'),
-            'product_created' => auth()->user()->role === 'admin'
-                ? route('admin.stores.index')
-                : route('merchant.products.index'),
-            'review_created' => route('merchant.reviews.index'),
-            'review_approved' => route('customer.reviews.index'),
-            'offer_created' => route('offers.index'),
-            default => route('dashboard'),
-        };
+        if ($notification->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $notification->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'تم حذف الإشعار');
     }
 }

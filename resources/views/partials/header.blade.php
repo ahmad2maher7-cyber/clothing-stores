@@ -72,6 +72,11 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
 
+                 {{-- Notifications --}}
+                @auth
+                    @include('partials.notification-dropdown')
+                @endauth
+                
                 {{-- Wishlist --}}
                 @auth
                     @if(auth()->user()->role === 'customer')
