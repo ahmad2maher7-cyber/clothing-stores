@@ -273,4 +273,21 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 
 
 
+// ⚠️ TEMPORARY - احذفه بعد حل المشكلة
+Route::get('/debug-xyz123', function () {
+    $logFile = storage_path('logs/laravel.log');
+
+    if (!file_exists($logFile)) {
+        return 'No log file. Try triggering the error first.';
+    }
+
+    // آخر 100 سطر
+    $lines = file($logFile);
+    $lastLines = array_slice($lines, -100);
+
+    return response('<pre style="background:#111;color:#0f0;padding:20px;font-size:12px;direction:ltr;overflow:auto;max-height:100vh;">'
+        . htmlspecialchars(implode('', $lastLines))
+        . '</pre>');
+})->middleware('auth');
+
 require __DIR__.'/auth.php';
