@@ -8,24 +8,49 @@ use Illuminate\Http\Request;
 class NotificationController extends Controller
 {
     /**
-     * جلب الإشعارات (AJAX)
+     * عرض آخر 10 إشعارات (AJAX - للقائمة المنسدلة)
      */
     public function index()
     {
-        $notifications = auth()->user()
-            ->notifications()
+        $notifications = auth()->user()->notifications()
             ->latest()
-            ->take(15)
-            ->get();
-
-        $unreadCount = auth()->user()
-            ->notifications()
-            ->where('is_read', false)
-            ->count();
+            ->take(10)
+            ->get()
+            ->map(fn($n) => [
+                'id' => $n->id,
+                'title' => $n->title,
+                'body' => $n->body,
+                'type' => $n->type,
+                'is_read' => (bool) $n->is_read,
+                'time' => $n->created_at->diffForHumans(),
+                'url' => $this->getNotificationUrl($n),
+            ]);
 
         return response()->json([
             'notifications' => $notifications,
-            'unread_count' => $unreadCount,
+            'unread_count' => auth()->user()->notifications()->where('is_read', false)->count(),
+        ]);
+    }
+
+    /**
+     * صفحة كل الإشعارات
+     */
+    public function all()
+    {
+        $notifications = auth()->user()->notifications()
+            ->latest()
+            ->paginate(20);
+
+        return view('notifications.index', compact('notifications'));
+    }
+
+    /**
+     * عدد غير المقروءة
+     */
+    public function unreadCount()
+    {
+        return response()->json([
+            'count' => auth()->user()->notifications()->where('is_read', false)->count(),
         ]);
     }
 
@@ -48,8 +73,7 @@ class NotificationController extends Controller
      */
     public function markAllAsRead()
     {
-        auth()->user()
-            ->notifications()
+        auth()->user()->notifications()
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
@@ -57,28 +81,20 @@ class NotificationController extends Controller
     }
 
     /**
-     * عدد الإشعارات غير المقروءة فقط (للعداد)
+     * توليد رابط الإشعار
      */
-    public function unreadCount()
+    protected function getNotificationUrl(Notification $notification): string
     {
-        $count = auth()->user()
-            ->notifications()
-            ->where('is_read', false)
-            ->count();
-
-        return response()->json(['count' => $count]);
-    }
-
-    /**
-     * صفحة كل الإشعارات
-     */
-    public function all()
-    {
-        $notifications = auth()->user()
-            ->notifications()
-            ->latest()
-            ->paginate(20);
-
-        return view('notifications.index', compact('notifications'));
+        return match ($notification->type) {
+            'order_created', 'order_status_changed' => route('customer.orders.index'),
+            'order_placed' => route('customer.orders.index'),
+            'product_created' => auth()->user()->role === 'admin'
+                ? route('admin.stores.index')
+                : route('merchant.products.index'),
+            'review_created' => route('merchant.reviews.index'),
+            'review_approved' => route('customer.reviews.index'),
+            'offer_created' => route('offers.index'),
+            default => route('dashboard'),
+        };
     }
 }
