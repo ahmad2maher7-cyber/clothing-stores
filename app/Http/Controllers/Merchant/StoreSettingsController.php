@@ -298,4 +298,53 @@ public function updateAppearance(Request $request)
         ->route('merchant.settings.appearance')
         ->with('success', 'تم تحديث الهوية البصرية بنجاح');
 }
+
+
+    /**
+     * تحديث كلمة المرور
+     */
+    public function updatePassword(Request $request)
+    {
+        // 1️⃣ التحقق من المدخلات
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)],
+        ], [
+            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
+            'password.required' => 'كلمة المرور الجديدة مطلوبة',
+            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+        ]);
+
+        // 2️⃣ تحديث كلمة المرور
+        $user = auth()->user();
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
+        ]);
+
+        // 3️⃣ إرسال الإشعار (مع حماية شاملة)
+        try {
+            $user->notify(new \App\Notifications\PasswordChangedNotification(
+                ipAddress: $request->ip() ?? 'غير معروف',
+                userAgent: $request->userAgent() ?? 'غير معروف',
+                changedAt: now()->format('Y-m-d H:i:s')
+            ));
+        } catch (\Throwable $e) {
+            \Log::error('Password changed notification failed', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            // لا نوقف العملية — الباسوورد تم تغييره بنجاح
+        }
+
+        // 4️⃣ إعادة التوجيه
+        return redirect()
+            ->route('merchant.settings.index')
+            ->with('success', '✅ تم تغيير كلمة المرور بنجاح');
+    }
+    
 }
