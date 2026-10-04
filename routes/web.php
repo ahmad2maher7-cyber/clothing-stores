@@ -96,16 +96,15 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     // ========== Profile Edit ==========
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
 
-    // ========== Notifications ==========
-       // ========== Notifications ==========
     Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [NotificationController::class, 'index'])->name('index');
-        Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
-        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread');
-        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
-        Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
-        Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
-    });
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread');
+    Route::get('/all', [NotificationController::class, 'index'])->name('all'); // ✅ alias
+    Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
+    Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
+    Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
+});
 
     // ========== Dashboard ==========
     Route::get('/dashboard', function () {
@@ -273,22 +272,5 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 });
 
 
-
-// ⚠️ TEMPORARY - احذفه بعد حل المشكلة
-Route::get('/debug-xyz123', function () {
-    $logFile = storage_path('logs/laravel.log');
-
-    if (!file_exists($logFile)) {
-        return 'No log file. Try triggering the error first.';
-    }
-
-    // آخر 100 سطر
-    $lines = file($logFile);
-    $lastLines = array_slice($lines, -100);
-
-    return response('<pre style="background:#111;color:#0f0;padding:20px;font-size:12px;direction:ltr;overflow:auto;max-height:100vh;">'
-        . htmlspecialchars(implode('', $lastLines))
-        . '</pre>');
-})->middleware('auth');
 
 require __DIR__.'/auth.php';

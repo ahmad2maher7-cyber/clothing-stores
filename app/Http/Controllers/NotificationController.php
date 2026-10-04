@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    /**
-     * صفحة كل الإشعارات
-     */
     public function index()
     {
         $notifications = auth()->user()
@@ -21,8 +18,13 @@ class NotificationController extends Controller
     }
 
     /**
-     * آخر 5 إشعارات (للـ Dropdown)
+     * كل الإشعارات (alias لـ index)
      */
+    public function all()
+    {
+        return $this->index();
+    }
+
     public function latest()
     {
         $notifications = auth()->user()
@@ -42,9 +44,6 @@ class NotificationController extends Controller
         ]);
     }
 
-    /**
-     * عدد الإشعارات غير المقروءة فقط (Badge)
-     */
     public function unreadCount()
     {
         $count = auth()->user()
@@ -55,19 +54,14 @@ class NotificationController extends Controller
         return response()->json(['count' => $count]);
     }
 
-    /**
-     * تعليم إشعار كمقروء
-     */
     public function markAsRead(Notification $notification)
     {
-        // تحقق الملكية
         if ($notification->user_id !== auth()->id()) {
             abort(403);
         }
 
         $notification->update(['is_read' => true]);
 
-        // إذا كان الطلب AJAX
         if (request()->expectsJson()) {
             return response()->json(['success' => true]);
         }
@@ -75,9 +69,6 @@ class NotificationController extends Controller
         return back();
     }
 
-    /**
-     * تعليم كل الإشعارات كمقروءة
-     */
     public function markAllAsRead()
     {
         auth()->user()
@@ -92,9 +83,6 @@ class NotificationController extends Controller
         return back()->with('success', '✅ تم تعليم جميع الإشعارات كمقروءة');
     }
 
-    /**
-     * حذف إشعار
-     */
     public function destroy(Notification $notification)
     {
         if ($notification->user_id !== auth()->id()) {
