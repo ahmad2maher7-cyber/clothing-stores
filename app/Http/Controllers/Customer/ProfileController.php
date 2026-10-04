@@ -16,7 +16,6 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        // إحصائيات
         $stats = [
             'orders' => $user->orders()->count(),
             'wishlist' => $user->wishlists()->count(),
@@ -42,7 +41,6 @@ class ProfileController extends Controller
             'full_name.required' => 'الاسم الكامل مطلوب',
         ]);
 
-        // رفع الصورة
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
                 \Storage::disk('public')->delete($user->avatar);
@@ -71,12 +69,27 @@ class ProfileController extends Controller
             'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
         ]);
 
-        auth()->user()->update([
+        $user = auth()->user();
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
+        // ═══════════════════════════════════════
+        //  إشعار تغيير كلمة المرور
+        // ═══════════════════════════════════════
+        try {
+            $user->notify(new \App\Notifications\PasswordChangedNotification(
+                ipAddress: $request->ip() ?? 'غير معروف',
+                userAgent: $request->userAgent() ?? 'غير معروف',
+                changedAt: now()->format('Y-m-d H:i:s')
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Password changed notification failed: ' . $e->getMessage());
+        }
+
         return redirect()
             ->route('customer.profile')
-            ->with('success', 'تم تغيير كلمة المرور بنجاح');
+            ->with('success', 'تم تغيير كلمة المرور بنجاح. تحقق من بريدك الإلكتروني');
     }
 }

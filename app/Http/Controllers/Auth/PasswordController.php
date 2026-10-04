@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Notifications\PasswordChangedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,12 +26,18 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // ✅ إرسال إشعار تنبيهي
-        $user->notify(new PasswordChangedNotification(
-            ipAddress: $request->ip() ?? 'unknown',
-            userAgent: $request->userAgent() ?? 'unknown',
-            changedAt: now()->format('Y-m-d H:i:s')
-        ));
+        // ═══════════════════════════════════════
+        //  إشعار تغيير كلمة المرور
+        // ═══════════════════════════════════════
+        try {
+            $user->notify(new \App\Notifications\PasswordChangedNotification(
+                ipAddress: $request->ip() ?? 'غير معروف',
+                userAgent: $request->userAgent() ?? 'غير معروف',
+                changedAt: now()->format('Y-m-d H:i:s')
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Password changed notification failed: ' . $e->getMessage());
+        }
 
         return back()->with('status', 'password-updated');
     }

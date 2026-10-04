@@ -2,13 +2,14 @@
 
 namespace App\Notifications;
 
-use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class PasswordChangedNotification extends Notification
+class PasswordChangedNotification extends Notification implements ShouldQueue
 {
-    // ❌ حذفنا Queueable
-    // use Queueable;
+    use Queueable;
 
     public function __construct(
         public string $ipAddress,
@@ -18,19 +19,19 @@ class PasswordChangedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('🔔 تنبيه أمني: تم تغيير كلمة المرور')
+            ->subject('🔐 تنبيه أمني: تم تغيير كلمة المرور')
             ->greeting("مرحباً {$notifiable->full_name},")
             ->line('تم **تغيير كلمة المرور** الخاصة بحسابك بنجاح.')
             ->line('**تفاصيل التغيير:**')
             ->line("🕐 التاريخ: {$this->changedAt}")
             ->line("🌐 عنوان IP: {$this->ipAddress}")
-            ->line("💻 الجهاز: " . substr($this->userAgent, 0, 80))
+            ->line("💻 الجهاز: " . \Illuminate\Support\Str::limit($this->userAgent, 80))
             ->line('**⚠️ إذا لم تقم بهذا التغيير:**')
             ->line('• تواصل معنا فوراً')
             ->line('• قم بتغيير كلمة المرور مرة أخرى')
@@ -40,10 +41,12 @@ class PasswordChangedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
+            'type' => 'password_changed',
+            'title' => '🔐 تم تغيير كلمة المرور',
+            'body' => 'تم تغيير كلمة مرور حسابك بنجاح',
             'ip_address' => $this->ipAddress,
             'user_agent' => $this->userAgent,
             'changed_at' => $this->changedAt,
-            'type' => 'password_changed',
         ];
     }
 }
