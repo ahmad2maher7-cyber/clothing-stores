@@ -210,6 +210,9 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
                 Route::get('/appearance', [StoreSettingsController::class, 'appearance'])->name('appearance');
                 Route::put('/appearance', [StoreSettingsController::class, 'updateAppearance'])->name('appearance.update');
 
+                    // Password
+    Route::put('/password', [StoreSettingsController::class, 'updatePassword'])->name('password');
+    
                 Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
                 Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
 
@@ -222,7 +225,9 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
                 Route::post('/shipping', [StoreSettingsController::class, 'storeShipping'])->name('shipping.store');
                 Route::put('/shipping/{zone}', [StoreSettingsController::class, 'updateShipping'])->name('shipping.update');
                 Route::delete('/shipping/{zone}', [StoreSettingsController::class, 'destroyShipping'])->name('shipping.destroy');
-            });
+           
+           
+                });
         });
     });
 

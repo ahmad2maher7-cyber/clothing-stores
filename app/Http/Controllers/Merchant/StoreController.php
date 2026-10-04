@@ -102,5 +102,46 @@ class StoreController extends Controller
 
         return view('merchant.store.pending', compact('store'));
     }
+
+
+        /**
+     * تحديث كلمة المرور
+     */
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required|current_password',
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)],
+        ], [
+            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
+            'password.required' => 'كلمة المرور الجديدة مطلوبة',
+            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+        ]);
+
+        $user = auth()->user();
+
+        $user->update([
+            'password' => \Hash::make($validated['password']),
+        ]);
+
+        // ═══════════════════════════════════════
+        //  إشعار تغيير كلمة المرور
+        // ═══════════════════════════════════════
+        try {
+            $user->notify(new \App\Notifications\PasswordChangedNotification(
+                ipAddress: $request->ip() ?? 'غير معروف',
+                userAgent: $request->userAgent() ?? 'غير معروف',
+                changedAt: now()->format('Y-m-d H:i:s')
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Password changed notification failed: ' . $e->getMessage());
+        }
+
+        return redirect()
+            ->route('merchant.settings.index')
+            ->with('success', 'تم تغيير كلمة المرور بنجاح. تحقق من بريدك الإلكتروني');
+    }
     
 }
