@@ -170,29 +170,37 @@ class CheckoutController extends Controller
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage())->withInput();
         }
 
-        // ═══════════════════════════════════════
+                // ═══════════════════════════════════════
         //  الإشعارات (خارج try/catch)
         // ═══════════════════════════════════════
         foreach ($createdOrders as $order) {
             try {
+                // إشعار للتاجر
                 $merchant = $order->store->merchant;
                 if ($merchant) {
                     \App\Services\NotificationService::send(
-                        userId: $merchant->id,
+                        user: $merchant,
+                        type: 'order',
                         title: '🛒 طلب جديد',
                         body: "لديك طلب جديد رقم {$order->order_number} بقيمة " . number_format($order->total, 0) . ' ₪',
-                        type: 'order_created'
+                        actionUrl: route('merchant.orders.show', $order)
                     );
                 }
 
+                // إشعار للزبون
                 \App\Services\NotificationService::send(
-                    userId: auth()->id(),
+                    user: auth()->user(),
+                    type: 'order',
                     title: '✅ تم استلام طلبك',
                     body: "تم استلام طلبك رقم {$order->order_number} بنجاح وسيتم تجهيزه قريباً",
-                    type: 'order_placed'
+                    actionUrl: route('customer.orders.show', $order)
                 );
-            } catch (\Exception $e) {
-                \Log::error('Order notification failed: ' . $e->getMessage());
+
+            } catch (\Throwable $e) {
+                \Log::error('Order notification failed: ' . $e->getMessage(), [
+                    'order_id' => $order->id,
+                    'trace' => $e->getTraceAsString(),
+                ]);
             }
         }
 
