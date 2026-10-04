@@ -148,6 +148,13 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
         Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
 
+            // ═══ Settings ═══
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+        Route::put('/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('profile');
+        Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
+    });
+    
         // Security Logs
         Route::get('security-logs', function () {
             $stats = \App\Services\SecurityLoggerService::getStats();
@@ -212,7 +219,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 
                     // Password
     Route::put('/password', [StoreSettingsController::class, 'updatePassword'])->name('password');
-    
+
                 Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
                 Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
 

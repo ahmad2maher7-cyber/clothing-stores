@@ -89,6 +89,16 @@
             <span x-show="sidebarOpen">سجلات الأمان</span>
         </a>
 
+                {{-- Settings --}}
+        <a href="{{ route('admin.settings.index') }}"
+           class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors
+                  {{ request()->routeIs('admin.settings.*') 
+                     ? 'bg-forest-700 text-white font-medium' 
+                     : 'text-ink-soft dark:text-cream/70 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400' }}">
+            <i class="fa-solid fa-gear w-5 text-center shrink-0"></i>
+            <span x-show="sidebarOpen">الإعدادات</span>
+        </a>
+
         <div class="border-t border-stone-200 dark:border-stone-800 mx-4 my-3"></div>
 
         {{-- Back to Home --}}
