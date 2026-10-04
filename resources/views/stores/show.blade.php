@@ -66,6 +66,31 @@
                             </div>
                         @endif
                     </div>
+
+                    {{-- ═══ Contact Buttons ═══ --}}
+                    @auth
+                        @if(auth()->user()->role === 'customer')
+                            <div class="flex flex-wrap gap-2 mt-5">
+                                <form action="{{ route('customer.chat.start') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="store_id" value="{{ $store->id }}">
+                                    <button type="submit" 
+                                            class="inline-flex items-center gap-2 h-10 px-5 bg-forest-700 hover:bg-forest-800 dark:bg-gold-500 dark:hover:bg-gold-400 dark:text-forest-950 text-white text-sm font-medium rounded transition-colors">
+                                        <i class="fa-solid fa-comments"></i>
+                                        تواصل مع المتجر
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+                    @else
+                        <div class="flex flex-wrap gap-2 mt-5">
+                            <a href="{{ route('login') }}"
+                               class="inline-flex items-center gap-2 h-10 px-5 bg-forest-700 hover:bg-forest-800 text-white text-sm font-medium rounded transition-colors">
+                                <i class="fa-solid fa-comments"></i>
+                                سجّل دخول للتواصل
+                            </a>
+                        </div>
+                    @endauth
                 </div>
             </div>
 
