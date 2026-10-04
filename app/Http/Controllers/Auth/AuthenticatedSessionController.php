@@ -22,48 +22,51 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
- public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
-    $request->session()->regenerate();
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
 
-    $user = auth()->user();
+        $user = auth()->user();
 
-    // ═══════════════════════════════════════
-    //  1. إشعار في قاعدة البيانات
-    // ═══════════════════════════════════════
-    try {
-        \App\Services\NotificationService::send(
-            userId: $user->id,
-            title: 'تسجيل دخول جديد',
-            body: 'تم تسجيل دخول جديد إلى حسابك من IP: ' . $request->ip(),
-            type: 'login'
-        );
-    } catch (\Exception $e) {
-        \Log::error('DB notification failed: ' . $e->getMessage());
+        // ═══════════════════════════════════════
+        //  1. إشعار في قاعدة البيانات
+        // ═══════════════════════════════════════
+        try {
+            \App\Services\NotificationService::send(
+                user: $user,
+                type: 'security',
+                title: '🔐 تسجيل دخول جديد',
+                body: 'تم تسجيل دخول جديد إلى حسابك من IP: ' . $request->ip(),
+                actionUrl: route('notifications.index')
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Login notification failed: ' . $e->getMessage());
+        }
+
+        // ═══════════════════════════════════════
+        //  2. إيميل إشعار (اختياري — معطل إذا Mail غير مهيأ)
+        // ═══════════════════════════════════════
+        try {
+            if (class_exists(\App\Mail\LoginNotificationMail::class)) {
+                \Illuminate\Support\Facades\Mail::to($user->email)
+                    ->send(new \App\Mail\LoginNotificationMail(
+                        userName: $user->full_name,
+                        ipAddress: $request->ip(),
+                        userAgent: $request->userAgent() ?? 'Unknown',
+                        loginTime: now()->format('Y-m-d H:i:s')
+                    ));
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Login email failed: ' . $e->getMessage());
+        }
+
+        return redirect()->intended(match ($user->role) {
+            'admin' => route('admin.dashboard'),
+            'merchant' => route('merchant.dashboard'),
+            default => route('customer.dashboard'),
+        });
     }
-
-    // ═══════════════════════════════════════
-    //  2. إيميل إشعار
-    // ═══════════════════════════════════════
-    try {
-        \Illuminate\Support\Facades\Mail::to($user->email)
-            ->send(new \App\Mail\LoginNotificationMail(
-                userName: $user->full_name,
-                ipAddress: $request->ip(),
-                userAgent: $request->userAgent() ?? 'Unknown',
-                loginTime: now()->format('Y-m-d H:i:s')
-            ));
-    } catch (\Exception $e) {
-        \Log::error('Login email failed: ' . $e->getMessage());
-    }
-
-    return redirect()->intended(match ($user->role) {
-        'admin' => route('admin.dashboard'),
-        'merchant' => route('merchant.dashboard'),
-        default => route('customer.dashboard'),
-    });
-}
 
     /**
      * Destroy an authenticated session.

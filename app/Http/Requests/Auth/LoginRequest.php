@@ -39,25 +39,29 @@ class LoginRequest extends FormRequest
      * @throws ValidationException
      */
     public function authenticate(): void
-{
-    $this->ensureIsNotRateLimited();
+    {
+        $this->ensureIsNotRateLimited();
 
-    if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-        RateLimiter::hit($this->throttleKey());
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
 
-        // ✅ تسجيل المحاولة الفاشلة
-        \App\Services\SecurityLoggerService::log(
-            type: 'login',
-            email: $this->input('email')
-        );
+            // ✅ تسجيل المحاولة الفاشلة (مع حماية)
+            try {
+                \App\Services\SecurityLoggerService::log(
+                    type: 'login',
+                    email: $this->input('email')
+                );
+            } catch (\Throwable $e) {
+                \Log::error('Security logging failed: ' . $e->getMessage());
+            }
 
-        throw ValidationException::withMessages([
-            'email' => trans('auth.failed'),
-        ]);
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
     }
-
-    RateLimiter::clear($this->throttleKey());
-}
 
     /**
      * Ensure the login request is not rate limited.
