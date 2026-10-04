@@ -131,27 +131,15 @@ class OrderController extends Controller
         }
 
         // ═══════════════════════════════════════
-        //  الإشعارات (خارج try/catch)
+        //  الإشعار (باستخدام method جاهزة)
         // ═══════════════════════════════════════
         try {
-            $statusLabels = [
-                'pending'    => 'قيد المراجعة',
-                'processing' => 'جاري التجهيز',
-                'shipped'    => 'تم الشحن',
-                'delivering' => 'جاري التوصيل',
-                'delivered'  => 'تم التسليم',
-                'cancelled'  => 'ملغى',
-                'returned'   => 'مُرجع',
-            ];
-
-            \App\Services\NotificationService::send(
-                userId: $order->customer_id,
-                title: '🔄 تحديث حالة الطلب',
-                body: "تم تغيير حالة طلبك رقم {$order->order_number} إلى: " . ($statusLabels[$validated['status']] ?? $validated['status']),
-                type: 'order_status_changed'
-            );
-        } catch (\Exception $e) {
-            \Log::error('Order status notification failed: ' . $e->getMessage());
+            \App\Services\NotificationService::orderStatusChanged($order, $validated['status']);
+        } catch (\Throwable $e) {
+            \Log::error('Order status notification failed: ' . $e->getMessage(), [
+                'order_id' => $order->id,
+                'status' => $validated['status'],
+            ]);
         }
 
         return redirect()
