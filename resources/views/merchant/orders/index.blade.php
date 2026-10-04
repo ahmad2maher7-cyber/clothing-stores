@@ -13,12 +13,12 @@
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
         @php
             $statsConfig = [
-                ['key' => 'all',         'label' => 'الكل',       'icon' => null,       'color' => 'default'],
-                ['key' => 'pending',     'label' => '⏳ انتظار',  'status' => 'pending',     'color' => 'amber'],
-                ['key' => 'processing',  'label' => '⚙️ تجهيز',  'status' => 'processing',  'color' => 'blue'],
-                ['key' => 'shipped',     'label' => '🚚 شحن',    'status' => 'shipped',     'color' => 'violet'],
-                ['key' => 'delivering',  'label' => '📍 توصيل',  'status' => 'delivering',  'color' => 'orange'],
-                ['key' => 'delivered',   'label' => '✅ تسليم',  'status' => 'delivered',   'color' => 'forest'],
+                ['key' => 'all',         'label' => 'الكل',            'icon' => 'fa-list',              'color' => 'default'],
+                ['key' => 'pending',     'label' => 'قيد الانتظار',    'icon' => 'fa-clock',             'status' => 'pending',     'color' => 'amber'],
+                ['key' => 'processing',  'label' => 'جاري التجهيز',    'icon' => 'fa-cog',               'status' => 'processing',  'color' => 'blue'],
+                ['key' => 'shipped',     'label' => 'تم الشحن',        'icon' => 'fa-truck',             'status' => 'shipped',     'color' => 'violet'],
+                ['key' => 'delivering',  'label' => 'قيد التوصيل',     'icon' => 'fa-motorcycle',        'status' => 'delivering',  'color' => 'orange'],
+                ['key' => 'delivered',   'label' => 'تم التسليم',      'icon' => 'fa-check-circle',      'status' => 'delivered',   'color' => 'forest'],
             ];
         @endphp
 
@@ -31,7 +31,16 @@
             <a href="{{ route('merchant.orders.index', isset($config['status']) ? ['status' => $config['status']] : []) }}"
                class="bg-white dark:bg-zinc-900 border rounded-lg p-4 text-center hover:border-forest-500 dark:hover:border-gold-500 transition
                       {{ $isActive ? 'border-forest-700 dark:border-gold-400' : 'border-stone-200 dark:border-stone-800' }}">
-                <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">{{ $config['label'] }}</p>
+                <div class="flex items-center justify-center gap-1 mb-2">
+                    <i class="fa-solid {{ $config['icon'] }} text-[10px] 
+                              @if($config['color'] === 'amber') text-amber-600 dark:text-amber-400
+                              @elseif($config['color'] === 'blue') text-blue-600 dark:text-blue-400
+                              @elseif($config['color'] === 'violet') text-violet-600 dark:text-violet-400
+                              @elseif($config['color'] === 'orange') text-orange-600 dark:text-orange-400
+                              @elseif($config['color'] === 'forest') text-forest-700 dark:text-gold-400
+                              @else text-ink-muted dark:text-cream/50 @endif"></i>
+                    <p class="text-[10px] tracking-widest uppercase text-ink-muted dark:text-cream/50">{{ $config['label'] }}</p>
+                </div>
                 <p class="font-display text-xl font-bold
                           @if($config['color'] === 'amber') text-amber-600 dark:text-amber-400
                           @elseif($config['color'] === 'blue') text-blue-600 dark:text-blue-400
@@ -95,15 +104,15 @@
                         @foreach($orders as $order)
                             @php
                                 $statusConfig = [
-                                    'pending' => ['⏳ قيد المراجعة', 'badge-stone'],
-                                    'processing' => ['⚙️ جاري التجهيز', 'badge-stone'],
-                                    'shipped' => ['🚚 تم الشحن', 'badge-stone'],
-                                    'delivering' => ['📍 جاري التوصيل', 'badge-stone'],
-                                    'delivered' => ['✅ تم التسليم', 'badge-forest'],
-                                    'cancelled' => ['❌ ملغى', 'badge-danger'],
-                                    'returned' => ['↩️ مُرجع', 'badge-stone'],
+                                    'pending'    => ['قيد المراجعة',   'fa-clock',          'badge-stone'],
+                                    'processing' => ['جاري التجهيز',   'fa-cog',            'badge-stone'],
+                                    'shipped'    => ['تم الشحن',       'fa-truck',          'badge-stone'],
+                                    'delivering' => ['جاري التوصيل',   'fa-motorcycle',     'badge-stone'],
+                                    'delivered'  => ['تم التسليم',     'fa-check-circle',   'badge-forest'],
+                                    'cancelled'  => ['ملغى',           'fa-times-circle',   'badge-danger'],
+                                    'returned'   => ['مُرجع',          'fa-undo',           'badge-stone'],
                                 ];
-                                [$statusLabel, $badgeClass] = $statusConfig[$order->status] ?? ['—', 'badge-stone'];
+                                [$statusLabel, $statusIcon, $badgeClass] = $statusConfig[$order->status] ?? ['—', 'fa-question', 'badge-stone'];
                             @endphp
                             <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50 transition-colors">
                                 <td class="px-4 py-3">
@@ -116,22 +125,35 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
-                                    <span class="badge badge-stone">{{ $order->items_count }} منتج</span>
+                                    <span class="badge badge-stone">
+                                        <i class="fa-solid fa-box text-[10px]"></i>
+                                        {{ $order->items_count }} منتج
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="font-display font-bold text-ink dark:text-cream">{{ number_format($order->total, 0) }} ₪</span>
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($order->payment_status === 'paid')
-                                        <span class="badge badge-forest">مدفوع</span>
+                                        <span class="badge badge-forest">
+                                            <i class="fa-solid fa-check text-[10px]"></i>
+                                            مدفوع
+                                        </span>
                                     @else
-                                        <span class="badge badge-stone">غير مدفوع</span>
+                                        <span class="badge badge-stone">
+                                            <i class="fa-solid fa-clock text-[10px]"></i>
+                                            غير مدفوع
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
-                                    <span class="badge {{ $badgeClass }} whitespace-nowrap">{{ $statusLabel }}</span>
+                                    <span class="badge {{ $badgeClass }} whitespace-nowrap">
+                                        <i class="fa-solid {{ $statusIcon }} text-[10px]"></i>
+                                        {{ $statusLabel }}
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3 text-xs text-ink-muted dark:text-cream/50 whitespace-nowrap">
+                                    <i class="fa-regular fa-calendar text-[10px] ml-1"></i>
                                     {{ $order->created_at->format('Y/m/d') }}
                                 </td>
                                 <td class="px-4 py-3">

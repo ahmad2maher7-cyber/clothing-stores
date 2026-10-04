@@ -18,19 +18,34 @@
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">إجمالي</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-layer-group text-[10px]"></i>
+                إجمالي
+            </p>
             <p class="font-display text-3xl font-bold text-ink dark:text-cream">{{ $stats['total'] }}</p>
         </div>
+
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">🔥 نشطة</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-fire text-[10px] text-forest-700 dark:text-gold-400"></i>
+                نشطة
+            </p>
             <p class="font-display text-3xl font-bold text-forest-700 dark:text-gold-400">{{ $stats['active'] }}</p>
         </div>
+
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">⏰ قادمة</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-clock text-[10px] text-blue-600 dark:text-blue-400"></i>
+                قادمة
+            </p>
             <p class="font-display text-3xl font-bold text-blue-600 dark:text-blue-400">{{ $stats['upcoming'] }}</p>
         </div>
+
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
-            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">منتهية</p>
+            <p class="text-xs tracking-widest uppercase text-ink-muted dark:text-cream/50 mb-2">
+                <i class="fa-solid fa-calendar-xmark text-[10px]"></i>
+                منتهية
+            </p>
             <p class="font-display text-3xl font-bold text-ink-muted dark:text-cream/60">{{ $stats['expired'] }}</p>
         </div>
     </div>
@@ -75,11 +90,20 @@
 
                         <div class="flex justify-between items-center pt-4 border-t border-stone-100 dark:border-stone-800">
                             @if($isActive)
-                                <span class="badge badge-forest">🔥 نشط</span>
+                                <span class="badge badge-forest">
+                                    <i class="fa-solid fa-fire text-[10px]"></i>
+                                    نشط
+                                </span>
                             @elseif($isUpcoming)
-                                <span class="badge badge-stone">⏰ قادم</span>
+                                <span class="badge badge-stone">
+                                    <i class="fa-solid fa-clock text-[10px]"></i>
+                                    قادم
+                                </span>
                             @else
-                                <span class="badge badge-stone">منتهي</span>
+                                <span class="badge badge-stone">
+                                    <i class="fa-solid fa-calendar-xmark text-[10px]"></i>
+                                    منتهي
+                                </span>
                             @endif
 
                             <div class="flex items-center gap-3">
