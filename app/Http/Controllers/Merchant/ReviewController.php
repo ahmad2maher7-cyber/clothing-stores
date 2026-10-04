@@ -78,17 +78,14 @@ class ReviewController extends Controller
         $this->updateProductRating($review->product);
 
         // ═══════════════════════════════════════
-        //  الإشعارات (خارج try/catch)
+        //  الإشعار (باستخدام method جاهزة)
         // ═══════════════════════════════════════
         try {
-            \App\Services\NotificationService::send(
-                userId: $review->customer_id,
-                title: '✅ تم اعتماد تقييمك',
-                body: "تم نشر تقييمك على المنتج: {$review->product->name}. شكراً لك!",
-                type: 'review_approved'
-            );
-        } catch (\Exception $e) {
-            \Log::error('Review approve notification failed: ' . $e->getMessage());
+            \App\Services\NotificationService::reviewApproved($review);
+        } catch (\Throwable $e) {
+            \Log::error('Review approve notification failed: ' . $e->getMessage(), [
+                'review_id' => $review->id,
+            ]);
         }
 
         return back()->with('success', 'تم اعتماد التقييم ونشره');
@@ -103,6 +100,25 @@ class ReviewController extends Controller
 
         $review->update(['status' => 'rejected']);
         $this->updateProductRating($review->product);
+
+        // ═══════════════════════════════════════
+        //  الإشعار بالرفض (اختياري - باستخدام send مباشرة)
+        // ═══════════════════════════════════════
+        try {
+            if ($review->customer) {
+                \App\Services\NotificationService::send(
+                    user: $review->customer,
+                    type: 'review',
+                    title: '⚠️ لم يتم اعتماد تقييمك',
+                    body: "تقييمك على المنتج \"{$review->product->name}\" لم يستوفِ معايير النشر. يمكنك التواصل مع المتجر للاستفسار",
+                    actionUrl: route('customer.reviews.index')
+                );
+            }
+        } catch (\Throwable $e) {
+            \Log::error('Review reject notification failed: ' . $e->getMessage(), [
+                'review_id' => $review->id,
+            ]);
+        }
 
         return back()->with('success', 'تم رفض التقييم');
     }
@@ -123,6 +139,8 @@ class ReviewController extends Controller
 
     protected function updateProductRating(Product $product)
     {
+        if (!$product) return;
+
         $avg = $product->reviews()->where('status', 'approved')->avg('rating') ?? 0;
         $product->update(['rating_avg' => round($avg, 2)]);
     }
