@@ -61,7 +61,21 @@ class OfferController extends Controller
 
         $validated['store_id'] = $store->id;
 
-        Offer::create($validated);
+        $offer = Offer::create($validated);
+
+        // ═══════════════════════════════════════
+        //  الإشعارات (خارج try/catch)
+        // ═══════════════════════════════════════
+        try {
+            \App\Services\NotificationService::sendToRole(
+                role: 'customer',
+                title: '🔥 عرض جديد',
+                body: "عرض جديد من {$store->name}: {$offer->title} - خصم {$offer->discount_percent}%",
+                type: 'offer_created'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Offer notification failed: ' . $e->getMessage());
+        }
 
         return redirect()
             ->route('merchant.offers.index')

@@ -25,17 +25,14 @@ class ReviewController extends Controller
         $query = $store->reviews()
             ->with(['customer', 'product.primaryImage', 'images']);
 
-        // فلترة حسب الحالة
         if ($request->status) {
             $query->where('status', $request->status);
         }
 
-        // فلترة حسب التقييم
         if ($request->rating) {
             $query->where('rating', $request->rating);
         }
 
-        // بحث
         if ($request->search) {
             $query->whereHas('product', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%');
@@ -46,7 +43,6 @@ class ReviewController extends Controller
 
         $reviews = $query->latest()->paginate(15);
 
-        // إحصائيات
         $stats = [
             'total' => $store->reviews()->count(),
             'pending' => $store->reviews()->where('status', 'pending')->count(),
@@ -55,7 +51,6 @@ class ReviewController extends Controller
             'avg_rating' => $store->reviews()->where('status', 'approved')->avg('rating') ?? 0,
         ];
 
-        // توزيع التقييمات
         $ratingDistribution = [];
         for ($i = 5; $i >= 1; $i--) {
             $ratingDistribution[$i] = $store->reviews()
@@ -72,9 +67,6 @@ class ReviewController extends Controller
         ));
     }
 
-    /**
-     * اعتماد تقييم
-     */
     public function approve(Review $review)
     {
         $store = $this->getStore();
@@ -85,12 +77,23 @@ class ReviewController extends Controller
         $review->update(['status' => 'approved']);
         $this->updateProductRating($review->product);
 
+        // ═══════════════════════════════════════
+        //  الإشعارات (خارج try/catch)
+        // ═══════════════════════════════════════
+        try {
+            \App\Services\NotificationService::send(
+                userId: $review->customer_id,
+                title: '✅ تم اعتماد تقييمك',
+                body: "تم نشر تقييمك على المنتج: {$review->product->name}. شكراً لك!",
+                type: 'review_approved'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Review approve notification failed: ' . $e->getMessage());
+        }
+
         return back()->with('success', 'تم اعتماد التقييم ونشره');
     }
 
-    /**
-     * رفض تقييم
-     */
     public function reject(Review $review)
     {
         $store = $this->getStore();
@@ -104,9 +107,6 @@ class ReviewController extends Controller
         return back()->with('success', 'تم رفض التقييم');
     }
 
-    /**
-     * حذف تقييم
-     */
     public function destroy(Review $review)
     {
         $store = $this->getStore();
@@ -121,9 +121,6 @@ class ReviewController extends Controller
         return back()->with('success', 'تم حذف التقييم');
     }
 
-    /**
-     * تحديث متوسط تقييم المنتج
-     */
     protected function updateProductRating(Product $product)
     {
         $avg = $product->reviews()->where('status', 'approved')->avg('rating') ?? 0;

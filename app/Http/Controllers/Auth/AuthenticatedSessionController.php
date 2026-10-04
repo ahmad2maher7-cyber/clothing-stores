@@ -22,24 +22,46 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+ public function store(LoginRequest $request): RedirectResponse
 {
     $request->authenticate();
     $request->session()->regenerate();
 
     $user = auth()->user();
 
-    // التحقق من أن الحساب نشط
-    if ($user->status !== 'active') {
-        auth()->logout();
-        return back()->withErrors(['email' => 'حسابك موقوف.']);
+    // ═══════════════════════════════════════
+    //  1. إشعار في قاعدة البيانات
+    // ═══════════════════════════════════════
+    try {
+        \App\Services\NotificationService::send(
+            userId: $user->id,
+            title: 'تسجيل دخول جديد',
+            body: 'تم تسجيل دخول جديد إلى حسابك من IP: ' . $request->ip(),
+            type: 'login'
+        );
+    } catch (\Exception $e) {
+        \Log::error('DB notification failed: ' . $e->getMessage());
     }
 
-    // إعادة التوجيه حسب الدور
+    // ═══════════════════════════════════════
+    //  2. إيميل إشعار
+    // ═══════════════════════════════════════
+    try {
+        \Illuminate\Support\Facades\Mail::to($user->email)
+            ->send(new \App\Mail\LoginNotificationMail(
+                userName: $user->full_name,
+                ipAddress: $request->ip(),
+                userAgent: $request->userAgent() ?? 'Unknown',
+                loginTime: now()->format('Y-m-d H:i:s')
+            ));
+    } catch (\Exception $e) {
+        \Log::error('Login email failed: ' . $e->getMessage());
+    }
+
     return redirect()->intended(match ($user->role) {
-        'admin' => route('admin.dashboard', absolute: false),
-        'merchant' => route('merchant.dashboard', absolute: false),
-        default => route('customer.dashboard', absolute: false),
+        'admin' => route('admin.dashboard'),
+        'merchant' => route('merchant.dashboard'),
+        default => route('customer.dashboard'),
     });
 }
 

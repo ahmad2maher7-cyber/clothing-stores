@@ -19,9 +19,6 @@ class OrderController extends Controller
         return $store;
     }
 
-    /**
-     * عرض جميع الطلبات
-     */
     public function index(Request $request)
     {
         $store = $this->getStore();
@@ -30,17 +27,14 @@ class OrderController extends Controller
             ->with(['customer', 'items', 'paymentMethod'])
             ->withCount('items');
 
-        // فلترة حسب الحالة
         if ($request->status) {
             $query->where('status', $request->status);
         }
 
-        // فلترة حسب حالة الدفع
         if ($request->payment_status) {
             $query->where('payment_status', $request->payment_status);
         }
 
-        // بحث
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('order_number', 'like', '%' . $request->search . '%')
@@ -53,7 +47,6 @@ class OrderController extends Controller
 
         $orders = $query->latest()->paginate(15);
 
-        // إحصائيات لكل حالة
         $stats = [
             'all' => $store->orders()->count(),
             'pending' => $store->orders()->where('status', 'pending')->count(),
@@ -68,9 +61,6 @@ class OrderController extends Controller
         return view('merchant.orders.index', compact('store', 'orders', 'stats'));
     }
 
-    /**
-     * عرض تفاصيل طلب
-     */
     public function show(Order $order)
     {
         $store = $this->getStore();
@@ -91,9 +81,6 @@ class OrderController extends Controller
         return view('merchant.orders.show', compact('store', 'order'));
     }
 
-    /**
-     * تحديث حالة الطلب
-     */
     public function updateStatus(Request $request, Order $order)
     {
         $store = $this->getStore();
@@ -109,12 +96,10 @@ class OrderController extends Controller
             'status.in' => 'الحالة غير صحيحة',
         ]);
 
-        // لا يمكن تغيير طلب ملغى أو مُسترجع
         if (in_array($order->status, ['cancelled', 'returned'])) {
             return back()->with('error', 'لا يمكن تعديل حالة طلب ملغى أو مُسترجع');
         }
 
-        // لا تغيير إذا كانت نفس الحالة
         if ($order->status === $validated['status']) {
             return back()->with('error', 'الحالة الجديدة مطابقة للحالية');
         }
@@ -122,10 +107,8 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
-            // تحديث حالة الطلب
             $order->update(['status' => $validated['status']]);
 
-            // إضافة سجل الحالة
             OrderStatusHistory::create([
                 'order_id' => $order->id,
                 'status' => $validated['status'],
@@ -133,9 +116,7 @@ class OrderController extends Controller
                 'changed_by' => auth()->id(),
             ]);
 
-            // إذا تم التسليم، حدّث حالة الدفع
             if ($validated['status'] === 'delivered' && $order->payment_method_id) {
-                // فقط إذا كان الدفع عند الاستلام
                 $paymentMethod = $order->paymentMethod;
                 if ($paymentMethod && $paymentMethod->code === 'cod') {
                     $order->update(['payment_status' => 'paid']);
@@ -144,13 +125,37 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('merchant.orders.show', $order)
-                ->with('success', 'تم تحديث حالة الطلب بنجاح');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
+
+        // ═══════════════════════════════════════
+        //  الإشعارات (خارج try/catch)
+        // ═══════════════════════════════════════
+        try {
+            $statusLabels = [
+                'pending'    => 'قيد المراجعة',
+                'processing' => 'جاري التجهيز',
+                'shipped'    => 'تم الشحن',
+                'delivering' => 'جاري التوصيل',
+                'delivered'  => 'تم التسليم',
+                'cancelled'  => 'ملغى',
+                'returned'   => 'مُرجع',
+            ];
+
+            \App\Services\NotificationService::send(
+                userId: $order->customer_id,
+                title: '🔄 تحديث حالة الطلب',
+                body: "تم تغيير حالة طلبك رقم {$order->order_number} إلى: " . ($statusLabels[$validated['status']] ?? $validated['status']),
+                type: 'order_status_changed'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Order status notification failed: ' . $e->getMessage());
+        }
+
+        return redirect()
+            ->route('merchant.orders.show', $order)
+            ->with('success', 'تم تحديث حالة الطلب بنجاح');
     }
 }
