@@ -66,14 +66,16 @@
     <script>
     function chatRoom(conversationId, userId, lastMessageId) {
         return {
-            messages: @json($conversation->messages->map(fn($m) => [
-                'id' => $m->id,
-                'message' => $m->message,
-                'sender_id' => $m->sender_id,
-                'sender_name' => $m->sender->full_name,
-                'created_at' => $m->created_at->toISOString(),
-                'is_mine' => $m->sender_id === auth()->id(),
-            ])),
+            messages: @json($conversation->messages->map(function($m) {
+                return [
+                    'id' => $m->id,
+                    'message' => $m->message,
+                    'sender_id' => $m->sender_id,
+                    'sender_name' => $m->sender->full_name,
+                    'created_at' => $m->created_at->toISOString(),
+                    'is_mine' => $m->sender_id === auth()->id(),
+                ];
+            })),
             newMessage: '',
             sending: false,
             lastId: lastMessageId,
