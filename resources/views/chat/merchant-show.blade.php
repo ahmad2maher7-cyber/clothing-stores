@@ -66,7 +66,7 @@
     <script>
     function chatRoom(conversationId, userId, lastMessageId) {
         return {
-            messages: {!! $messagesJson !!},
+            messages: @json($messagesJson),
             newMessage: '',
             sending: false,
             lastId: lastMessageId,
