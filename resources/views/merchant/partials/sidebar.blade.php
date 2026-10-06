@@ -28,17 +28,18 @@
 
     @php
         $menuItems = $storeIsActive ? [
-            ['route' => 'merchant.dashboard',         'label' => 'لوحة التحكم',  'icon' => 'fa-chart-line'],
-            ['route' => 'merchant.products.index',    'label' => 'المنتجات',     'icon' => 'fa-shirt'],
-            ['route' => 'merchant.categories.index',  'label' => 'التصنيفات',    'icon' => 'fa-folder-tree'],
-            ['route' => 'merchant.inventory.index',   'label' => 'المخزون',      'icon' => 'fa-boxes-stacked', 'badge' => $lowStockCount, 'badge_color' => 'amber'],
-            ['route' => 'merchant.orders.index',      'label' => 'الطلبات',      'icon' => 'fa-cart-shopping', 'badge' => $pendingOrders, 'badge_color' => 'red'],
-            ['route' => 'merchant.coupons.index',     'label' => 'الكوبونات',    'icon' => 'fa-ticket'],
-            ['route' => 'merchant.offers.index',      'label' => 'العروض',       'icon' => 'fa-fire'],
-            ['route' => 'merchant.reviews.index',     'label' => 'التقييمات',    'icon' => 'fa-star', 'badge' => $pendingReviews, 'badge_color' => 'amber'],
-        ] : [
-            ['route' => 'merchant.dashboard', 'label' => 'لوحة التحكم', 'icon' => 'fa-chart-line'],
-        ];
+    ['route' => 'merchant.dashboard',         'label' => 'لوحة التحكم',  'icon' => 'fa-chart-line'],
+    ['route' => 'merchant.products.index',    'label' => 'المنتجات',     'icon' => 'fa-shirt'],
+    ['route' => 'merchant.categories.index',  'label' => 'التصنيفات',    'icon' => 'fa-folder-tree'],
+    ['route' => 'merchant.inventory.index',   'label' => 'المخزون',      'icon' => 'fa-boxes-stacked', 'badge' => $lowStockCount, 'badge_color' => 'amber'],
+    ['route' => 'merchant.orders.index',      'label' => 'الطلبات',      'icon' => 'fa-cart-shopping', 'badge' => $pendingOrders, 'badge_color' => 'red'],
+    ['route' => 'merchant.coupons.index',     'label' => 'الكوبونات',    'icon' => 'fa-ticket'],
+    ['route' => 'merchant.offers.index',      'label' => 'العروض',       'icon' => 'fa-fire'],
+    ['route' => 'merchant.reviews.index',     'label' => 'التقييمات',    'icon' => 'fa-star', 'badge' => $pendingReviews, 'badge_color' => 'amber'],
+    ['route' => 'merchant.chat.index',        'label' => 'المحادثات',    'icon' => 'fa-comments'],
+] : [
+    ['route' => 'merchant.dashboard', 'label' => 'لوحة التحكم', 'icon' => 'fa-chart-line'],
+];
     @endphp
 
     @foreach($menuItems as $item)

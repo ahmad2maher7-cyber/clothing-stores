@@ -68,6 +68,25 @@
                     @endif
                 </a>
 
+                {{-- Chat --}}
+<a href="{{ route('customer.chat.index') }}"
+   class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
+          {{ request()->routeIs('customer.chat.*') 
+             ? 'border-forest-700 dark:border-gold-400 text-forest-700 dark:text-gold-400' 
+             : 'border-transparent text-ink-muted dark:text-cream/60 hover:text-forest-700 dark:hover:text-gold-400' }}">
+    <i class="fa-solid fa-comments w-4 text-center"></i>
+    المحادثات
+    @php
+        $unreadChats = \App\Models\ChatMessage::whereHas('conversation', function($q) use ($user) {
+            $q->where('customer_id', $user->id);
+        })->where('sender_id', '!=', $user->id)->where('is_read', false)->count();
+    @endphp
+    @if($unreadChats > 0)
+        <span class="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full">
+            {{ $unreadChats > 9 ? '9+' : $unreadChats }}
+        </span>
+    @endif
+</a>
                 {{-- Profile --}}
                 <a href="{{ route('customer.profile') }}"
                    class="flex items-center gap-2 px-5 py-4 border-b-2 whitespace-nowrap text-sm font-medium transition-colors
