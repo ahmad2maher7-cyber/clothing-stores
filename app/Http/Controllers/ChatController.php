@@ -71,31 +71,47 @@ class ChatController extends Controller
     /**
      * عرض محادثة معينة
      */
-    public function show(ChatConversation $conversation)
-    {
-        $user = auth()->user();
+   public function show(ChatConversation $conversation)
+{
+    $user = auth()->user();
 
-        // تحقق الصلاحية
-        $isCustomer = $user->id === $conversation->customer_id;
-        $isMerchant = $user->role === 'merchant' 
-            && $conversation->store->merchant_id === $user->id;
+    // تحقق الصلاحية
+    $isCustomer = $user->id === $conversation->customer_id;
+    $isMerchant = $user->role === 'merchant' 
+        && $conversation->store->merchant_id === $user->id;
 
-        if (!$isCustomer && !$isMerchant) {
-            abort(403);
-        }
-
-        $conversation->load(['customer', 'store', 'messages.sender']);
-
-        // تعليم الرسائل كمقروءة
-        ChatMessage::where('conversation_id', $conversation->id)
-            ->where('sender_id', '!=', $user->id)
-            ->update(['is_read' => true]);
-
-        // اختيار الـ view حسب الدور
-        $view = $isMerchant ? 'chat.merchant-show' : 'chat.customer-show';
-
-        return view($view, compact('conversation'));
+    if (!$isCustomer && !$isMerchant) {
+        abort(403);
     }
+
+    $conversation->load(['customer', 'store', 'messages.sender']);
+
+    // تعليم الرسائل كمقروءة
+    ChatMessage::where('conversation_id', $conversation->id)
+        ->where('sender_id', '!=', $user->id)
+        ->update(['is_read' => true]);
+
+    // ═══════════════════════════════════════
+    // تحضير الرسائل كمصفوفة (لتجنب PHP في Blade)
+    // ═══════════════════════════════════════
+    $messagesJson = $conversation->messages->map(function ($m) use ($user) {
+        return [
+            'id' => $m->id,
+            'message' => $m->message,
+            'sender_id' => $m->sender_id,
+            'sender_name' => $m->sender->full_name,
+            'created_at' => $m->created_at->toISOString(),
+            'is_mine' => $m->sender_id === $user->id,
+        ];
+    })->values()->toArray();
+
+    $lastMessageId = $conversation->messages->last()?->id ?? 0;
+
+    // اختيار الـ view حسب الدور
+    $view = $isMerchant ? 'chat.merchant-show' : 'chat.customer-show';
+
+    return view($view, compact('conversation', 'messagesJson', 'lastMessageId'));
+}
 
     /**
      * إرسال رسالة (AJAX)

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 py-4" 
-     x-data="chatRoom({{ $conversation->id }}, {{ auth()->id() }}, {{ $conversation->messages->last()?->id ?? 0 }})"
+     x-data="chatRoom({{ $conversation->id }}, {{ auth()->id() }}, {{ $lastMessageId }})"
      x-init="init()">
 
     {{-- Header --}}
@@ -62,19 +62,10 @@
         </form>
     </div>
 
-        <script>
+    <script>
     function chatRoom(conversationId, userId, lastMessageId) {
         return {
-            messages: @json($conversation->messages->map(function($m) {
-                return [
-                    'id' => $m->id,
-                    'message' => $m->message,
-                    'sender_id' => $m->sender_id,
-                    'sender_name' => $m->sender->full_name,
-                    'created_at' => $m->created_at->toISOString(),
-                    'is_mine' => $m->sender_id === auth()->id(),
-                ];
-            })),
+            messages: {!! $messagesJson !!},
             newMessage: '',
             sending: false,
             lastId: lastMessageId,
