@@ -87,6 +87,16 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 
+
+
+    // ========== Chat (Customer) ==========
+Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ChatController::class, 'customerIndex'])->name('index');
+    Route::post('/start', [\App\Http\Controllers\ChatController::class, 'start'])->name('start');
+    Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
+});
+
+
     // ========== Checkout ==========
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -182,6 +192,15 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         // Dashboard
         Route::get('/dashboard', [MerchantDashboard::class, 'index'])->name('dashboard');
 
+
+
+        // Chat
+Route::prefix('chat')->name('chat.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
+    Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
+});
+
+
         // Requires active store
         Route::middleware('active.store')->group(function () {
 
@@ -272,6 +291,10 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 });
 
 
-
+// Chat Send/Fetch (مشترك بين الزبون والتاجر)
+Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
+    Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
+    Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
+});
 
 require __DIR__.'/auth.php';
