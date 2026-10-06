@@ -64,7 +64,8 @@ class ChatController extends Controller
             ]
         );
 
-        return redirect()->route('chat.customer.show', $conversation);
+        // ✅ الاسم الصحيح للـ route
+        return redirect()->route('customer.chat.show', $conversation);
     }
 
     /**
