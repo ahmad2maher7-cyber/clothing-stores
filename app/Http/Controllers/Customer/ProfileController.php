@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -46,7 +45,6 @@ class ProfileController extends Controller
 
         // ✅ رفع الصورة الشخصية إلى Cloudinary
         if ($request->hasFile('avatar')) {
-            // حذف القديم من Cloudinary
             if ($user->avatar) {
                 CloudinaryService::delete($user->avatar);
             }
@@ -71,14 +69,16 @@ class ProfileController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ], [
-            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
-            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
-            'password.required' => 'كلمة المرور الجديدة مطلوبة',
-            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
-            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-        ]);
+            'password' => ['required', 'confirmed', \App\Rules\StrongPassword::rules()],
+        ], array_merge(
+            \App\Rules\StrongPassword::messages(),
+            [
+                'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+                'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
+                'password.required' => 'كلمة المرور الجديدة مطلوبة',
+                'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+            ]
+        ));
 
         $user = auth()->user();
 
@@ -86,7 +86,7 @@ class ProfileController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // إشعار تغيير كلمة المرور (مع حماية شاملة)
+        // إشعار تغيير كلمة المرور
         try {
             $user->notify(new \App\Notifications\PasswordChangedNotification(
                 ipAddress: $request->ip() ?? 'غير معروف',
@@ -98,8 +98,6 @@ class ProfileController extends Controller
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
             ]);
         }
 

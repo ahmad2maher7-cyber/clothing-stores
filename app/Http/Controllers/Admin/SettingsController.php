@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
@@ -42,7 +41,6 @@ class SettingsController extends Controller
 
         // ✅ رفع الصورة إلى Cloudinary
         if ($request->hasFile('avatar')) {
-            // حذف القديم من Cloudinary
             if ($user->avatar) {
                 CloudinaryService::delete($user->avatar);
             }
@@ -65,21 +63,22 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ], [
-            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
-            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
-            'password.required' => 'كلمة المرور الجديدة مطلوبة',
-            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
-            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-        ]);
+            'password' => ['required', 'confirmed', \App\Rules\StrongPassword::rules()],
+        ], array_merge(
+            \App\Rules\StrongPassword::messages(),
+            [
+                'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+                'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
+                'password.required' => 'كلمة المرور الجديدة مطلوبة',
+                'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+            ]
+        ));
 
         $user = auth()->user();
         $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        // إرسال الإشعار (مع حماية شاملة)
         try {
             $user->notify(new \App\Notifications\PasswordChangedNotification(
                 ipAddress: $request->ip() ?? 'غير معروف',

@@ -114,7 +114,8 @@
                 @endif
 
                 {{-- Form --}}
-                <form method="POST" action="{{ route('register') }}" class="space-y-5" x-data="{ role: '{{ old('role', 'customer') }}' }">
+                <form method="POST" action="{{ route('register') }}" class="space-y-5"
+                      x-data="registerForm()">
                     @csrf
 
                     {{-- Role --}}
@@ -192,12 +193,68 @@
                     {{-- Password --}}
                     <div>
                         <label for="password" class="form-label">كلمة المرور</label>
-                        <input id="password" type="password" name="password" 
-                               required autocomplete="new-password"
-                               placeholder="••••••••"
-                               class="form-input">
-                        <p class="text-xs text-ink-muted dark:text-cream/40 mt-1">8 أحرف على الأقل</p>
-                        @error('password') <p class="form-error">{{ $message }}</p> @enderror
+                        <div class="relative">
+                            <input id="password" :type="showPassword ? 'text' : 'password'" name="password" 
+                                   required autocomplete="new-password"
+                                   placeholder="••••••••"
+                                   x-model="password"
+                                   class="form-input pl-12" dir="ltr">
+                            <button type="button" @click="showPassword = !showPassword"
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted dark:text-cream/50 hover:text-forest-700 dark:hover:text-gold-400 transition-colors">
+                                <svg x-show="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <svg x-show="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" x-cloak>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Strength Indicator --}}
+                        <div class="mt-3" x-show="password.length > 0" x-cloak>
+                            <div class="flex gap-1 mb-2">
+                                <div class="h-1 flex-1 rounded transition-colors" :class="strength.score >= 1 ? 'bg-red-500' : 'bg-stone-200 dark:bg-stone-700'"></div>
+                                <div class="h-1 flex-1 rounded transition-colors" :class="strength.score >= 2 ? 'bg-orange-500' : 'bg-stone-200 dark:bg-stone-700'"></div>
+                                <div class="h-1 flex-1 rounded transition-colors" :class="strength.score >= 3 ? 'bg-yellow-500' : 'bg-stone-200 dark:bg-stone-700'"></div>
+                                <div class="h-1 flex-1 rounded transition-colors" :class="strength.score >= 4 ? 'bg-lime-500' : 'bg-stone-200 dark:bg-stone-700'"></div>
+                                <div class="h-1 flex-1 rounded transition-colors" :class="strength.score >= 5 ? 'bg-forest-700 dark:bg-gold-500' : 'bg-stone-200 dark:bg-stone-700'"></div>
+                            </div>
+                            <p class="text-xs font-medium" :class="strength.color" x-text="strength.label"></p>
+                        </div>
+
+                        {{-- Requirements Checklist --}}
+                        <div class="mt-4 p-4 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded">
+                            <p class="text-xs font-semibold text-ink dark:text-cream mb-3">متطلبات كلمة المرور:</p>
+                            <ul class="space-y-2 text-xs">
+                                <li class="flex items-center gap-2 transition-colors" :class="checks.length ? 'text-green-600 dark:text-green-400' : 'text-ink-muted dark:text-cream/50'">
+                                    <svg class="w-4 h-4 shrink-0" :class="checks.length ? 'text-green-500' : 'text-stone-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="checks.length ? 'M5 13l4 4L19 7' : 'M12 8v4m0 4h.01'"/>
+                                    </svg>
+                                    10 أحرف على الأقل
+                                </li>
+                                <li class="flex items-center gap-2 transition-colors" :class="(checks.lower && checks.upper) ? 'text-green-600 dark:text-green-400' : 'text-ink-muted dark:text-cream/50'">
+                                    <svg class="w-4 h-4 shrink-0" :class="(checks.lower && checks.upper) ? 'text-green-500' : 'text-stone-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="(checks.lower && checks.upper) ? 'M5 13l4 4L19 7' : 'M12 8v4m0 4h.01'"/>
+                                    </svg>
+                                    حرف كبير (A-Z) وحرف صغير (a-z)
+                                </li>
+                                <li class="flex items-center gap-2 transition-colors" :class="checks.number ? 'text-green-600 dark:text-green-400' : 'text-ink-muted dark:text-cream/50'">
+                                    <svg class="w-4 h-4 shrink-0" :class="checks.number ? 'text-green-500' : 'text-stone-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="checks.number ? 'M5 13l4 4L19 7' : 'M12 8v4m0 4h.01'"/>
+                                    </svg>
+                                    رقم واحد على الأقل (0-9)
+                                </li>
+                                <li class="flex items-center gap-2 transition-colors" :class="checks.symbol ? 'text-green-600 dark:text-green-400' : 'text-ink-muted dark:text-cream/50'">
+                                    <svg class="w-4 h-4 shrink-0" :class="checks.symbol ? 'text-green-500' : 'text-stone-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="checks.symbol ? 'M5 13l4 4L19 7' : 'M12 8v4m0 4h.01'"/>
+                                    </svg>
+                                    رمز خاص (@, #, $, !, %, ...)
+                                </li>
+                            </ul>
+                        </div>
+
+                        @error('password') <p class="form-error mt-2">{{ $message }}</p> @enderror
                     </div>
 
                     {{-- Confirm --}}
@@ -206,12 +263,19 @@
                         <input id="password_confirmation" type="password" name="password_confirmation" 
                                required autocomplete="new-password"
                                placeholder="••••••••"
-                               class="form-input">
+                               x-model="passwordConfirmation"
+                               class="form-input" dir="ltr">
+                        <p class="text-xs mt-2 font-medium transition-colors"
+                           x-show="passwordConfirmation.length > 0"
+                           x-cloak
+                           :class="passwordsMatch ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+                           x-text="passwordsMatch ? '✅ كلمتا المرور متطابقتان' : '❌ كلمتا المرور غير متطابقتين'"></p>
                     </div>
 
                     {{-- Terms --}}
                     <label class="flex items-start gap-3 cursor-pointer group">
-                        <input type="checkbox" required
+                        <input type="checkbox" name="terms" value="1" required
+                               {{ old('terms') ? 'checked' : '' }}
                                class="mt-0.5 w-4 h-4 text-forest-700 focus:ring-forest-500 border-stone-300 dark:border-stone-600 rounded">
                         <span class="text-xs leading-relaxed text-ink-muted dark:text-cream/60 group-hover:text-ink dark:group-hover:text-cream transition-colors">
                             أوافق على 
@@ -220,6 +284,7 @@
                             <a href="#" class="font-semibold text-forest-700 dark:text-gold-400 hover:opacity-70 underline underline-offset-4">سياسة الخصوصية</a>
                         </span>
                     </label>
+                    @error('terms') <p class="form-error">{{ $message }}</p> @enderror
 
                     {{-- Submit --}}
                     <button type="submit" class="btn-solid w-full">
@@ -249,5 +314,49 @@
             </div>
         </div>
     </div>
+
+    {{-- Register Form Alpine.js Logic --}}
+    <script>
+        function registerForm() {
+            return {
+                role: '{{ old('role', 'customer') }}',
+                showPassword: false,
+                password: '{{ old('password') }}',
+                passwordConfirmation: '',
+
+                get passwordsMatch() {
+                    return this.password === this.passwordConfirmation 
+                        && this.password.length > 0 
+                        && this.passwordConfirmation.length > 0;
+                },
+
+                get checks() {
+                    return {
+                        length: this.password.length >= 10,
+                        lower: /[a-z]/.test(this.password),
+                        upper: /[A-Z]/.test(this.password),
+                        number: /[0-9]/.test(this.password),
+                        symbol: /[^A-Za-z0-9]/.test(this.password),
+                    };
+                },
+
+                get strength() {
+                    const c = this.checks;
+                    const score = Object.values(c).filter(Boolean).length;
+
+                    const labels = {
+                        0: { label: '', color: '' },
+                        1: { label: '🔴 ضعيفة جداً', color: 'text-red-600 dark:text-red-400' },
+                        2: { label: '🟠 ضعيفة', color: 'text-orange-600 dark:text-orange-400' },
+                        3: { label: '🟡 متوسطة', color: 'text-yellow-600 dark:text-yellow-400' },
+                        4: { label: '🟢 قوية', color: 'text-lime-600 dark:text-lime-400' },
+                        5: { label: '💪 قوية جداً', color: 'text-forest-700 dark:text-gold-400' },
+                    };
+
+                    return { ...labels[score], score };
+                }
+            }
+        }
+    </script>
 
 </x-guest-layout>

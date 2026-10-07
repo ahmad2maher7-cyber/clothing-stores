@@ -310,14 +310,16 @@ class StoreSettingsController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)],
-        ], [
-            'current_password.required' => 'كلمة المرور الحالية مطلوبة',
-            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
-            'password.required' => 'كلمة المرور الجديدة مطلوبة',
-            'password.confirmed' => 'كلمتا المرور غير متطابقتين',
-            'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
-        ]);
+            'password' => ['required', 'confirmed', \App\Rules\StrongPassword::rules()],
+        ], array_merge(
+            \App\Rules\StrongPassword::messages(),
+            [
+                'current_password.required' => 'كلمة المرور الحالية مطلوبة',
+                'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة',
+                'password.required' => 'كلمة المرور الجديدة مطلوبة',
+                'password.confirmed' => 'كلمتا المرور غير متطابقتين',
+            ]
+        ));
 
         $user = auth()->user();
         $user->update([
