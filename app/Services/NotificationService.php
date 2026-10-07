@@ -53,6 +53,38 @@ class NotificationService
     }
 
     /**
+     * إرسال إشعار لكل المشرفين
+     * يستخدم Named Arguments — يقبل أي ترتيب
+     */
+    public static function sendToAdmins(
+        string $title,
+        string $body,
+        string $type = 'info',
+        ?string $actionUrl = null
+    ): void {
+        $admins = User::where('role', 'admin')
+            ->where('status', 'active')
+            ->get();
+
+        foreach ($admins as $admin) {
+            try {
+                self::send(
+                    user: $admin,
+                    type: $type,
+                    title: $title,
+                    body: $body,
+                    actionUrl: $actionUrl
+                );
+            } catch (\Throwable $e) {
+                \Log::error('Notification to admin failed', [
+                    'admin_id' => $admin->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    /**
      * إشعار: طلب جديد (للتاجر)
      */
     public static function orderCreated($order): void
