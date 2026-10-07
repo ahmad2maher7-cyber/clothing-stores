@@ -101,7 +101,7 @@
     <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-forest-50 dark:bg-forest-950/40 flex items-center justify-center shrink-0 overflow-hidden">
             @if($sidebarStore?->logo)
-                <img src="{{ asset('storage/' . $sidebarStore->logo) }}" class="w-full h-full object-cover">
+                <img src="{{ $sidebarStore->logo_url }}" class="w-full h-full object-cover">
             @else
                 <i class="fa-solid fa-store text-forest-700 dark:text-gold-400 text-sm"></i>
             @endif

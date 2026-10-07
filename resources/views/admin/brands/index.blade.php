@@ -47,7 +47,7 @@
 
                     <div class="h-32 bg-stone-50 dark:bg-zinc-950 flex items-center justify-center border-b border-stone-200 dark:border-stone-800">
                         @if($brand->logo)
-                            <img src="{{ asset('storage/' . $brand->logo) }}"
+                            <img src="{{ $brand->logo_url }}"
                                  alt="{{ $brand->name }}"
                                  class="max-h-24 max-w-[80%] object-contain">
                         @else

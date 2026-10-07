@@ -100,7 +100,7 @@ class CloudinaryService
      */
     public static function delete(?string $publicId): bool
     {
-        if (empty($publicId) || self::isLocalPath($publicId)) {
+        if (empty($publicId) || self::isLocalPath($publicId) || self::isExternalUrl($publicId)) {
             return false;
         }
 
@@ -145,6 +145,10 @@ class CloudinaryService
 
     /**
      * رابط الصورة
+     * يدعم:
+     *  - URLs خارجية (https://...) → إرجاعها كما هي
+     *  - المسارات المحلية القديمة (stores/, products/, avatars/) → asset('storage/...')
+     *  - Cloudinary public IDs → رابط Cloudinary
      */
     public static function url(?string $publicId): ?string
     {
@@ -152,10 +156,17 @@ class CloudinaryService
             return null;
         }
 
+        // 1. URLs خارجية كاملة → إرجاعها كما هي
+        if (self::isExternalUrl($publicId)) {
+            return $publicId;
+        }
+
+        // 2. مسارات محلية قديمة
         if (self::isLocalPath($publicId)) {
             return asset('storage/' . $publicId);
         }
 
+        // 3. Cloudinary public_id
         $cloudName = env('CLOUDINARY_CLOUD_NAME');
         return "https://res.cloudinary.com/{$cloudName}/image/upload/{$publicId}";
     }
@@ -169,14 +180,34 @@ class CloudinaryService
             return null;
         }
 
+        // URLs خارجية → إرجاعها كما هي
+        if (self::isExternalUrl($publicId)) {
+            return $publicId;
+        }
+
+        // مسارات محلية
         if (self::isLocalPath($publicId)) {
             return asset('storage/' . $publicId);
         }
 
+        // Cloudinary
         $cloudName = env('CLOUDINARY_CLOUD_NAME');
         return "https://res.cloudinary.com/{$cloudName}/image/upload/w_{$width},h_{$height},c_fill/{$publicId}";
     }
 
+    /**
+     * هل هو URL خارجي كامل؟
+     */
+    protected static function isExternalUrl(string $path): bool
+    {
+        return str_starts_with($path, 'http://')
+            || str_starts_with($path, 'https://')
+            || str_starts_with($path, '//');
+    }
+
+    /**
+     * هل هو مسار محلي قديم؟
+     */
     protected static function isLocalPath(string $path): bool
     {
         return str_starts_with($path, 'stores/')

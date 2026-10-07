@@ -44,7 +44,7 @@
                 <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6 text-center">
 
                     @if($user->avatar)
-                        <img src="{{ asset('storage/' . $user->avatar) }}"
+                        <img src="{{ $user->avatar_url }}"
                              alt="{{ $user->full_name }}"
                              class="w-24 h-24 rounded-full mx-auto object-cover mb-4 border-4 border-stone-100 dark:border-zinc-800">
                     @else

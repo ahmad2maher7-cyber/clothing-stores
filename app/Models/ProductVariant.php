@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CloudinaryService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -70,5 +71,21 @@ class ProductVariant extends Model
     public function isInStock(): bool
     {
         return $this->stock_quantity > 0;
+    }
+
+    // ═══════════════════════════════════════
+    //  Accessor — رابط صورة المتغير
+    // ═══════════════════════════════════════
+
+    /**
+     * رابط صورة المتغير الكامل
+     * الاستخدام: {{ $variant->image_url }}
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        if (empty($this->image)) {
+            return null;
+        }
+        return CloudinaryService::url($this->image);
     }
 }

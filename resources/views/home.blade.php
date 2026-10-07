@@ -264,7 +264,7 @@
                             {{-- Banner --}}
                             <div class="aspect-[16/9] bg-gradient-to-br from-forest-700 to-gold-500 relative overflow-hidden">
                                 @if($offer->banner)
-                                    <img src="{{ asset('storage/' . $offer->banner) }}" 
+                                    <img src="{{ $offer->banner_url }}" 
                                          class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center">
@@ -342,7 +342,7 @@
                             {{-- Banner --}}
                             <div class="aspect-[3/1] bg-gradient-to-br from-forest-700 to-gold-500 relative overflow-hidden">
                                 @if($store->banner)
-                                    <img src="{{ asset('storage/' . $store->banner) }}" 
+                                    <img src="{{ $store->banner_url }}" 
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @endif
                             </div>
@@ -352,7 +352,7 @@
                                 {{-- Logo --}}
                                 <div class="w-20 h-20 flex items-center justify-center bg-white dark:bg-zinc-900 border-4 border-white dark:border-zinc-900 rounded-full shadow-lg mb-4 overflow-hidden">
                                     @if($store->logo)
-                                        <img src="{{ asset('storage/' . $store->logo) }}" 
+                                        <img src="{{ $store->logo_url }}" 
                                              class="w-full h-full object-cover">
                                     @else
                                         <svg class="w-8 h-8 text-forest-700 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">

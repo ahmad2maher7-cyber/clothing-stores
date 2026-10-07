@@ -9,7 +9,7 @@
     ═══════════════════════════════════════ --}}
     <div class="relative h-56 md:h-72 lg:h-80 bg-gradient-to-br from-forest-700 to-gold-500 overflow-hidden">
         @if($store->banner)
-            <img src="{{ asset('storage/' . $store->banner) }}" 
+            <img src="{{ $store->banner_url }}" 
                  class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         @endif
@@ -26,7 +26,7 @@
                 {{-- Logo --}}
                 <div class="w-24 h-24 lg:w-28 lg:h-28 flex items-center justify-center bg-white dark:bg-zinc-900 border-4 border-white dark:border-zinc-900 rounded-2xl shadow-xl shrink-0 overflow-hidden">
                     @if($store->logo)
-                        <img src="{{ asset('storage/' . $store->logo) }}" 
+                        <img src="{{ $store->logo_url }}" 
                              class="w-full h-full object-cover">
                     @else
                         <i class="fas fa-store text-forest-700 dark:text-gold-400 text-5xl"></i>

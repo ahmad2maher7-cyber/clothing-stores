@@ -82,7 +82,7 @@
                                         <a href="{{ route('products.show', $item->variant->product->slug) }}" 
                                            class="w-24 h-24 shrink-0 bg-stone-100 dark:bg-zinc-800 rounded-lg overflow-hidden border border-stone-200 dark:border-stone-800">
                                             @if($item->variant->product->primaryImage)
-                                                <img src="{{ asset('storage/' . $item->variant->product->primaryImage->image_url) }}" 
+                                                <img src="{{ $item->variant->product->primaryImage->url }}" 
                                                      class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
                                             @else
                                                 <div class="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-700">

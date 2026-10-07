@@ -156,7 +156,7 @@
 
                     <div class="text-center">
                         @if($store->logo)
-                            <img src="{{ asset('storage/' . $store->logo) }}"
+                            <img src="{{ $store->logo_url }}"
                                  alt="{{ $store->name }}"
                                  class="w-28 h-28 rounded-full mx-auto object-cover border-4 border-stone-100 dark:border-zinc-800 mb-4">
                         @else
@@ -191,7 +191,7 @@
                     </h3>
 
                     @if($store->banner)
-                        <img src="{{ asset('storage/' . $store->banner) }}"
+                        <img src="{{ $store->banner_url }}"
                              alt="{{ $store->name }}"
                              class="w-full h-32 object-cover rounded mb-3 border border-stone-200 dark:border-stone-800">
                     @else

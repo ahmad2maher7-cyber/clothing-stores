@@ -19,4 +19,9 @@ class Brand extends Model
     {
         return $this->hasMany(Product::class);
     }
+public function getLogoUrlAttribute(): ?string
+{
+    return \App\Services\CloudinaryService::url($this->logo);
+}
+
 }

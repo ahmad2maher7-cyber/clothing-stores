@@ -19,7 +19,7 @@
 
         {{-- Banner --}}
         @if($store->banner)
-            <img src="{{ asset('storage/' . $store->banner) }}"
+            <img src="{{ $store->banner_url }}"
                  alt="{{ $store->name }}"
                  class="w-full h-48 object-cover">
         @else
@@ -32,7 +32,7 @@
                 {{-- Logo --}}
                 <div class="w-24 h-24 rounded-lg bg-white dark:bg-zinc-900 border-4 border-white dark:border-zinc-900 shadow-lg flex items-center justify-center -mt-20 shrink-0 overflow-hidden">
                     @if($store->logo)
-                        <img src="{{ asset('storage/' . $store->logo) }}"
+                        <img src="{{ $store->logo_url }}"
                              alt="{{ $store->name }}"
                              class="w-full h-full object-cover">
                     @else

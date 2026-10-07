@@ -57,7 +57,7 @@
                             <tr class="hover:bg-stone-50 dark:hover:bg-zinc-800/50 transition-colors">
                                 <td class="px-4 py-3">
                                     @if($category->image)
-                                        <img src="{{ asset('storage/' . $category->image) }}"
+                                        <img src="{{ $category->image_url }}"
                                              alt="{{ $category->name }}"
                                              class="w-10 h-10 rounded object-cover border border-stone-200 dark:border-stone-800">
                                     @else

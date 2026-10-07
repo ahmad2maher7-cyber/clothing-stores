@@ -147,9 +147,8 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             @foreach($product->images as $image)
                                 <div class="relative group">
-                                    <img src="{{ asset('storage/' . $image->image_url) }}"
-                                         class="w-full h-32 object-cover rounded-lg border border-stone-200 dark:border-stone-800">
-
+                                    <img src="{{ $image->url }}"
+     class="w-full h-32 object-cover rounded-lg border border-stone-200 dark:border-stone-800">
                                     @if($image->is_primary)
                                         <span class="absolute top-2 right-2 bg-forest-700 dark:bg-gold-500 dark:text-ink text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded">
                                             رئيسية

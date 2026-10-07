@@ -29,4 +29,10 @@ class Offer extends Model
     {
         return $this->belongsTo(Store::class);
     }
+
+    public function getBannerUrlAttribute(): ?string
+{
+    return \App\Services\CloudinaryService::url($this->banner);
+}
+
 }

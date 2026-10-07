@@ -152,7 +152,7 @@
                                 <div class="flex gap-3">
                                     <div class="w-14 h-14 bg-stone-100 dark:bg-zinc-800 rounded overflow-hidden shrink-0">
                                         @if($item->variant->product->primaryImage)
-                                            <img src="{{ asset('storage/' . $item->variant->product->primaryImage->image_url) }}" 
+                                            <img src="{{ $item->variant->product->primaryImage->url }}" 
                                                  class="w-full h-full object-cover">
                                         @endif
                                     </div>

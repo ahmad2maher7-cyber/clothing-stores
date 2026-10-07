@@ -10,7 +10,7 @@
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden">
 
             @if($store->banner)
-                <img src="{{ asset('storage/' . $store->banner) }}"
+                <img src="{{ $store->banner_url }}"
                      alt="{{ $store->name }}"
                      class="w-full h-40 object-cover">
             @else
@@ -21,7 +21,7 @@
 
                 <div class="w-24 h-24 mx-auto -mt-20 mb-4 rounded-full bg-white dark:bg-zinc-900 shadow-lg flex items-center justify-center border-4 border-white dark:border-zinc-900 overflow-hidden">
                     @if($store->logo)
-                        <img src="{{ asset('storage/' . $store->logo) }}"
+                        <img src="{{ $store->logo_url }}"
                              alt="{{ $store->name }}"
                              class="w-full h-full object-cover">
                     @else

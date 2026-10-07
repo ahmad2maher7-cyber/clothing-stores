@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
@@ -40,12 +40,17 @@ class SettingsController extends Controller
             'avatar.max' => 'حجم الصورة أقل من 2MB',
         ]);
 
-        // رفع الصورة
+        // ✅ رفع الصورة إلى Cloudinary
         if ($request->hasFile('avatar')) {
+            // حذف القديم من Cloudinary
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                CloudinaryService::delete($user->avatar);
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+
+            $publicId = CloudinaryService::upload($request->file('avatar'), 'avatars');
+            if ($publicId) {
+                $validated['avatar'] = $publicId;
+            }
         }
 
         $user->update($validated);

@@ -6,9 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ShippingZone;
 use App\Models\Store;
 use App\Models\StoreBranch;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class StoreSettingsController extends Controller
 {
@@ -54,20 +53,27 @@ class StoreSettingsController extends Controller
             'banner.max' => 'حجم الغلاف أقل من 3MB',
         ]);
 
-        // رفع الشعار
+        // ✅ رفع الشعار إلى Cloudinary
         if ($request->hasFile('logo')) {
+            // حذف القديم من Cloudinary
             if ($store->logo) {
-                Storage::disk('public')->delete($store->logo);
+                CloudinaryService::delete($store->logo);
             }
-            $validated['logo'] = $request->file('logo')->store('stores/logos', 'public');
+            $publicId = CloudinaryService::upload($request->file('logo'), 'stores/logos');
+            if ($publicId) {
+                $validated['logo'] = $publicId;
+            }
         }
 
-        // رفع الغلاف
+        // ✅ رفع الغلاف إلى Cloudinary
         if ($request->hasFile('banner')) {
             if ($store->banner) {
-                Storage::disk('public')->delete($store->banner);
+                CloudinaryService::delete($store->banner);
             }
-            $validated['banner'] = $request->file('banner')->store('stores/banners', 'public');
+            $publicId = CloudinaryService::upload($request->file('banner'), 'stores/banners');
+            if ($publicId) {
+                $validated['banner'] = $publicId;
+            }
         }
 
         // تنقية أوقات العمل (إزالة الفارغة)
@@ -135,7 +141,6 @@ class StoreSettingsController extends Controller
 
         $validated['store_id'] = $store->id;
 
-        // إذا كان الفرع رئيسياً، ألغِ رئيسية الباقي
         if (!empty($validated['is_main'])) {
             $store->branches()->update(['is_main' => false]);
         }
@@ -181,7 +186,6 @@ class StoreSettingsController extends Controller
             abort(403);
         }
 
-        // لا تحذف الفرع الرئيسي إذا كان الوحيد
         if ($branch->is_main && $store->branches()->count() === 1) {
             return back()->with('error', 'لا يمكن حذف الفرع الرئيسي الوحيد');
         }
@@ -266,46 +270,44 @@ class StoreSettingsController extends Controller
     }
 
     /**
- * صفحة الهوية البصرية
- */
-public function appearance()
-{
-    $store = $this->getStore();
-    return view('merchant.settings.appearance', compact('store'));
-}
+     * صفحة الهوية البصرية
+     */
+    public function appearance()
+    {
+        $store = $this->getStore();
+        return view('merchant.settings.appearance', compact('store'));
+    }
 
-/**
- * تحديث الألوان
- */
-public function updateAppearance(Request $request)
-{
-    $store = $this->getStore();
+    /**
+     * تحديث الألوان
+     */
+    public function updateAppearance(Request $request)
+    {
+        $store = $this->getStore();
 
-    $validated = $request->validate([
-        'primary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
-        'secondary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
-        'accent_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
-        'theme_mode' => 'required|in:light,dark',
-    ], [
-        'primary_color.regex' => 'اللون الأساسي غير صالح',
-        'secondary_color.regex' => 'اللون الثانوي غير صالح',
-        'accent_color.regex' => 'لون التمييز غير صالح',
-    ]);
+        $validated = $request->validate([
+            'primary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'secondary_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'accent_color' => 'required|string|regex:/^#[0-9A-Fa-f]{6}$/',
+            'theme_mode' => 'required|in:light,dark',
+        ], [
+            'primary_color.regex' => 'اللون الأساسي غير صالح',
+            'secondary_color.regex' => 'اللون الثانوي غير صالح',
+            'accent_color.regex' => 'لون التمييز غير صالح',
+        ]);
 
-    $store->update($validated);
+        $store->update($validated);
 
-    return redirect()
-        ->route('merchant.settings.appearance')
-        ->with('success', 'تم تحديث الهوية البصرية بنجاح');
-}
-
+        return redirect()
+            ->route('merchant.settings.appearance')
+            ->with('success', 'تم تحديث الهوية البصرية بنجاح');
+    }
 
     /**
      * تحديث كلمة المرور
      */
     public function updatePassword(Request $request)
     {
-        // 1️⃣ التحقق من المدخلات
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)],
@@ -317,13 +319,11 @@ public function updateAppearance(Request $request)
             'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
         ]);
 
-        // 2️⃣ تحديث كلمة المرور
         $user = auth()->user();
         $user->update([
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
         ]);
 
-        // 3️⃣ إرسال الإشعار (مع حماية شاملة)
         try {
             $user->notify(new \App\Notifications\PasswordChangedNotification(
                 ipAddress: $request->ip() ?? 'غير معروف',
@@ -335,16 +335,11 @@ public function updateAppearance(Request $request)
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
             ]);
-            // لا نوقف العملية — الباسوورد تم تغييره بنجاح
         }
 
-        // 4️⃣ إعادة التوجيه
         return redirect()
             ->route('merchant.settings.index')
             ->with('success', '✅ تم تغيير كلمة المرور بنجاح');
     }
-    
 }

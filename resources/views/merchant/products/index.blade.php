@@ -58,7 +58,7 @@
 
                     <div class="aspect-square bg-stone-50 dark:bg-zinc-800 relative overflow-hidden">
                         @if($product->primaryImage)
-                            <img src="{{ asset('storage/' . $product->primaryImage->image_url) }}"
+                            <img src="{{ $product->primaryImage->url }}"
                                  alt="{{ $product->name }}"
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         @else

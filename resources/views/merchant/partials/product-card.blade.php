@@ -3,7 +3,7 @@
     <a href="{{ route('products.show', $product->slug) }}" class="block relative">
         <div class="aspect-square overflow-hidden bg-stone-50 dark:bg-zinc-950">
             @if($product->primaryImage)
-                <img src="{{ asset('storage/' . $product->primaryImage->image_url) }}"
+                <img src="{{ $product->primaryImage->url }}"
                      alt="{{ $product->name }}"
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             @else

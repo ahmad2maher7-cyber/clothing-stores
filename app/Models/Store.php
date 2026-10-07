@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CloudinaryService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -101,5 +102,27 @@ class Store extends Model
     public function chatConversations()
     {
         return $this->hasMany(ChatConversation::class);
+    }
+
+    // ═══════════════════════════════════════
+    //  Accessors — روابط الصور
+    // ═══════════════════════════════════════
+
+    /**
+     * رابط الشعار الكامل
+     * الاستخدام: {{ $store->logo_url }}
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        return CloudinaryService::url($this->logo);
+    }
+
+    /**
+     * رابط الغلاف الكامل
+     * الاستخدام: {{ $store->banner_url }}
+     */
+    public function getBannerUrlAttribute(): ?string
+    {
+        return CloudinaryService::url($this->banner);
     }
 }

@@ -8,10 +8,10 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -125,13 +125,17 @@ class ProductController extends Controller
 
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $index => $image) {
-                    $path = $image->store('products', 'public');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_url' => $path,
-                        'is_primary' => $index === 0,
-                        'sort_order' => $index,
-                    ]);
+                    // ✅ رفع إلى Cloudinary
+                    $publicId = CloudinaryService::upload($image, 'products');
+
+                    if ($publicId) {
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'image_url' => $publicId,
+                            'is_primary' => $index === 0,
+                            'sort_order' => $index,
+                        ]);
+                    }
                 }
             }
 
@@ -251,13 +255,17 @@ class ProductController extends Controller
                 $hasPrimary = $product->images()->where('is_primary', true)->exists();
 
                 foreach ($request->file('new_images') as $index => $image) {
-                    $path = $image->store('products', 'public');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_url' => $path,
-                        'is_primary' => !$hasPrimary && $index === 0,
-                        'sort_order' => $existingCount + $index,
-                    ]);
+                    // ✅ رفع إلى Cloudinary
+                    $publicId = CloudinaryService::upload($image, 'products');
+
+                    if ($publicId) {
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'image_url' => $publicId,
+                            'is_primary' => !$hasPrimary && $index === 0,
+                            'sort_order' => $existingCount + $index,
+                        ]);
+                    }
                 }
             }
 
@@ -287,7 +295,8 @@ class ProductController extends Controller
             DB::beginTransaction();
 
             foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image->image_url);
+                // ✅ حذف من Cloudinary
+                CloudinaryService::delete($image->image_url);
             }
             $product->images()->delete();
 
@@ -317,7 +326,8 @@ class ProductController extends Controller
             abort(403);
         }
 
-        Storage::disk('public')->delete($image->image_url);
+        // ✅ حذف من Cloudinary
+        CloudinaryService::delete($image->image_url);
         $image->delete();
 
         return response()->json(['success' => true]);

@@ -51,7 +51,7 @@
 
                     @if($brand->logo)
                         <div class="mb-3 p-4 bg-stone-50 dark:bg-zinc-950 rounded border border-stone-200 dark:border-stone-800 flex items-center gap-4">
-                            <img src="{{ asset('storage/' . $brand->logo) }}"
+                            <img src="{{ $brand->logo_url }}"
                                  alt="{{ $brand->name }}"
                                  class="h-16 w-16 object-contain">
                             <div>

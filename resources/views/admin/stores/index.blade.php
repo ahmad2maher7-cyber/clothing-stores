@@ -64,7 +64,7 @@
                     {{-- Banner --}}
                     <div class="h-32 overflow-hidden">
                         @if($store->banner)
-                            <img src="{{ asset('storage/' . $store->banner) }}"
+                            <img src="{{ $store->banner_url }}"
                                  alt="{{ $store->name }}"
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         @else

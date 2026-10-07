@@ -40,4 +40,9 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function getImageUrlAttribute(): ?string
+{
+    return \App\Services\CloudinaryService::url($this->image);
+}
 }

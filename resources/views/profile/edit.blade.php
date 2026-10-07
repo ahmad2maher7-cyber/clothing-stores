@@ -50,7 +50,7 @@
                     <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6 text-center sticky top-24">
 
                         @if(auth()->user()->avatar)
-                            <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                            <img src="{{ auth()->user()->avatar_url }}"
                                  alt="{{ auth()->user()->full_name }}"
                                  class="w-24 h-24 mx-auto rounded-full object-cover border-4 border-stone-100 dark:border-zinc-800 mb-4">
                         @else
@@ -209,6 +209,10 @@
                                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded hover:border-forest-500 dark:hover:border-gold-500 transition-colors">
                                     <i class="fa-solid fa-chart-line text-forest-700 dark:text-gold-400 text-lg"></i>
                                     <span class="text-sm font-medium text-ink dark:text-cream">لوحة المشرف</span>
+                                </a>
+                                <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded hover:border-forest-500 dark:hover:border-gold-500 transition-colors">
+                                    <i class="fa-solid fa-gear text-forest-700 dark:text-gold-400 text-lg"></i>
+                                    <span class="text-sm font-medium text-ink dark:text-cream">الإعدادات</span>
                                 </a>
                             @elseif(auth()->user()->role === 'merchant')
                                 <a href="{{ route('merchant.dashboard') }}" class="flex items-center gap-3 p-4 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded hover:border-forest-500 dark:hover:border-gold-500 transition-colors">

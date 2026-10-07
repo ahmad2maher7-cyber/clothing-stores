@@ -29,14 +29,14 @@
             <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-4">
                 @if($product->images->count() > 0)
                     <div class="aspect-square rounded overflow-hidden border border-stone-200 dark:border-stone-800 mb-4">
-                        <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
+                        <img src="{{ $product->images->first()->url }}"
                              alt="{{ $product->name }}"
                              class="w-full h-full object-cover">
                     </div>
                     <div class="grid grid-cols-4 gap-2">
                         @foreach($product->images as $image)
                             <div class="aspect-square rounded overflow-hidden border border-stone-200 dark:border-stone-800 cursor-pointer hover:border-forest-500 dark:hover:border-gold-500 transition-colors">
-                                <img src="{{ asset('storage/' . $image->image_url) }}"
+                                <img src="{{ $image->url }}"
                                      class="w-full h-full object-cover">
                             </div>
                         @endforeach

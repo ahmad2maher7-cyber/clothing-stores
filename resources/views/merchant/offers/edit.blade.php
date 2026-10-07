@@ -79,7 +79,7 @@
 
                         @if($offer->banner)
                             <div class="mb-3 p-3 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded">
-                                <img src="{{ asset('storage/' . $offer->banner) }}"
+                                <img src="{{ $offer->banner_url }}"
                                      alt="{{ $offer->title }}"
                                      class="w-full h-24 object-cover rounded">
                                 <p class="text-xs text-ink-muted dark:text-cream/50 mt-2">ارفع صورة جديدة لاستبدالها</p>

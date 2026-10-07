@@ -45,8 +45,8 @@
                         </template>
                         <template x-if="!selectedImage">
                             @if($product->images->count() > 0)
-                                <img src="{{ asset('storage/' . $product->images->first()->image_url) }}"
-                                     class="w-full h-full object-cover">
+    <img src="{{ $product->images->first()->url }}"
+         class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-700">
                                     <i class="fas fa-tshirt" style="font-size: 8rem;"></i>
@@ -58,16 +58,16 @@
                     {{-- Thumbnails --}}
                     @if($product->images->count() > 1)
                         <div class="grid grid-cols-5 gap-3">
-                            @foreach($product->images as $image)
-                                <button @click="selectedImage = '{{ asset('storage/' . $image->image_url) }}'"
-                                        class="aspect-square rounded overflow-hidden bg-white dark:bg-zinc-900 border-2 transition-colors"
-                                        :class="selectedImage === '{{ asset('storage/' . $image->image_url) }}' 
-                                                ? 'border-forest-700 dark:border-gold-400' 
-                                                : 'border-stone-200 dark:border-stone-800 hover:border-forest-500'">
-                                    <img src="{{ asset('storage/' . $image->image_url) }}" 
-                                         class="w-full h-full object-cover">
-                                </button>
-                            @endforeach
+                     @foreach($product->images as $image)
+    <button @click="selectedImage = '{{ $image->url }}'"
+            class="aspect-square rounded overflow-hidden bg-white dark:bg-zinc-900 border-2 transition-colors"
+            :class="selectedImage === '{{ $image->url }}' 
+                    ? 'border-forest-700 dark:border-gold-400' 
+                    : 'border-stone-200 dark:border-stone-800 hover:border-forest-500'">
+        <img src="{{ $image->url }}" 
+             class="w-full h-full object-cover">
+    </button>
+@endforeach
                         </div>
                     @endif
                 </div>

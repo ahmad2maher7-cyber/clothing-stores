@@ -57,7 +57,7 @@
                         {{-- Banner --}}
                         <div class="aspect-[16/9] bg-gradient-to-br from-forest-700 to-gold-500 relative overflow-hidden">
                             @if($offer->banner)
-                                <img src="{{ asset('storage/' . $offer->banner) }}" 
+                                <img src="{{ $offer->banner_url }}" 
                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
@@ -130,7 +130,7 @@
                             {{-- Banner --}}
                             <div class="aspect-[16/9] bg-gradient-to-br from-stone-300 to-stone-500 dark:from-zinc-700 dark:to-zinc-800 relative overflow-hidden">
                                 @if($offer->banner)
-                                    <img src="{{ asset('storage/' . $offer->banner) }}" 
+                                    <img src="{{ $offer->banner_url }}" 
                                          class="w-full h-full object-cover">
                                 @endif
                                 

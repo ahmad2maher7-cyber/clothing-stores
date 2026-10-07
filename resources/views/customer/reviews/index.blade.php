@@ -36,7 +36,7 @@
                             <a href="{{ route('products.show', $review->product->slug) }}"
                                class="w-20 h-20 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded overflow-hidden shrink-0">
                                 @if($review->product->primaryImage)
-                                    <img src="{{ asset('storage/' . $review->product->primaryImage->image_url) }}"
+                                    <img src="{{ $review->product->primaryImage->url }}"
                                          alt="{{ $review->product->name }}"
                                          class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
                                 @else
@@ -97,8 +97,8 @@
                                 @if($review->images->count() > 0)
                                     <div class="flex flex-wrap gap-2 mb-3">
                                         @foreach($review->images as $image)
-                                            <a href="{{ asset('storage/' . $image->image_url) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $image->image_url) }}"
+                                            <a href="{{ $image->url }}" target="_blank">
+                                                <img src="{{ $image->url }}"
                                                      alt="صورة التقييم"
                                                      class="w-16 h-16 object-cover rounded border border-stone-200 dark:border-stone-800 hover:border-forest-500 dark:hover:border-gold-500 transition-colors">
                                             </a>

@@ -79,7 +79,7 @@
 
                         @if($category->image)
                             <div class="mb-3 p-4 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded flex items-center gap-4">
-                                <img src="{{ asset('storage/' . $category->image) }}"
+                                <img src="{{ $category->image_url }}"
                                      alt="{{ $category->name }}"
                                      class="w-16 h-16 rounded object-cover">
                                 <div>

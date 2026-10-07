@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CloudinaryService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -113,7 +114,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'admin';
     }
-    
 
     public function isMerchant(): bool
     {
@@ -161,5 +161,19 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 
-    
+    // ═══════════════════════════════════════
+    //  Accessor — رابط الصورة الشخصية
+    // ═══════════════════════════════════════
+
+    /**
+     * رابط الصورة الشخصية الكامل
+     * الاستخدام: {{ $user->avatar_url }}
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+        return CloudinaryService::url($this->avatar);
+    }
 }

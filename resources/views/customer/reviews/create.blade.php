@@ -53,7 +53,7 @@
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-stone-800 rounded overflow-hidden shrink-0">
                                 @if($productsToReview->first()->primaryImage)
-                                    <img src="{{ asset('storage/' . $productsToReview->first()->primaryImage->image_url) }}"
+                                    <img src="{{ $productsToReview->first()->primaryImage->url }}"
                                          class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-ink-muted dark:text-cream/40">

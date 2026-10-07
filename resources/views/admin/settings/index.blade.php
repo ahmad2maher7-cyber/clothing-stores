@@ -17,7 +17,7 @@
             <div class="bg-white rounded-xl shadow p-6 text-center">
                 <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gray-900 text-white flex items-center justify-center text-4xl font-bold overflow-hidden">
                     @if($user->avatar)
-                        <img src="{{ asset('storage/' . $user->avatar) }}" class="w-full h-full object-cover">
+                        <img src="{{ $user->avatar_url }}" class="w-full h-full object-cover">
                     @else
                         {{ mb_substr($user->full_name, 0, 1) }}
                     @endif
