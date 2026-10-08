@@ -87,15 +87,12 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     Route::delete('/cart/{item}', [CartController::class, 'remove'])->name('cart.remove');
     Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 
-
-
     // ========== Chat (Customer) ==========
-Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->group(function () {
-    Route::get('/', [\App\Http\Controllers\ChatController::class, 'customerIndex'])->name('index');
-    Route::post('/start', [\App\Http\Controllers\ChatController::class, 'start'])->name('start');
-    Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
-});
-
+    Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ChatController::class, 'customerIndex'])->name('index');
+        Route::post('/start', [\App\Http\Controllers\ChatController::class, 'start'])->name('start');
+        Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
+    });
 
     // ========== Checkout ==========
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
@@ -106,15 +103,16 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
     // ========== Profile Edit ==========
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
 
+    // ========== Notifications ==========
     Route::prefix('notifications')->name('notifications.')->group(function () {
-    Route::get('/', [NotificationController::class, 'index'])->name('index');
-    Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
-    Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread');
-    Route::get('/all', [NotificationController::class, 'index'])->name('all'); // ✅ alias
-    Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
-    Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
-    Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
-});
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/latest', [NotificationController::class, 'latest'])->name('latest');
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread');
+        Route::get('/all', [NotificationController::class, 'index'])->name('all');
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead'])->name('readAll');
+        Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
+        Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
+    });
 
     // ========== Dashboard ==========
     Route::get('/dashboard', function () {
@@ -124,6 +122,20 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
             default => redirect()->route('customer.dashboard'),
         };
     })->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Routes (Admin + Merchant) — خارج مجموعة admin
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:admin,merchant')->prefix('exports')->name('exports.')->group(function () {
+        Route::get('/users', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'users'])
+            ->name('users');
+        Route::get('/products', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'products'])
+            ->name('products');
+        Route::get('/orders', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'orders'])
+            ->name('orders');
+    });
 
     /*
     |--------------------------------------------------------------------------
@@ -151,18 +163,6 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
 
-
-                // ═══ Import/Export ═══
-        Route::prefix('export')->name('export.')->group(function () {
-    Route::get('/users', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'users'])
-        ->name('users');
-    Route::get('/products', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'products'])
-        ->name('products');
-    Route::get('/orders', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'orders'])
-        ->name('orders');
-});;
-
-
         // Brands
         Route::get('brands', [AdminBrandController::class, 'index'])->name('brands.index');
         Route::get('brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
@@ -171,12 +171,12 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
         Route::put('brands/{brand}', [AdminBrandController::class, 'update'])->name('brands.update');
         Route::delete('brands/{brand}', [AdminBrandController::class, 'destroy'])->name('brands.destroy');
 
-            // ═══ Settings ═══
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
-        Route::put('/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('profile');
-        Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
-    });
+        // Settings
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+            Route::put('/profile', [\App\Http\Controllers\Admin\SettingsController::class, 'updateProfile'])->name('profile');
+            Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
+        });
 
         // Security Logs
         Route::get('security-logs', function () {
@@ -204,14 +204,11 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
         // Dashboard
         Route::get('/dashboard', [MerchantDashboard::class, 'index'])->name('dashboard');
 
-
-
         // Chat
-Route::prefix('chat')->name('chat.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
-    Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
-});
-
+        Route::prefix('chat')->name('chat.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
+            Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
+        });
 
         // Requires active store
         Route::middleware('active.store')->group(function () {
@@ -249,8 +246,7 @@ Route::prefix('chat')->name('chat.')->group(function () {
                 Route::get('/appearance', [StoreSettingsController::class, 'appearance'])->name('appearance');
                 Route::put('/appearance', [StoreSettingsController::class, 'updateAppearance'])->name('appearance.update');
 
-                    // Password
-    Route::put('/password', [StoreSettingsController::class, 'updatePassword'])->name('password');
+                Route::put('/password', [StoreSettingsController::class, 'updatePassword'])->name('password');
 
                 Route::get('/policies', [StoreSettingsController::class, 'policies'])->name('policies');
                 Route::put('/policies', [StoreSettingsController::class, 'updatePolicies'])->name('policies.update');
@@ -264,9 +260,7 @@ Route::prefix('chat')->name('chat.')->group(function () {
                 Route::post('/shipping', [StoreSettingsController::class, 'storeShipping'])->name('shipping.store');
                 Route::put('/shipping/{zone}', [StoreSettingsController::class, 'updateShipping'])->name('shipping.update');
                 Route::delete('/shipping/{zone}', [StoreSettingsController::class, 'destroyShipping'])->name('shipping.destroy');
-           
-           
-                });
+            });
         });
     });
 
@@ -301,7 +295,6 @@ Route::prefix('chat')->name('chat.')->group(function () {
         Route::put('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.password');
     });
 });
-
 
 // Chat Send/Fetch (مشترك بين الزبون والتاجر)
 Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
