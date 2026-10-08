@@ -5,6 +5,7 @@
 
 @section('content')
 
+    {{-- ═══ Header + Actions ═══ --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
             <span class="eyebrow block mb-2">— الكتالوج</span>
@@ -13,12 +14,26 @@
                 {{ $products->total() }} منتج في متجرك
             </p>
         </div>
-        <a href="{{ route('merchant.products.create') }}" class="btn-solid">
-            <i class="fa-solid fa-plus"></i>
-            إضافة منتج
-        </a>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            {{-- 📊 Export Button --}}
+            <a href="{{ route('admin.export.products', request()->only(['category_id', 'status', 'gender'])) }}"
+               class="inline-flex items-center justify-center gap-2 h-11 px-5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded transition-colors whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                📊 تصدير Excel
+            </a>
+
+            {{-- Add Product Button --}}
+            <a href="{{ route('merchant.products.create') }}" class="btn-solid whitespace-nowrap">
+                <i class="fa-solid fa-plus"></i>
+                إضافة منتج
+            </a>
+        </div>
     </div>
 
+    {{-- ═══ Filters ═══ --}}
     <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg p-4 mb-6">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="md:col-span-2 relative">
@@ -51,6 +66,7 @@
         </form>
     </div>
 
+    {{-- ═══ Products Grid ═══ --}}
     @if($products->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-8">
             @foreach($products as $product)

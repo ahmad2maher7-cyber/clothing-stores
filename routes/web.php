@@ -151,6 +151,18 @@ Route::prefix('chat')->name('customer.chat.')->middleware('role:customer')->grou
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
 
+
+                // ═══ Import/Export ═══
+        Route::prefix('export')->name('export.')->group(function () {
+    Route::get('/users', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'users'])
+        ->name('users');
+    Route::get('/products', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'products'])
+        ->name('products');
+    Route::get('/orders', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'orders'])
+        ->name('orders');
+});;
+
+
         // Brands
         Route::get('brands', [AdminBrandController::class, 'index'])->name('brands.index');
         Route::get('brands/create', [AdminBrandController::class, 'create'])->name('brands.create');
