@@ -11,7 +11,7 @@
             <h2 class="font-display text-2xl font-bold text-ink dark:text-cream">📥 استيراد البيانات</h2>
             <p class="text-sm text-ink-muted dark:text-cream/60">استيراد البيانات من ملفات Excel / CSV</p>
         </div>
-        <a href="{{ route('admin.export.users') }}"
+        <a href="{{ route('export.users') }}"
            class="inline-flex items-center gap-2 h-11 px-5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded transition-colors whitespace-nowrap">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
