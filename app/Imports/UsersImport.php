@@ -8,49 +8,68 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
+class UsersImport implements ToCollection, WithStartRow, WithChunkReading
 {
     /** @var array */
     public array $results = [
         'total' => 0,
         'success' => 0,
         'failed' => 0,
-        'errors' => [],  // [row_number => [errors]]
+        'errors' => [],
         'success_rows' => [],
     ];
 
     /**
-     * قراءة الملف على دفعات (100 صف في المرة)
+     * ابدأ من الصف الثاني (تخطي الـ Header)
      */
+    public function startRow(): int
+    {
+        return 2;
+    }
+
     public function chunkSize(): int
     {
         return 100;
     }
 
     /**
-     * معالجة مجموعة صفوف
+     * الأعمدة المتوقعة (بالترتيب):
+     * [0] ID
+     * [1] الاسم الكامل
+     * [2] البريد الإلكتروني
+     * [3] رقم الهاتف
+     * [4] الدور
+     * [5] الحالة
+     * [6] البريد مُفعّل
+     * [7] تاريخ التسجيل
      */
     public function collection(Collection $rows): void
     {
         foreach ($rows as $index => $row) {
             $this->results['total']++;
 
-            // رقم الصف الفعلي في Excel
-            $rowNumber = $index + 2;  // +1 لأن الفهرس يبدأ من 0 + 1 للصف الـ Heading
+            // رقم الصف الفعلي (startRow = 2 => الصف الأول = 2)
+            $rowNumber = $index + 2;
 
-            // تجهيز البيانات
+            // القراءة حسب الموقع (Position-based) — أكثر موثوقية
             $data = [
-                'full_name' => trim($row['full_name'] ?? $row['الاسم_الكامل'] ?? ''),
-                'email' => strtolower(trim($row['email'] ?? $row['البريد_الإلكتروني'] ?? '')),
-                'phone' => trim($row['phone'] ?? $row['رقم_الهاتف'] ?? ''),
-                'role' => strtolower(trim($row['role'] ?? $row['الدور'] ?? 'customer')),
-                'status' => strtolower(trim($row['status'] ?? $row['الحالة'] ?? 'active')),
+                'full_name' => trim((string) ($row[1] ?? '')),
+                'email' => strtolower(trim((string) ($row[2] ?? ''))),
+                'phone' => trim((string) ($row[3] ?? '')),
+                'role' => strtolower(trim((string) ($row[4] ?? 'customer'))),
+                'status' => strtolower(trim((string) ($row[5] ?? 'active'))),
             ];
 
-            // تحويل الدور من العربية
+            // تخطي الصفوف الفارغة تماماً
+            if (empty($data['full_name']) && empty($data['email'])) {
+                $this->results['total']--;  // لا نحسبها
+                continue;
+            }
+
+            // تحويل الدور والحالة من العربية
             $data['role'] = $this->normalizeRole($data['role']);
             $data['status'] = $this->normalizeStatus($data['status']);
 
@@ -67,12 +86,11 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
                 'email.required' => 'البريد الإلكتروني مطلوب',
                 'email.email' => 'صيغة البريد الإلكتروني غير صحيحة',
                 'email.unique' => 'هذا البريد مستخدم بالفعل',
-                'role.in' => 'الدور غير صالح',
-                'status.in' => 'الحالة غير صالحة',
+                'role.in' => 'الدور غير صالح (admin, merchant, customer)',
+                'status.in' => 'الحالة غير صالحة (active, suspended, pending)',
             ]);
 
             if ($validator->fails()) {
-                // فشل التحقق — سجّل الأخطاء
                 $this->results['failed']++;
                 $this->results['errors'][$rowNumber] = [
                     'row_data' => $data,
@@ -87,7 +105,7 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
                 continue;
             }
 
-            // محاولة الحفظ
+            // الحفظ
             try {
                 $user = User::create([
                     'full_name' => $data['full_name'],
@@ -95,8 +113,8 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
                     'phone' => $data['phone'] ?: null,
                     'role' => $data['role'],
                     'status' => $data['status'],
-                    'password' => Hash::make('password'),  // كلمة مرور افتراضية
-                    'email_verified_at' => now(),  // مؤكد افتراضياً
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
                 ]);
 
                 $this->results['success']++;
@@ -108,7 +126,6 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
                 ];
 
             } catch (\Throwable $e) {
-                // خطأ غير متوقع
                 $this->results['failed']++;
                 $this->results['errors'][$rowNumber] = [
                     'row_data' => $data,
@@ -120,9 +137,6 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
         }
     }
 
-    /**
-     * تحويل الدور من العربية
-     */
     protected function normalizeRole(string $role): string
     {
         return match ($role) {
@@ -133,9 +147,6 @@ class UsersImport implements ToCollection, WithHeadingRow, WithChunkReading
         };
     }
 
-    /**
-     * تحويل الحالة من العربية
-     */
     protected function normalizeStatus(string $status): string
     {
         return match ($status) {
