@@ -78,6 +78,15 @@
             <i class="fa-solid fa-cart-shopping w-5 text-center shrink-0"></i>
             <span x-show="sidebarOpen">الطلبات</span>
         </a>
+        {{-- Import --}}
+        <a href="{{ route('admin.import.index') }}"
+           class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors
+                  {{ request()->routeIs('admin.import.*') 
+                     ? 'bg-forest-700 text-white font-medium' 
+                     : 'text-ink-soft dark:text-cream/70 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400' }}">
+            <i class="fa-solid fa-file-import w-5 text-center shrink-0"></i>
+            <span x-show="sidebarOpen">استيراد</span>
+        </a>
 
         {{-- Security Logs --}}
         <a href="{{ route('admin.security.logs') }}"

@@ -129,6 +129,18 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin,merchant')->prefix('exports')->name('exports.')->group(function () {
+            /*
+    |--------------------------------------------------------------------------
+    | Import Routes (Admin only)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:admin')->prefix('admin/import')->name('admin.import.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ImportExport\ImportController::class, 'index'])->name('index');
+        Route::post('/users', [\App\Http\Controllers\Admin\ImportExport\ImportController::class, 'users'])->name('users');
+        Route::get('/result', [\App\Http\Controllers\Admin\ImportExport\ImportController::class, 'result'])->name('result');
+    });
+
+    
         Route::get('/users', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'users'])
             ->name('users');
         Route::get('/products', [\App\Http\Controllers\Admin\ImportExport\ExportController::class, 'products'])
