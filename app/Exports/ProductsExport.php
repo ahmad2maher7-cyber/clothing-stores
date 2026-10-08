@@ -19,7 +19,7 @@ class ProductsExport implements FromQuery, WithHeadings, WithMapping, WithStyles
         $this->filters = $filters;
     }
 
-    public function query()
+    public function query() : \Illuminate\Database\Eloquent\Builder
     {
         $query = Product::with(['store', 'category', 'brand']);
 

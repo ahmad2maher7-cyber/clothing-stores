@@ -19,7 +19,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
         $this->filters = $filters;
     }
 
-    public function query()
+    public function query(): \Illuminate\Database\Eloquent\Builder
     {
         $query = User::query();
 
