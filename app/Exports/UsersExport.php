@@ -82,7 +82,7 @@ class UsersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
         };
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): ?array
     {
         return [
             1 => [

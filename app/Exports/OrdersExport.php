@@ -100,7 +100,7 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithStyles, 
         };
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): ?array
     {
         return [
             1 => [
