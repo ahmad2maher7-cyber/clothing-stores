@@ -328,4 +328,45 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
 
+
+// ⚠️ TEMPORARY - احذفه بعد استخدامه
+Route::get('/setup-payments-xyz123', function () {
+    try {
+        // 1. فعّل البطاقات والمحافظ
+        $updated = \App\Models\PaymentMethod::whereIn('code', ['card', 'wallet'])
+            ->update(['is_active' => true]);
+
+        // 2. اربط المتاجر بكل طرق الدفع
+        $synced = 0;
+        foreach (\App\Models\Store::all() as $store) {
+            $store->paymentMethods()->sync(
+                \App\Models\PaymentMethod::pluck('id')->toArray()
+            );
+            $synced++;
+        }
+
+        // 3. اعرض النتيجة
+        $methods = \App\Models\PaymentMethod::all(['id', 'name', 'code', 'is_active']);
+
+        $html = '<pre style="background:#111;color:#0f0;padding:20px;font-size:14px;direction:ltr;">';
+        $html .= "✅ Setup Done!\n\n";
+        $html .= "Payment methods activated: {$updated}\n";
+        $html .= "Stores synced: {$synced}\n\n";
+        $html .= "Current Payment Methods:\n";
+        foreach ($methods as $m) {
+            $status = $m->is_active ? '✅' : '❌';
+            $html .= "  {$status} [{$m->id}] {$m->code} — {$m->name}\n";
+        }
+        $html .= '</pre>';
+
+        return $html;
+
+    } catch (\Throwable $e) {
+        return '<pre style="background:#111;color:#f00;padding:20px;direction:ltr;">' 
+            . htmlspecialchars($e->getMessage()) 
+            . "\n\n" 
+            . htmlspecialchars($e->getTraceAsString())
+            . '</pre>';
+    }
+});
 require __DIR__.'/auth.php';
