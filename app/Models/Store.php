@@ -125,4 +125,14 @@ class Store extends Model
     {
         return CloudinaryService::url($this->banner);
     }
+
+        public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function withdrawalRequests()
+    {
+        return $this->hasMany(WithdrawalRequest::class)->latest();
+    }
 }

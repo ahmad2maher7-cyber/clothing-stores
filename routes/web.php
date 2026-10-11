@@ -265,6 +265,16 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::put('reviews/{review}/reject', [MerchantReviewController::class, 'reject'])->name('reviews.reject');
             Route::delete('reviews/{review}', [MerchantReviewController::class, 'destroy'])->name('reviews.destroy');
 
+            // ═══ Wallet Routes ═══
+            Route::prefix('wallet')->name('wallet.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Merchant\WalletController::class, 'index'])
+                    ->name('index');
+                Route::get('/withdraw', [\App\Http\Controllers\Merchant\WalletController::class, 'withdrawForm'])
+                    ->name('withdraw.form');
+                Route::post('/withdraw', [\App\Http\Controllers\Merchant\WalletController::class, 'withdraw'])
+                    ->name('withdraw');
+            });
+
             Route::prefix('settings')->name('settings.')->group(function () {
                 Route::get('/', [StoreSettingsController::class, 'index'])->name('index');
                 Route::put('/', [StoreSettingsController::class, 'update'])->name('update');
@@ -327,7 +337,5 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
-
-
 
 require __DIR__.'/auth.php';

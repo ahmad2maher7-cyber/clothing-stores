@@ -81,7 +81,7 @@ class OrderController extends Controller
         return view('merchant.orders.show', compact('store', 'order'));
     }
 
-    public function updateStatus(Request $request, Order $order)
+        public function updateStatus(Request $request, Order $order)
     {
         $store = $this->getStore();
         if ($order->store_id !== $store->id) {
@@ -104,19 +104,23 @@ class OrderController extends Controller
             return back()->with('error', 'الحالة الجديدة مطابقة للحالية');
         }
 
+        $oldStatus = $order->status;
+        $newStatus = $validated['status'];
+
         try {
             DB::beginTransaction();
 
-            $order->update(['status' => $validated['status']]);
+            $order->update(['status' => $newStatus]);
 
             OrderStatusHistory::create([
                 'order_id' => $order->id,
-                'status' => $validated['status'],
+                'status' => $newStatus,
                 'note' => $validated['note'] ?? null,
                 'changed_by' => auth()->id(),
             ]);
 
-            if ($validated['status'] === 'delivered' && $order->payment_method_id) {
+            // 💰 عند التسليم — تحديث حالة الدفع (لـ COD)
+            if ($newStatus === 'delivered') {
                 $paymentMethod = $order->paymentMethod;
                 if ($paymentMethod && $paymentMethod->code === 'cod') {
                     $order->update(['payment_status' => 'paid']);
@@ -131,15 +135,28 @@ class OrderController extends Controller
         }
 
         // ═══════════════════════════════════════
-        //  الإشعار (باستخدام method جاهزة)
+        //  📧 الإشعار (بعد نجاح الـ DB transaction)
         // ═══════════════════════════════════════
         try {
-            \App\Services\NotificationService::orderStatusChanged($order, $validated['status']);
+            \App\Services\NotificationService::orderStatusChanged($order, $newStatus);
         } catch (\Throwable $e) {
             \Log::error('Order status notification failed: ' . $e->getMessage(), [
                 'order_id' => $order->id,
-                'status' => $validated['status'],
+                'status' => $newStatus,
             ]);
+        }
+
+        // ═══════════════════════════════════════
+        //  💰 عند التسليم — أضف الأرباح لمحفظة التاجر
+        // ═══════════════════════════════════════
+        if ($newStatus === 'delivered') {
+            try {
+                \App\Services\WalletService::creditFromOrder($order);
+            } catch (\Throwable $e) {
+                \Log::error('Wallet credit failed: ' . $e->getMessage(), [
+                    'order_id' => $order->id,
+                ]);
+            }
         }
 
         return redirect()
