@@ -62,6 +62,14 @@ Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 
 /*
 |--------------------------------------------------------------------------
+| 💳 Lahza Webhook (عام — Lahza تنادي عليه مباشرة بدون session)
+|--------------------------------------------------------------------------
+*/
+Route::post('/webhook/lahza', [CheckoutController::class, 'lahzaWebhook'])
+    ->name('webhook.lahza');
+
+/*
+|--------------------------------------------------------------------------
 | Email Verification with OTP (يحتاج تسجيل دخول فقط - بدون verified)
 |--------------------------------------------------------------------------
 */
@@ -100,6 +108,10 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 
+    // ═══ Lahza Payment Callback (بعد الدفع) ═══
+    Route::get('/checkout/lahza/callback/{order}', [CheckoutController::class, 'lahzaCallback'])
+        ->name('checkout.lahza.callback');
+
     // ========== Profile Edit ==========
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
 
@@ -125,7 +137,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Export Routes (Admin + Merchant) — خارج مجموعة admin
+    | Export Routes (Admin + Merchant)
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin,merchant')->prefix('exports')->name('exports.')->group(function () {
@@ -139,7 +151,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Import Routes (Admin only) — مجموعة منفصلة تماماً
+    | Import Routes (Admin only)
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin')->prefix('admin/import')->name('admin.import.')->group(function () {
