@@ -204,6 +204,21 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
         });
 
+                // ═══ Withdrawal Requests ═══
+        Route::prefix('withdrawals')->name('withdrawals.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\WithdrawalController::class, 'index'])
+                ->name('index');
+            Route::get('/{withdrawal}', [\App\Http\Controllers\Admin\WithdrawalController::class, 'show'])
+                ->name('show');
+            Route::put('/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])
+                ->name('approve');
+            Route::put('/{withdrawal}/pay', [\App\Http\Controllers\Admin\WithdrawalController::class, 'markAsPaid'])
+                ->name('pay');
+            Route::put('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])
+                ->name('reject');
+        });
+
+       
         // Security Logs
         Route::get('security-logs', function () {
             $stats = \App\Services\SecurityLoggerService::getStats();
