@@ -353,24 +353,17 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
 
-// ⚠️ TEMPORARY - احذفه بعد استخدامه
+// ⚠️ TEMPORARY — احذفه بعد استخدامه
 Route::get('/setup-wallet-xyz123', function () {
     try {
         $store = \App\Models\Store::first();
-
         if (!$store) {
             return '<pre style="color:red;">No store found</pre>';
         }
 
         $wallet = \App\Services\WalletService::getOrCreate($store);
+        $wallet->update(['balance' => 500, 'total_earned' => 500]);
 
-        // إضافة رصيد تجريبي
-        $wallet->update([
-            'balance' => 500,
-            'total_earned' => 500,
-        ]);
-
-        // إضافة معاملة
         \App\Models\WalletTransaction::create([
             'wallet_id' => $wallet->id,
             'type' => 'earning',
@@ -379,26 +372,23 @@ Route::get('/setup-wallet-xyz123', function () {
             'description' => 'أرباح اختبارية - 500 ₪',
         ]);
 
-        // عرض النتيجة
         $wallet->refresh();
 
-        $html = '<pre style="background:#111;color:#0f0;padding:20px;font-size:14px;direction:ltr;">';
+        $html = '<pre style="background:#111;color:#0f0;padding:20px;direction:ltr;font-size:14px;">';
         $html .= "✅ Wallet Setup Done!\n\n";
         $html .= "Store: {$store->name}\n";
-        $html .= "Wallet ID: {$wallet->id}\n";
         $html .= "Balance: {$wallet->balance} ₪\n";
         $html .= "Available: {$wallet->available_balance} ₪\n";
         $html .= "Total Earned: {$wallet->total_earned} ₪\n";
-        $html .= "Pending: {$wallet->pending_withdrawal} ₪\n";
         $html .= '</pre>';
-
         return $html;
 
     } catch (\Throwable $e) {
         return '<pre style="background:#111;color:#f00;padding:20px;direction:ltr;">' 
-            . htmlspecialchars($e->getMessage()) 
-            . '</pre>';
+            . htmlspecialchars($e->getMessage()) . '</pre>';
     }
 });
+
+
 
 require __DIR__.'/auth.php';
