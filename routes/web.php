@@ -288,7 +288,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
         // Wishlist
-        Route::get('/wishlist', [WishlistController::class, 'index'])->name('customer.wishlist');
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
 
