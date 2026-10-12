@@ -62,14 +62,6 @@ Route::get('/faq', [PageController::class, 'faq'])->name('pages.faq');
 
 /*
 |--------------------------------------------------------------------------
-| 💳 Lahza Webhook (عام — Lahza تنادي عليه مباشرة بدون session)
-|--------------------------------------------------------------------------
-*/
-Route::post('/webhook/lahza', [CheckoutController::class, 'lahzaWebhook'])
-    ->name('webhook.lahza');
-
-/*
-|--------------------------------------------------------------------------
 | Email Verification with OTP (يحتاج تسجيل دخول فقط - بدون verified)
 |--------------------------------------------------------------------------
 */
@@ -107,10 +99,6 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
-
-    // ═══ Lahza Payment Callback (بعد الدفع) ═══
-    Route::get('/checkout/lahza/callback/{order}', [CheckoutController::class, 'lahzaCallback'])
-        ->name('checkout.lahza.callback');
 
     // ========== Profile Edit ==========
     Route::get('/profile', fn() => view('profile.edit'))->name('profile.edit');
@@ -204,21 +192,6 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::put('/password', [\App\Http\Controllers\Admin\SettingsController::class, 'updatePassword'])->name('password');
         });
 
-                // ═══ Withdrawal Requests ═══
-        Route::prefix('withdrawals')->name('withdrawals.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\WithdrawalController::class, 'index'])
-                ->name('index');
-            Route::get('/{withdrawal}', [\App\Http\Controllers\Admin\WithdrawalController::class, 'show'])
-                ->name('show');
-            Route::put('/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalController::class, 'approve'])
-                ->name('approve');
-            Route::put('/{withdrawal}/pay', [\App\Http\Controllers\Admin\WithdrawalController::class, 'markAsPaid'])
-                ->name('pay');
-            Route::put('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalController::class, 'reject'])
-                ->name('reject');
-        });
-
-       
         // Security Logs
         Route::get('security-logs', function () {
             $stats = \App\Services\SecurityLoggerService::getStats();
@@ -280,16 +253,6 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::put('reviews/{review}/reject', [MerchantReviewController::class, 'reject'])->name('reviews.reject');
             Route::delete('reviews/{review}', [MerchantReviewController::class, 'destroy'])->name('reviews.destroy');
 
-            // ═══ Wallet Routes ═══
-            Route::prefix('wallet')->name('wallet.')->group(function () {
-                Route::get('/', [\App\Http\Controllers\Merchant\WalletController::class, 'index'])
-                    ->name('index');
-                Route::get('/withdraw', [\App\Http\Controllers\Merchant\WalletController::class, 'withdrawForm'])
-                    ->name('withdraw.form');
-                Route::post('/withdraw', [\App\Http\Controllers\Merchant\WalletController::class, 'withdraw'])
-                    ->name('withdraw');
-            });
-
             Route::prefix('settings')->name('settings.')->group(function () {
                 Route::get('/', [StoreSettingsController::class, 'index'])->name('index');
                 Route::put('/', [StoreSettingsController::class, 'update'])->name('update');
@@ -325,7 +288,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
 
         // Wishlist
-        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('customer.wishlist');
         Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
         Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'remove'])->name('wishlist.remove');
 
@@ -352,43 +315,5 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
-
-// ⚠️ TEMPORARY — احذفه بعد استخدامه
-Route::get('/setup-wallet-xyz123', function () {
-    try {
-        $store = \App\Models\Store::first();
-        if (!$store) {
-            return '<pre style="color:red;">No store found</pre>';
-        }
-
-        $wallet = \App\Services\WalletService::getOrCreate($store);
-        $wallet->update(['balance' => 500, 'total_earned' => 500]);
-
-        \App\Models\WalletTransaction::create([
-            'wallet_id' => $wallet->id,
-            'type' => 'earning',
-            'amount' => 500,
-            'commission' => 25,
-            'description' => 'أرباح اختبارية - 500 ₪',
-        ]);
-
-        $wallet->refresh();
-
-        $html = '<pre style="background:#111;color:#0f0;padding:20px;direction:ltr;font-size:14px;">';
-        $html .= "✅ Wallet Setup Done!\n\n";
-        $html .= "Store: {$store->name}\n";
-        $html .= "Balance: {$wallet->balance} ₪\n";
-        $html .= "Available: {$wallet->available_balance} ₪\n";
-        $html .= "Total Earned: {$wallet->total_earned} ₪\n";
-        $html .= '</pre>';
-        return $html;
-
-    } catch (\Throwable $e) {
-        return '<pre style="background:#111;color:#f00;padding:20px;direction:ltr;">' 
-            . htmlspecialchars($e->getMessage()) . '</pre>';
-    }
-});
-
-
 
 require __DIR__.'/auth.php';

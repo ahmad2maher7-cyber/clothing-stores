@@ -6,12 +6,6 @@
     $lowStockCount = $sidebarStore?->products()
         ->whereHas('variants', fn($q) => $q->whereColumn('stock_quantity', '<=', 'low_stock_threshold')->where('stock_quantity', '>', 0))
         ->count() ?? 0;
-
-    $walletBalance = 0;
-    if ($sidebarStore) {
-        $wallet = \App\Services\WalletService::getOrCreate($sidebarStore);
-        $walletBalance = $wallet->available_balance;
-    }
 @endphp
 
 {{-- ═══ Logo ═══ --}}
@@ -39,7 +33,6 @@
     ['route' => 'merchant.categories.index',  'label' => 'التصنيفات',    'icon' => 'fa-folder-tree'],
     ['route' => 'merchant.inventory.index',   'label' => 'المخزون',      'icon' => 'fa-boxes-stacked', 'badge' => $lowStockCount, 'badge_color' => 'amber'],
     ['route' => 'merchant.orders.index',      'label' => 'الطلبات',      'icon' => 'fa-cart-shopping', 'badge' => $pendingOrders, 'badge_color' => 'red'],
-    ['route' => 'merchant.wallet.index',      'label' => 'المحفظة',      'icon' => 'fa-wallet', 'wallet_badge' => $walletBalance],
     ['route' => 'merchant.coupons.index',     'label' => 'الكوبونات',    'icon' => 'fa-ticket'],
     ['route' => 'merchant.offers.index',      'label' => 'العروض',       'icon' => 'fa-fire'],
     ['route' => 'merchant.reviews.index',     'label' => 'التقييمات',    'icon' => 'fa-star', 'badge' => $pendingReviews, 'badge_color' => 'amber'],
@@ -63,16 +56,6 @@
 
             <i class="fa-solid {{ $item['icon'] }} w-5 text-center shrink-0"></i>
             <span class="flex-1 truncate">{{ $item['label'] }}</span>
-
-            {{-- Wallet Balance Badge --}}
-            @if(!empty($item['wallet_badge']) && $item['wallet_badge'] > 0)
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full
-                             {{ $isActive 
-                                ? 'bg-white/20 text-white' 
-                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400' }}">
-                    {{ number_format($item['wallet_badge'], 0) }} ₪
-                </span>
-            @endif
 
             {{-- Regular Badges --}}
             @if(!empty($item['badge']) && $item['badge'] > 0)

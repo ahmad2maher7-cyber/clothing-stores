@@ -24,7 +24,6 @@ class Order extends Model
         'payment_status',
         'shipping_address',
         'notes',
-        'wallet_credited_at',
     ];
 
     protected $casts = [
@@ -32,7 +31,6 @@ class Order extends Model
         'discount' => 'decimal:2',
         'shipping_cost' => 'decimal:2',
         'total' => 'decimal:2',
-        'wallet_credited_at' => 'datetime',
     ];
 
     // ============ العلاقات ============

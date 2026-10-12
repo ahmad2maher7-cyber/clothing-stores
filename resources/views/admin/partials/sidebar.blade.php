@@ -79,25 +79,6 @@
             <span x-show="sidebarOpen">الطلبات</span>
         </a>
 
-        {{-- ═══ Withdrawal Requests ═══ --}}
-        @php
-            $pendingWithdrawals = \App\Models\WithdrawalRequest::where('status', 'pending')->count();
-        @endphp
-        <a href="{{ route('admin.withdrawals.index') }}"
-           class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors
-                  {{ request()->routeIs('admin.withdrawals.*') 
-                     ? 'bg-forest-700 text-white font-medium' 
-                     : 'text-ink-soft dark:text-cream/70 hover:bg-stone-100 dark:hover:bg-zinc-800 hover:text-forest-700 dark:hover:text-gold-400' }}">
-            <i class="fa-solid fa-money-bill-transfer w-5 text-center shrink-0"></i>
-            <span x-show="sidebarOpen" class="flex-1">طلبات السحب</span>
-            @if($pendingWithdrawals > 0)
-                <span x-show="sidebarOpen"
-                      class="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[10px] font-bold bg-red-600 text-white rounded-full">
-                    {{ $pendingWithdrawals > 9 ? '9+' : $pendingWithdrawals }}
-                </span>
-            @endif
-        </a>
-
         {{-- Import --}}
         <a href="{{ route('admin.import.index') }}"
            class="flex items-center gap-3 mx-2 px-3 py-2.5 rounded text-sm transition-colors

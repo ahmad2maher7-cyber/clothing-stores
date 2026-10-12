@@ -6,9 +6,7 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
-use App\Models\PaymentMethod;
 use App\Models\ShippingZone;
-use App\Services\LahzaService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -174,38 +172,6 @@ class CheckoutController extends Controller
         }
 
         // ═══════════════════════════════════════
-        //  💳 Lahza Payment — إذا اختار الزبون بطاقة/محفظة
-        // ═══════════════════════════════════════
-        $paymentMethod = PaymentMethod::find($validated['payment_method_id']);
-        $useLahza = $paymentMethod
-            && in_array($paymentMethod->code, ['card', 'wallet'])
-            && LahzaService::isEnabled();
-
-        if ($useLahza) {
-            // نجمع كل الطلبات في معاملة Lahza واحدة (نستخدم أول طلب كمرجع)
-            $firstOrder = $createdOrders[0];
-            $lahza = LahzaService::initializeTransaction($firstOrder);
-
-            if ($lahza['success']) {
-                // نحفظ معرّفات كل الطلبات في الجلسة
-                session()->put('lahza_order_ids', collect($createdOrders)->pluck('id')->toArray());
-                session()->put('lahza_reference', $lahza['reference'] ?? $firstOrder->order_number);
-
-                return redirect($lahza['authorization_url']);
-            }
-
-            // فشل Lahza → نُبقي الطلبات "unpaid" ونُخبر الزبون
-            Log::error('Lahza initialization failed', [
-                'order_ids' => collect($createdOrders)->pluck('id')->toArray(),
-                'message' => $lahza['message'] ?? 'unknown',
-            ]);
-
-            return redirect()
-                ->route('customer.orders.index')
-                ->with('error', 'تم إنشاء طلبك، لكن فشل الاتصال ببوابة الدفع. يرجى المحاولة من صفحة الطلبات: ' . ($lahza['message'] ?? ''));
-        }
-
-        // ═══════════════════════════════════════
         //  الدفع عند الاستلام (COD) — تدفق عادي
         // ═══════════════════════════════════════
         foreach ($createdOrders as $order) {
@@ -238,149 +204,6 @@ class CheckoutController extends Controller
 
         return redirect()->route('checkout.success', $createdOrders[0])
             ->with('success', 'تم إرسال طلبك بنجاح!');
-    }
-
-    /**
-     * 🌐 Callback من Lahza بعد الدفع
-     */
-    public function lahzaCallback(Request $request, Order $order)
-    {
-        // تحقق من ملكية الطلب
-        if ($order->customer_id !== auth()->id()) {
-            abort(403);
-        }
-
-        // استخراج المرجع من الـ callback أو الجلسة
-        $reference = $request->input('reference')
-            ?? $request->input('trxref')
-            ?? session('lahza_reference')
-            ?? $order->order_number;
-
-        // التحقق من الدفع
-        $verify = LahzaService::verifyTransaction($reference);
-
-        if (!$verify['success']) {
-            Log::error('Lahza verify failed', [
-                'order' => $order->order_number,
-                'reference' => $reference,
-                'message' => $verify['message'] ?? '',
-            ]);
-
-            return redirect()
-                ->route('customer.orders.index')
-                ->with('error', 'فشل التحقق من الدفع: ' . ($verify['message'] ?? 'خطأ غير معروف'));
-        }
-
-        $status = $verify['status'];
-
-        // نحدّث كل الطلبات المرتبطة بالمعاملة
-        $orderIds = session('lahza_order_ids', [$order->id]);
-        $orders = Order::whereIn('id', $orderIds)->get();
-
-        if ($status === 'success') {
-            foreach ($orders as $o) {
-                $o->update([
-                    'payment_status' => 'paid',
-                    'status' => 'processing',
-                ]);
-
-                OrderStatusHistory::create([
-                    'order_id' => $o->id,
-                    'status' => 'processing',
-                    'note' => 'تم الدفع بنجاح عبر Lahza — رقم المرجع: ' . $reference,
-                    'changed_by' => $o->customer_id,
-                ]);
-
-                // إشعار للتاجر
-                try {
-                    $merchant = $o->store->merchant;
-                    if ($merchant) {
-                        NotificationService::send(
-                            user: $merchant,
-                            type: 'order',
-                            title: '💰 تم استلام الدفع',
-                            body: "الطلب {$o->order_number} مدفوع بالكامل — جاهز للتجهيز",
-                            actionUrl: route('merchant.orders.show', $o)
-                        );
-                    }
-                } catch (\Throwable $e) {
-                    Log::error('Merchant paid notification failed: ' . $e->getMessage());
-                }
-            }
-
-            session()->forget(['lahza_order_ids', 'lahza_reference']);
-
-            return redirect()
-                ->route('checkout.success', $order)
-                ->with('success', '✅ تم استلام دفعتك بنجاح!');
-        }
-
-        // فشل الدفع
-        foreach ($orders as $o) {
-            $o->update(['payment_status' => 'unpaid']);
-        }
-
-        return redirect()
-            ->route('customer.orders.index')
-            ->with('error', 'لم يتم إتمام الدفع. حالة العملية: ' . $status);
-    }
-
-    /**
-     * 🔔 Webhook من Lahza (يُستدعى تلقائياً من Lahza)
-     */
-    public function lahzaWebhook(Request $request)
-    {
-        Log::info('Lahza Webhook received', $request->all());
-
-        $payload = $request->all();
-        $reference = LahzaService::extractReferenceFromWebhook($payload);
-        $status = LahzaService::extractStatusFromWebhook($payload);
-
-        if (!$reference || $status !== 'success') {
-            return response()->json(['status' => 'ignored'], 200);
-        }
-
-        // ابحث عن الطلب برقم مرجع Lahza
-        // نحفظ الـ reference في الـ notes
-        $order = Order::where('notes', 'LIKE', "%{$reference}%")
-            ->orWhere('order_number', $reference)
-            ->first();
-
-        if (!$order) {
-            Log::warning('Lahza Webhook: order not found', ['reference' => $reference]);
-            return response()->json(['status' => 'not_found'], 200);
-        }
-
-        // تحديث حالة الدفع
-        $order->update([
-            'payment_status' => 'paid',
-            'status' => 'processing',
-        ]);
-
-        OrderStatusHistory::create([
-            'order_id' => $order->id,
-            'status' => 'processing',
-            'note' => 'تم الدفع عبر Webhook من Lahza — مرجع: ' . $reference,
-            'changed_by' => $order->customer_id,
-        ]);
-
-        // إشعار للتاجر
-        try {
-            $merchant = $order->store->merchant;
-            if ($merchant) {
-                NotificationService::send(
-                    user: $merchant,
-                    type: 'order',
-                    title: '💰 تم استلام الدفع (Webhook)',
-                    body: "الطلب {$order->order_number} مدفوع بالكامل",
-                    actionUrl: route('merchant.orders.show', $order)
-                );
-            }
-        } catch (\Throwable $e) {
-            Log::error('Webhook notification failed: ' . $e->getMessage());
-        }
-
-        return response()->json(['status' => 'success'], 200);
     }
 
     /**

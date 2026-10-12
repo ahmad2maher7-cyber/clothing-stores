@@ -81,7 +81,7 @@ class OrderController extends Controller
         return view('merchant.orders.show', compact('store', 'order'));
     }
 
-        public function updateStatus(Request $request, Order $order)
+    public function updateStatus(Request $request, Order $order)
     {
         $store = $this->getStore();
         if ($order->store_id !== $store->id) {
@@ -144,19 +144,6 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'status' => $newStatus,
             ]);
-        }
-
-        // ═══════════════════════════════════════
-        //  💰 عند التسليم — أضف الأرباح لمحفظة التاجر
-        // ═══════════════════════════════════════
-        if ($newStatus === 'delivered') {
-            try {
-                \App\Services\WalletService::creditFromOrder($order);
-            } catch (\Throwable $e) {
-                \Log::error('Wallet credit failed: ' . $e->getMessage(), [
-                    'order_id' => $order->id,
-                ]);
-            }
         }
 
         return redirect()

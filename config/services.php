@@ -41,11 +41,5 @@ return [
         'api_secret' => env('CLOUDINARY_API_SECRET'),
         'url'        => env('CLOUDINARY_URL'),
     ],
-    'lahza' => [
-        'secret_key' => env('LAHZA_SECRET_KEY'),
-        'public_key' => env('LAHZA_PUBLIC_KEY'),
-        'base_url'   => env('LAHZA_BASE_URL', 'https://api.lahza.io'),
-        'currency'   => env('LAHZA_CURRENCY', 'ILS'),
-        'enabled'    => env('LAHZA_ENABLED', false),
-    ],
+    
 ];
