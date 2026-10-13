@@ -10,12 +10,6 @@ return new class extends Migration
     {
         $driver = DB::connection()->getDriverName();
 
-        if ($driver === 'pgsql') {
-            DB::statement('SET session_replication_role = replica;');
-        } else {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        }
-
         $tables = [
             'review_images', 'reviews', 'wishlists', 'order_status_history', 'shipments',
             'order_items', 'orders', 'cart_items', 'carts', 'inventory_logs',
@@ -25,22 +19,32 @@ return new class extends Migration
             'contact_messages', 'stores'
         ];
 
-        foreach ($tables as $table) {
-            try {
-                if (Schema::hasTable($table)) {
-                    $count = DB::table($table)->count();
-                    DB::table($table)->truncate();
-                    echo "✅ $table: حذف $count سجل\n";
-                }
-            } catch (\Throwable $e) {
-                echo "⚠️ $table: {$e->getMessage()}\n";
-            }
-        }
-
         if ($driver === 'pgsql') {
-            DB::statement('SET session_replication_role = DEFAULT;');
+            // ✅ PostgreSQL بدون superuser: TRUNCATE ... CASCADE
+            $existing = array_filter($tables, fn($t) => Schema::hasTable($t));
+            
+            if (!empty($existing)) {
+                $quoted = implode(', ', array_map(fn($t) => "\"{$t}\"", $existing));
+                DB::statement("TRUNCATE TABLE {$quoted} CASCADE");
+                echo "✅ PostgreSQL: TRUNCATE CASCADE على " . count($existing) . " جدول\n";
+            }
         } else {
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            // ✅ MySQL: تعطيل FK checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            foreach ($tables as $table) {
+                if (Schema::hasTable($table)) {
+                    try {
+                        $count = DB::table($table)->count();
+                        DB::table($table)->truncate();
+                        echo "✅ {$table}: حذف {$count} سجل\n";
+                    } catch (\Throwable $e) {
+                        echo "⚠️ {$table}: {$e->getMessage()}\n";
+                    }
+                }
+            }
+            
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
     }
 
