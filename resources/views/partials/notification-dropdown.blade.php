@@ -1,3 +1,4 @@
+@auth
 <div x-data="notificationDropdown()" x-init="init()" class="relative">
 
     {{-- Bell Icon --}}
@@ -100,10 +101,20 @@
                 open: false,
                 notifications: [],
                 unreadCount: 0,
-                
+                pollInterval: null,
+                sessionExpired: false,
+
                 init() {
                     this.fetchUnreadCount();
-                    setInterval(() => this.fetchUnreadCount(), 30000);
+                    this.pollInterval = setInterval(() => this.fetchUnreadCount(), 30000);
+                },
+
+                stopPolling() {
+                    if (this.pollInterval) {
+                        clearInterval(this.pollInterval);
+                        this.pollInterval = null;
+                    }
+                    this.sessionExpired = true;
                 },
 
                 async toggle() {
@@ -116,6 +127,14 @@
                         const res = await fetch('{{ route("notifications.latest") }}', {
                             headers: { 'Accept': 'application/json' }
                         });
+
+                        if (res.status === 401 || res.status === 419) {
+                            this.stopPolling();
+                            return;
+                        }
+
+                        if (!res.ok) return;
+
                         const data = await res.json();
                         this.notifications = data.notifications;
                         this.unreadCount = data.unread_count;
@@ -125,10 +144,20 @@
                 },
 
                 async fetchUnreadCount() {
+                    if (this.sessionExpired) return;
+
                     try {
                         const res = await fetch('{{ route("notifications.unread") }}', {
                             headers: { 'Accept': 'application/json' }
                         });
+
+                        if (res.status === 401 || res.status === 419) {
+                            this.stopPolling();
+                            return;
+                        }
+
+                        if (!res.ok) return;
+
                         const data = await res.json();
                         this.unreadCount = data.count;
                     } catch (e) {}
@@ -181,3 +210,4 @@
         }
     </script>
 </div>
+@endauth
