@@ -6,7 +6,7 @@
 
 <br><br>
 
-![شعار الجامعة](../images/university-logo.png)
+![شعار الجامعة](../images/university-logo.jpeg)
 
 <br><br>
 
