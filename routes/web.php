@@ -31,7 +31,7 @@ use App\Http\Controllers\Merchant\OfferController as MerchantOfferController;
 use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
 use App\Http\Controllers\Merchant\StoreController as MerchantStoreSetupController;
-
+use App\Http\Controllers\Merchant\BrandController as MerchantBrandController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -223,7 +223,8 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
             Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
         });
-
+Route::resource('brands', MerchantBrandController::class)
+    ->only(['index', 'create', 'store']);
         // Requires active store
         Route::middleware('active.store')->group(function () {
 

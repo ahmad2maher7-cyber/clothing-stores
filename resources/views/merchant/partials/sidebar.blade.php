@@ -32,6 +32,7 @@
     ['route' => 'merchant.products.index',    'label' => 'المنتجات',     'icon' => 'fa-shirt'],
     ['route' => 'merchant.categories.index',  'label' => 'التصنيفات',    'icon' => 'fa-folder-tree'],
     ['route' => 'merchant.inventory.index',   'label' => 'المخزون',      'icon' => 'fa-boxes-stacked', 'badge' => $lowStockCount, 'badge_color' => 'amber'],
+   ['route' => 'merchant.brands.index',  'label' => 'الماركات',      'icon' => 'fa-tags'],
     ['route' => 'merchant.orders.index',      'label' => 'الطلبات',      'icon' => 'fa-cart-shopping', 'badge' => $pendingOrders, 'badge_color' => 'red'],
     ['route' => 'merchant.coupons.index',     'label' => 'الكوبونات',    'icon' => 'fa-ticket'],
     ['route' => 'merchant.offers.index',      'label' => 'العروض',       'icon' => 'fa-fire'],
