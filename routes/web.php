@@ -223,8 +223,8 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
             Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
         });
-Route::resource('brands', MerchantBrandController::class)
-    ->only(['index', 'create', 'store']);
+// Brands
+Route::resource('brands', \App\Http\Controllers\Merchant\BrandController::class)->except(['show']);
         // Requires active store
         Route::middleware('active.store')->group(function () {
 
