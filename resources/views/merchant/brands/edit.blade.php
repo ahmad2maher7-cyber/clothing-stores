@@ -13,7 +13,11 @@
         <span class="text-ink dark:text-cream">{{ $brand->name }}</span>
     </nav>
 
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-2xl mx-auto space-y-6">
+
+        {{-- ═══════════════════════════════════════════ --}}
+        {{-- 1. FORM التعديل (منفصل) --}}
+        {{-- ═══════════════════════════════════════════ --}}
         <div class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-lg">
             <div class="p-6 border-b border-stone-200 dark:border-stone-800">
                 <h3 class="font-display text-lg font-bold text-ink dark:text-cream">
@@ -57,28 +61,54 @@
                     @error('logo') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="flex justify-between gap-3 pt-5 border-t border-stone-200 dark:border-stone-800">
-                    <form action="{{ route('merchant.brands.destroy', $brand) }}" method="POST"
-                          onsubmit="return confirm('هل أنت متأكد من حذف الماركة؟')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="inline-flex items-center gap-2 h-12 px-6 text-xs font-semibold uppercase bg-red-600 hover:bg-red-700 text-white rounded transition">
-                            <i class="fa-solid fa-trash"></i>
-                            حذف
-                        </button>
-                    </form>
-
-                    <div class="flex gap-3">
-                        <a href="{{ route('merchant.brands.index') }}" class="btn-outline">
-                            إلغاء
-                        </a>
-                        <button type="submit" class="btn-solid">
-                            <i class="fa-solid fa-check"></i>
-                            حفظ التعديلات
-                        </button>
-                    </div>
+                <div class="flex justify-end gap-3 pt-5 border-t border-stone-200 dark:border-stone-800">
+                    <a href="{{ route('merchant.brands.index') }}" class="btn-outline">
+                        إلغاء
+                    </a>
+                    <button type="submit" class="btn-solid">
+                        <i class="fa-solid fa-check"></i>
+                        حفظ التعديلات
+                    </button>
                 </div>
             </form>
+        </div>
+
+        {{-- ═══════════════════════════════════════════ --}}
+        {{-- 2. FORM الحذف (منفصل تماماً) --}}
+        {{-- ═══════════════════════════════════════════ --}}
+        <div class="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-lg">
+            <div class="p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 flex items-center justify-center bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 rounded shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-display font-bold text-red-800 dark:text-red-300 mb-1">
+                            منطقة الخطر
+                        </h3>
+                        <p class="text-sm text-red-700 dark:text-red-400 mb-4">
+                            حذف الماركة نهائياً. لا يمكن التراجع.
+                            @if($brand->products_count ?? $brand->products()->count() > 0)
+                                <br>
+                                <strong>⚠️ هذه الماركة مرتبطة بـ {{ $brand->products()->count() }} منتج — لن يتمكن النظام من حذفها.</strong>
+                            @endif
+                        </p>
+
+                        <form action="{{ route('merchant.brands.destroy', $brand) }}" method="POST"
+                              onsubmit="return confirm('هل أنت متأكد من حذف الماركة نهائياً؟')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="inline-flex items-center gap-2 h-12 px-6 text-xs font-semibold uppercase bg-red-600 hover:bg-red-700 text-white rounded transition
+                                           {{ ($brand->products()->count() > 0) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    {{ ($brand->products()->count() > 0) ? 'disabled' : '' }}>
+                                <i class="fa-solid fa-trash"></i>
+                                حذف الماركة نهائياً
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
