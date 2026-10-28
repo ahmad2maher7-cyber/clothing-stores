@@ -316,18 +316,25 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
-Route::get('/revert-images', function () {
-    $images = \App\Models\ProductImage::with('product')->get();
+Route::get('/restore-unsplash-images', function () {
+    $map = [
+        'قميص قطني كلاسيك' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop',
+        'تيشيرت أساسي' => 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&h=800&fit=crop',
+        'بنطال جينز' => 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=800&fit=crop',
+        'فستان صيفي' => 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop',
+        'جاكيت شتوي' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=800&fit=crop',
+    ];
+    $default = 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=800&fit=crop';
     $count = 0;
-    foreach ($images as $img) {
-        if (str_contains($img->image_url, 'unsplash')) {
-            $text = urlencode($img->product->name ?? 'Product');
-            $img->update([
-                'image_url' => 'https://placehold.co/600x800/166534/FFFFFF?text=' . $text
-            ]);
+    foreach (\App\Models\ProductImage::with('product')->get() as $img) {
+        if (str_contains($img->image_url, 'placehold.co')) {
+            $name = $img->product->name ?? '';
+            $url = $map[$name] ?? $default;
+            $img->update(['image_url' => $url]);
             $count++;
         }
     }
-    return "✅ Reverted {$count} images to placehold.co";
+    return "✅ Restored {$count} images to Unsplash";
 });
+
 require __DIR__.'/auth.php';
