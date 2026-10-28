@@ -316,5 +316,18 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
-
+Route::get('/revert-images', function () {
+    $images = \App\Models\ProductImage::with('product')->get();
+    $count = 0;
+    foreach ($images as $img) {
+        if (str_contains($img->image_url, 'unsplash')) {
+            $text = urlencode($img->product->name ?? 'Product');
+            $img->update([
+                'image_url' => 'https://placehold.co/600x800/166534/FFFFFF?text=' . $text
+            ]);
+            $count++;
+        }
+    }
+    return "✅ Reverted {$count} images to placehold.co";
+});
 require __DIR__.'/auth.php';
