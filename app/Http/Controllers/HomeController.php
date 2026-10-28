@@ -7,6 +7,7 @@ use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\ProductImage;
+
 class HomeController extends Controller
 {
     public function index()
@@ -57,10 +58,21 @@ $heroImages = ProductImage::whereHas('product', function ($q) {
     ->take(6)
     ->get()
     ->map(function ($img) {
-        // معالجة الروابط (خارجي vs محلي)
-        return str_starts_with($img->image_url, 'http') 
-            ? $img->image_url 
-            : asset('storage/' . $img->image_url);
+        $url = $img->image_url;
+        
+        // ✅ إصلاح الروابط القديمة المعطلة
+        if (str_contains($url, 'via.placeholder.com')) {
+            $url = str_replace(
+                ['via.placeholder.com/600x800', 'via.placeholder.com'], 
+                ['placehold.co/600x800/166534/FFFFFF', 'placehold.co/600x800/166534/FFFFFF'], 
+                $url
+            );
+        }
+
+        // ✅ معالجة الصور المحلية (المرفوعة من التاجر)
+        return str_starts_with($url, 'http') 
+            ? $url 
+            : asset('storage/' . $url);
     })
     ->toArray();
 

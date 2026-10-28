@@ -127,8 +127,9 @@
              x-transition:leave-end="opacity-0 scale-95"
              class="absolute inset-0 p-6 flex items-center justify-center">
             <img :src="image" 
-                 class="max-w-full max-h-full object-contain rounded-2xl drop-shadow-2xl" 
-                 alt="Product Image">
+     @error="$el.src = 'https://placehold.co/600x600/166534/FFFFFF?text=Clothing'"
+     class="max-w-full max-h-full object-contain rounded-2xl drop-shadow-2xl relative z-10" 
+     alt="Product Image">
         </div>
     </template>
 
