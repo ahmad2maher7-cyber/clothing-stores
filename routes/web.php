@@ -316,5 +316,12 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
-
+Route::get('/run-dummy-seeder', function () {
+    try {
+        \Artisan::call('db:seed', ['--class' => 'DummyProductsSeeder']);
+        return '<pre>' . \Artisan::output() . '</pre>';
+    } catch (\Exception $e) {
+        return '❌ خطأ: ' . $e->getMessage();
+    }
+});
 require __DIR__.'/auth.php';
