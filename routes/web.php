@@ -316,5 +316,44 @@ Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
 });
+// ⚠️ TEMPORARY: Update all product images with real clothing images
+Route::get('/fix-real-images', function () {
+    $imageMap = [
+        'قميص' => 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&h=800&fit=crop',
+        'تيشيرت' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop',
+        'بنطال' => 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=800&fit=crop',
+        'جينز' => 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&h=800&fit=crop',
+        'فستان' => 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop',
+        'جاكيت' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=800&fit=crop',
+        'حذاء' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=800&fit=crop',
+        'طقم' => 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=800&fit=crop',
+        'عباية' => 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&h=800&fit=crop',
+        'بلوزة' => 'https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600&h=800&fit=crop',
+        'تنورة' => 'https://images.unsplash.com/photo-1583496661160-fb5886a13d44?w=600&h=800&fit=crop',
+        'بدلة' => 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop',
+    ];
 
+    $count = 0;
+    $updated = [];
+    
+    foreach (\App\Models\ProductImage::with('product')->get() as $img) {
+        $name = $img->product->name ?? '';
+        foreach ($imageMap as $key => $url) {
+            if (str_contains($name, $key)) {
+                $img->update(['image_url' => $url]);
+                $count++;
+                $updated[] = $name . ' → ' . $key;
+                break;
+            }
+        }
+    }
+    
+    return response()->json([
+        'success' => true,
+        'updated' => $count,
+        'total' => \App\Models\ProductImage::count(),
+        'details' => $updated,
+        'message' => "✅ Updated {$count} images with real photos",
+    ]);
+});
 require __DIR__.'/auth.php';
