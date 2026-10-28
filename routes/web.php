@@ -31,7 +31,7 @@ use App\Http\Controllers\Merchant\OfferController as MerchantOfferController;
 use App\Http\Controllers\Merchant\StoreSettingsController;
 use App\Http\Controllers\Merchant\ReviewController as MerchantReviewController;
 use App\Http\Controllers\Merchant\StoreController as MerchantStoreSetupController;
-use App\Http\Controllers\Merchant\BrandController as MerchantBrandController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -223,8 +223,7 @@ Route::middleware(['auth', 'verified.custom'])->group(function () {
             Route::get('/', [\App\Http\Controllers\ChatController::class, 'merchantIndex'])->name('index');
             Route::get('/{conversation}', [\App\Http\Controllers\ChatController::class, 'show'])->name('show');
         });
-// Brands
-Route::resource('brands', \App\Http\Controllers\Merchant\BrandController::class)->except(['show']);
+
         // Requires active store
         Route::middleware('active.store')->group(function () {
 
@@ -315,26 +314,6 @@ Route::resource('brands', \App\Http\Controllers\Merchant\BrandController::class)
 Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
     Route::post('/{conversation}/send', [\App\Http\Controllers\ChatController::class, 'send'])->name('send');
     Route::get('/{conversation}/fetch', [\App\Http\Controllers\ChatController::class, 'fetch'])->name('fetch');
-});
-Route::get('/restore-unsplash-images', function () {
-    $map = [
-        'قميص قطني كلاسيك' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop',
-        'تيشيرت أساسي' => 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&h=800&fit=crop',
-        'بنطال جينز' => 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&h=800&fit=crop',
-        'فستان صيفي' => 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop',
-        'جاكيت شتوي' => 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=800&fit=crop',
-    ];
-    $default = 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=800&fit=crop';
-    $count = 0;
-    foreach (\App\Models\ProductImage::with('product')->get() as $img) {
-        if (str_contains($img->image_url, 'placehold.co')) {
-            $name = $img->product->name ?? '';
-            $url = $map[$name] ?? $default;
-            $img->update(['image_url' => $url]);
-            $count++;
-        }
-    }
-    return "✅ Restored {$count} images to Unsplash";
 });
 
 require __DIR__.'/auth.php';
