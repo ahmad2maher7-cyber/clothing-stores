@@ -76,14 +76,92 @@
                         {{-- Gradient Background --}}
                         <div class="absolute inset-0 bg-gradient-to-br from-forest-700 to-gold-500 rounded-3xl rotate-6 shadow-2xl"></div>
                         
-                        {{-- Content Card --}}
-                        <div class="relative bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-10 flex items-center justify-center aspect-square shadow-xl">
-                            
-                            {{-- Icon --}}
-                            <svg class="w-40 h-40 text-forest-700 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                            </svg>
-                        </div>
+                        {{-- ═══════════════════════════════════════ --}}
+{{-- Content Card مع Carousel --}}
+{{-- ═══════════════════════════════════════ --}}
+<div x-data="{ 
+        activeSlide: 0,
+        slides: {{ json_encode($heroImages) }},
+        timer: null,
+        init() {
+            this.startAutoPlay();
+        },
+        nextSlide() {
+            this.activeSlide = (this.activeSlide + 1) % this.slides.length;
+        },
+        prevSlide() {
+            this.activeSlide = (this.activeSlide - 1 + this.slides.length) % this.slides.length;
+        },
+        goToSlide(index) {
+            this.activeSlide = index;
+            this.restartAutoPlay();
+        },
+        startAutoPlay() {
+            if (this.slides.length > 1) {
+                this.timer = setInterval(() => this.nextSlide(), 3500);
+            }
+        },
+        stopAutoPlay() {
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
+        },
+        restartAutoPlay() {
+            this.stopAutoPlay();
+            this.startAutoPlay();
+        }
+    }"
+    @mouseenter="stopAutoPlay()"
+    @mouseleave="startAutoPlay()"
+    class="relative bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-6 flex items-center justify-center aspect-square shadow-xl overflow-hidden group">
+
+    {{-- الصور (Slides) --}}
+    <template x-for="(image, index) in slides" :key="index">
+        <div x-show="activeSlide === index"
+             x-transition:enter="transition ease-out duration-700"
+             x-transition:enter-start="opacity-0 scale-110"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-500 absolute inset-0"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="absolute inset-0 p-6 flex items-center justify-center">
+            <img :src="image" 
+                 class="max-w-full max-h-full object-contain rounded-2xl drop-shadow-2xl" 
+                 alt="Product Image">
+        </div>
+    </template>
+
+    {{-- نقاط التنقل (Dots) --}}
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <template x-for="(image, index) in slides" :key="index">
+            <button @click="goToSlide(index)"
+                    :class="activeSlide === index 
+                        ? 'bg-forest-700 dark:bg-gold-500 w-6' 
+                        : 'bg-stone-300 dark:bg-stone-600 w-2 hover:bg-stone-400'"
+                    class="h-2 rounded-full transition-all duration-300"
+                    :aria-label="'Go to slide ' + (index + 1)"></button>
+        </template>
+    </div>
+
+    {{-- سهم يمين --}}
+    <button @click="prevSlide(); restartAutoPlay();"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center 
+                   bg-white/90 dark:bg-zinc-800/90 backdrop-blur rounded-full shadow-lg
+                   opacity-0 group-hover:opacity-100 transition-opacity z-10
+                   hover:bg-forest-700 hover:text-white dark:hover:bg-gold-500 dark:hover:text-forest-950">
+        <i class="fa-solid fa-chevron-right text-xs"></i>
+    </button>
+
+    {{-- سهم يسار --}}
+    <button @click="nextSlide(); restartAutoPlay();"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center 
+                   bg-white/90 dark:bg-zinc-800/90 backdrop-blur rounded-full shadow-lg
+                   opacity-0 group-hover:opacity-100 transition-opacity z-10
+                   hover:bg-forest-700 hover:text-white dark:hover:bg-gold-500 dark:hover:text-forest-950">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+    </button>
+</div>
 
                         {{-- Floating Badge 1 --}}
                         <div class="absolute -top-4 -right-4 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-stone-800 rounded-xl px-4 py-3 shadow-lg flex items-center gap-2">

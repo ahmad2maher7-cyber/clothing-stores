@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\Offer;
 use App\Models\Product;
 use App\Models\Store;
-
+use App\Models\ProductImage;
 class HomeController extends Controller
 {
     public function index()
@@ -46,13 +46,38 @@ class HomeController extends Controller
     ->whereHas('products')
     ->take(6)
     ->get();
+    // ═══════════════════════════════════════
+//  صور السلايدر (صور المنتجات المميزة)
+// ═══════════════════════════════════════
+$heroImages = ProductImage::whereHas('product', function ($q) {
+        $q->where('status', 'active');
+    })
+    ->where('is_primary', true)
+    ->inRandomOrder()
+    ->take(6)
+    ->get()
+    ->map(function ($img) {
+        // معالجة الروابط (خارجي vs محلي)
+        return str_starts_with($img->image_url, 'http') 
+            ? $img->image_url 
+            : asset('storage/' . $img->image_url);
+    })
+    ->toArray();
+
+// ⚠️ احتياطي: إذا لم توجد صور
+if (empty($heroImages)) {
+    $heroImages = [
+        'https://placehold.co/600x600/166534/FFFFFF?text=Clothing+Store',
+    ];
+}
 
         return view('home', compact(
             'stores',
             'featuredProducts',
             'discountedProducts',
             'activeOffers',
-            'mainCategories'
+            'mainCategories',
+            'heroImages'
         ));
     }
 }
